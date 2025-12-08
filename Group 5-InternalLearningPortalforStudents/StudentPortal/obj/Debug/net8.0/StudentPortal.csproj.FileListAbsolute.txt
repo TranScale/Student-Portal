@@ -269,3 +269,17 @@ D:\Báo cáo cuối kì môn lập trình web nâng cao\Group 5-InternalLearning
 D:\Báo cáo cuối kì môn lập trình web nâng cao\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.pdb
 D:\Báo cáo cuối kì môn lập trình web nâng cao\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.genruntimeconfig.cache
 D:\Báo cáo cuối kì môn lập trình web nâng cao\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\ref\StudentPortal.dll
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.csproj.AssemblyReference.cache
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.AssemblyInfoInputs.cache
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.AssemblyInfo.cs
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.csproj.CoreCompileInputs.cache
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.MvcApplicationPartsAssemblyInfo.cs
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.MvcApplicationPartsAssemblyInfo.cache
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.RazorAssemblyInfo.cache
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.RazorAssemblyInfo.cs
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.sourcelink.json
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.dll
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\refint\StudentPortal.dll
+D:\GitHub\Student-Portal\Group 5-InternalLearningPortalforStudents\StudentPortal\obj\Debug\net8.0\StudentPortal.pdb

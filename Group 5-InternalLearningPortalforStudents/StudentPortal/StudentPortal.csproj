@@ -17,8 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Business\Implementation\" />
-    <Folder Include="Business\Interface\" />
     <Folder Include="ModelViews\" />
   </ItemGroup>
 
