@@ -1,110 +1,110 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\",
+  "WorkspaceRootPath": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\score.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\score.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\studysessions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\studysessions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\data access\\repository\\implementation\\repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data access\\repository\\implementation\\repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\data access\\repository\\interface\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data access\\repository\\interface\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\coursesection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\coursesection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\classdays.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\classdays.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\scheduleitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\scheduleitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\migrations\\20251207090919_initalcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\migrations\\20251207090919_initalcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\data\\studentportalcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data\\studentportalcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\lecturer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\lecturer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\data\\migrations\\00000000000000_createidentityschema.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data\\migrations\\00000000000000_createidentityschema.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\userroles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\userroles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\userroles.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\scorevalues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\studysessions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\studysessions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\scorevalues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\scorevalues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\recipienttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\score.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\score.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\scheduleitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\scheduleitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\recipienttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\recipienttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\faculty.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\lecturer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\lecturer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\faculty.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\faculty.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\enrollmentstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\enrollmentstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\enrollmentstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\enrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\enrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\enrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\coursematerial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\department.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\coursesection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\coursesection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\coursematerial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\coursematerial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\announcement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\classdays.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\classdays.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\announcement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\announcement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\admin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\models\\admin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\admin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\b\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\group 5-internallearningportalforstudents\\studentportal\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\data access\\repository\\implementation\\repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data access\\repository\\implementation\\repository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\data access\\repository\\interface\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data access\\repository\\interface\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\migrations\\20251207090919_initalcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\migrations\\20251207090919_initalcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\data\\studentportalcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data\\studentportalcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|d:\\github\\student-portal\\group 5-internallearningportalforstudents\\studentportal\\data\\migrations\\00000000000000_createidentityschema.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC9EAA51-FC13-4987-8953-3FC7D8968B81}|StudentPortal\\StudentPortal.csproj|solutionrelative:studentportal\\data\\migrations\\00000000000000_createidentityschema.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -114,76 +114,275 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Course.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Course.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Course.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Course.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Course.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAA5wBwAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 9,
+              "Title": "Faculty.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Faculty.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Faculty.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Faculty.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Faculty.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T12:54:36.558Z"
+              "WhenOpened": "2025-12-05T12:46:31.463Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Lecturer.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Lecturer.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Lecturer.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Lecturer.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Lecturer.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAADwvxUAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-06T12:15:57.75Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "RecipientType.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\RecipientType.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\RecipientType.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\RecipientType.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\RecipientType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-06T14:10:01.328Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ScheduleItem.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScheduleItem.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\ScheduleItem.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScheduleItem.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\ScheduleItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-06T13:04:47.395Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "HomeController.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Controllers\\HomeController.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Controllers\\HomeController.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Controllers\\HomeController.cs",
-              "RelativeToolTip": "StudentPortal\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAdAAAAAAAAAA==",
+              "Title": "Score.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Score.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Score.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Score.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Score.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAAA8AAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-07T06:30:27.718Z"
+              "WhenOpened": "2025-12-05T13:59:32.178Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
+              "Title": "ScoreValues.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScoreValues.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\ScoreValues.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScoreValues.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\ScoreValues.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T14:00:04.183Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Student.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Student.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Student.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Student.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Student.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAA/wBcAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T14:04:24.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "StudySessions.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\StudySessions.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\StudySessions.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\StudySessions.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\StudySessions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T13:37:05.264Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "User.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\User.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\User.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Models\\User.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\User.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\User.cs",
               "RelativeToolTip": "StudentPortal\\Models\\User.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAA1wCEAAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAAAQwCgAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-05T08:14:07.273Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 0,
+              "Title": "UserRoles.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\UserRoles.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\UserRoles.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\UserRoles.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\UserRoles.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T08:21:27.965Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ErrorViewModel.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ErrorViewModel.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\ErrorViewModel.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ErrorViewModel.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\ErrorViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T12:46:38.402Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "EnrollmentStatus.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\EnrollmentStatus.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\EnrollmentStatus.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\EnrollmentStatus.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\EnrollmentStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T13:53:44.27Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Enrollment.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Enrollment.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Enrollment.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Enrollment.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Enrollment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T13:40:16.507Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Department.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Department.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Department.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Department.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Department.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAwwBgAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T12:50:05.038Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CourseSection.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseSection.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\CourseSection.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseSection.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\CourseSection.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAwwDAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T13:08:36.722Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "CourseMaterial.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseMaterial.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\CourseMaterial.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseMaterial.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\CourseMaterial.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAADwvx0AAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-06T13:23:29.101Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Course.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Course.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Course.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Course.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Course.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAwBoAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T12:54:36.558Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "ClassDays.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ClassDays.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ClassDays.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Models\\ClassDays.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ClassDays.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ClassDays.cs",
               "RelativeToolTip": "StudentPortal\\Models\\ClassDays.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:24:25.913Z"
+              "WhenOpened": "2025-12-05T13:24:25.913Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "IRepository.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
-              "RelativeToolTip": "StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAPAAAAAAAAAA==",
+              "DocumentIndex": 18,
+              "Title": "Announcement.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Announcement.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Announcement.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Announcement.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Announcement.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAywCEAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-07T10:27:59.887Z"
+              "WhenOpened": "2025-12-06T13:36:26.402Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 19,
+              "Title": "Admin.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Admin.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Models\\Admin.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Admin.cs",
+              "RelativeToolTip": "StudentPortal\\Models\\Admin.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T12:41:37.914Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "Repository.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
               "RelativeToolTip": "StudentPortal\\Data Access\\Repository\\Implementation\\Repository.cs",
               "ViewState": "AgIAAB8AAAAAAAAAAAAiwDUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -191,59 +390,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "StudySessions.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\StudySessions.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\StudySessions.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\StudySessions.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\StudySessions.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "DocumentIndex": 21,
+              "Title": "IRepository.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
+              "RelativeToolTip": "StudentPortal\\Data Access\\Repository\\Interface\\IRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:37:05.264Z"
+              "WhenOpened": "2025-12-07T10:27:59.887Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Score.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Score.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Score.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Score.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Score.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 22,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "StudentPortal\\Controllers\\HomeController.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "StudentPortal\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:59:32.178Z"
+              "WhenOpened": "2025-12-07T06:30:27.718Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CourseSection.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseSection.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\CourseSection.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseSection.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\CourseSection.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:08:36.722Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "ScheduleItem.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScheduleItem.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\ScheduleItem.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScheduleItem.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\ScheduleItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T13:04:47.395Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 23,
               "Title": "20251207090919_InitalCreate.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
               "RelativeToolTip": "StudentPortal\\Migrations\\20251207090919_InitalCreate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -251,11 +426,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 24,
               "Title": "StudentPortalContext.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\StudentPortalContext.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\StudentPortalContext.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Data\\StudentPortalContext.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\StudentPortalContext.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\StudentPortalContext.cs",
               "RelativeToolTip": "StudentPortal\\Data\\StudentPortalContext.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAQwCIAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -263,171 +438,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "Lecturer.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Lecturer.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Lecturer.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Lecturer.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Lecturer.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAADwvxcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T12:15:57.75Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 25,
               "Title": "00000000000000_CreateIdentitySchema.Designer.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
+              "DocumentMoniker": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
               "RelativeDocumentMoniker": "StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
+              "ToolTip": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
               "RelativeToolTip": "StudentPortal\\Data\\Migrations\\00000000000000_CreateIdentitySchema.Designer.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-07T07:47:03.585Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "ScoreValues.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScoreValues.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\ScoreValues.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ScoreValues.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\ScoreValues.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T14:00:04.183Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "Student.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Student.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Student.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Student.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Student.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAwwBQAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T14:04:24.559Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "UserRoles.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\UserRoles.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\UserRoles.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\UserRoles.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\UserRoles.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T08:21:27.965Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "Department.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Department.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Department.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Department.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Department.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAwwBIAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T12:50:05.038Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "RecipientType.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\RecipientType.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\RecipientType.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\RecipientType.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\RecipientType.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T14:10:01.328Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "Faculty.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Faculty.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Faculty.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Faculty.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Faculty.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T12:46:31.463Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "EnrollmentStatus.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\EnrollmentStatus.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\EnrollmentStatus.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\EnrollmentStatus.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\EnrollmentStatus.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:53:44.27Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "Enrollment.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Enrollment.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Enrollment.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Enrollment.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Enrollment.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAADwvxYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:40:16.507Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
-              "Title": "CourseMaterial.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseMaterial.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\CourseMaterial.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\CourseMaterial.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\CourseMaterial.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAywCAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T13:23:29.101Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "Announcement.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Announcement.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Announcement.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Announcement.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Announcement.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAywCMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-06T13:36:26.402Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
-              "Title": "Admin.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Admin.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\Admin.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\Admin.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\Admin.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T12:41:37.914Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 25,
-              "Title": "ErrorViewModel.cs",
-              "DocumentMoniker": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ErrorViewModel.cs",
-              "RelativeDocumentMoniker": "StudentPortal\\Models\\ErrorViewModel.cs",
-              "ToolTip": "D:\\B\u00E1o c\u00E1o cu\u1ED1i k\u00EC m\u00F4n l\u1EADp tr\u00ECnh web n\u00E2ng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\Models\\ErrorViewModel.cs",
-              "RelativeToolTip": "StudentPortal\\Models\\ErrorViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T12:46:38.402Z"
             }
           ]
         }

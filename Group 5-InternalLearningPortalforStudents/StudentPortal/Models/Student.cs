@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudentPortal.Models
@@ -20,9 +21,11 @@ namespace StudentPortal.Models
         //Khóa ngoại, sinh viên của một ngành
         [ForeignKey("Department")]
         public int DepartmentId { get; set; }
+        [ValidateNever]
         public Department Department { get; set; } = null!;
 
         //Khóa ngoại, sinh viên có danh sách đăng ký
+        [ValidateNever]
         public List<Enrollment> Enrollments { get; set; } = new();
     }
 }

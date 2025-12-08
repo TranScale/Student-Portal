@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudentPortal.Models
@@ -30,6 +31,7 @@ namespace StudentPortal.Models
         //khóa ngoại, người đăng lên 
         [ForeignKey("User")]
         public int UserId { get; set; }
+        [ValidateNever]
         public User User { get; set; } = null!;
     }
 }

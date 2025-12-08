@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,17 +32,21 @@ namespace StudentPortal.Models
         //Khóa ngoại, một môn học có nhiều lớp
         [ForeignKey("Course")]
         public int CourseId { get; set; }
+        [ValidateNever]
         public Course Course { get; set; } = null!;
 
         //Một lớp của môn học có list đăng ký
+        [ValidateNever]
         public List<Enrollment> Enrollments { get; set; } = new();
 
         //Một khóa học có một người giảng viên
         [ForeignKey("Lecturer")]
         public int LecturerId { get; set; }
+        [ValidateNever]
         public Lecturer Lecturer { get; set; } = null!;
 
         //Một lớp học có các tài liệu
+        [ValidateNever]
         public List<CourseMaterial> Materials { get; set; } = new();
     }
 }

@@ -8048,11 +8048,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Báo cáo cuối kì môn lập trình web nâng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
+      "projectUniqueName": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
       "projectName": "StudentPortal",
-      "projectPath": "D:\\Báo cáo cuối kì môn lập trình web nâng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
+      "projectPath": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
       "packagesPath": "C:\\Users\\acer\\.nuget\\packages\\",
-      "outputPath": "D:\\Báo cáo cuối kì môn lập trình web nâng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\obj\\",
+      "outputPath": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

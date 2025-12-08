@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FfohiS10lts=",
+  "dgSpecHash": "Q5M5m3qnUP8=",
   "success": true,
-  "projectFilePath": "D:\\Báo cáo cuối kì môn lập trình web nâng cao\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
+  "projectFilePath": "D:\\GitHub\\Student-Portal\\Group 5-InternalLearningPortalforStudents\\StudentPortal\\StudentPortal.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\acer\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\acer\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

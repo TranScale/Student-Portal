@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudentPortal.Models
@@ -17,6 +18,7 @@ namespace StudentPortal.Models
         //Khóa ngoại, một thời khóa biểu là một môn học
         [ForeignKey("CourseSection")]
         public int CourseSectionId { get; set; }
+        [ValidateNever]
         public CourseSection CourseSection { get; set; } = null!;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace StudentPortal.Models
 {
@@ -31,9 +32,13 @@ namespace StudentPortal.Models
         public UserRoles UserRole { get; set; } // Student, lecturer, admin
 
         //Navigation 
+        [ValidateNever]
         public Student? Student { get; set; }
+        [ValidateNever]
         public Admin? Admin { get; set; }
+        [ValidateNever]
         public Lecturer? Lecturer { get; set; }
+        [ValidateNever]
         public List<Announcement>? Announcements { get; set; }
 
 
