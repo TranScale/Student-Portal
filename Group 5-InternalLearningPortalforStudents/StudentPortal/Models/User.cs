@@ -41,6 +41,9 @@ namespace StudentPortal.Models
         [ValidateNever]
         public List<Announcement>? Announcements { get; set; }
 
+        //Sở hữu chứng chỉ
+        public List<Certificate>? Certificates { get; set; }
+
 
     }
 }

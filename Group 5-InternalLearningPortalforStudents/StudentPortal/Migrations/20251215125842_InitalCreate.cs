@@ -117,6 +117,32 @@ namespace StudentPortal.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Certificates",
+                columns: table => new
+                {
+                    CertificateId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CertificateName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    CertificateType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    IssuedBy = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiredDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Score = table.Column<double>(type: "float", nullable: true),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Certificates", x => x.CertificateId);
+                    table.ForeignKey(
+                        name: "FK_Certificates_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Lecturers",
                 columns: table => new
                 {
@@ -303,6 +329,9 @@ namespace StudentPortal.Migrations
                     ScoreId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Value = table.Column<int>(type: "int", nullable: false),
+                    ProcessScore = table.Column<float>(type: "real", nullable: false),
+                    MiddleScore = table.Column<float>(type: "real", nullable: false),
+                    ExamScore = table.Column<float>(type: "real", nullable: false),
                     CourseSectionId = table.Column<int>(type: "int", nullable: false),
                     StudentId = table.Column<int>(type: "int", nullable: false),
                     LecturerId = table.Column<int>(type: "int", nullable: false)
@@ -339,6 +368,11 @@ namespace StudentPortal.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Announcements_UserId",
                 table: "Announcements",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Certificates_UserId",
+                table: "Certificates",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -427,6 +461,9 @@ namespace StudentPortal.Migrations
 
             migrationBuilder.DropTable(
                 name: "Announcements");
+
+            migrationBuilder.DropTable(
+                name: "Certificates");
 
             migrationBuilder.DropTable(
                 name: "CoursesMaterials");

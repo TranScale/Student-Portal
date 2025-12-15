@@ -12,7 +12,7 @@ using StudentPortal.Data;
 namespace StudentPortal.Migrations
 {
     [DbContext(typeof(StudentPortalContext))]
-    [Migration("20251207090919_InitalCreate")]
+    [Migration("20251215125842_InitalCreate")]
     partial class InitalCreate
     {
         /// <inheritdoc />
@@ -81,6 +81,49 @@ namespace StudentPortal.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Announcements");
+                });
+
+            modelBuilder.Entity("StudentPortal.Models.Certificate", b =>
+                {
+                    b.Property<int>("CertificateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CertificateId"));
+
+                    b.Property<string>("CertificateName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("CertificateType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ExpiredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IssuedBy")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CertificateId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Course", b =>
@@ -327,8 +370,17 @@ namespace StudentPortal.Migrations
                     b.Property<int>("CourseSectionId")
                         .HasColumnType("int");
 
+                    b.Property<float>("ExamScore")
+                        .HasColumnType("real");
+
                     b.Property<int>("LecturerId")
                         .HasColumnType("int");
+
+                    b.Property<float>("MiddleScore")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ProcessScore")
+                        .HasColumnType("real");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
@@ -445,6 +497,17 @@ namespace StudentPortal.Migrations
                 {
                     b.HasOne("StudentPortal.Models.User", "User")
                         .WithMany("Announcements")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StudentPortal.Models.Certificate", b =>
+                {
+                    b.HasOne("StudentPortal.Models.User", "User")
+                        .WithMany("Certificates")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -636,6 +699,8 @@ namespace StudentPortal.Migrations
                     b.Navigation("Admin");
 
                     b.Navigation("Announcements");
+
+                    b.Navigation("Certificates");
 
                     b.Navigation("Lecturer");
 
