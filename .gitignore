@@ -396,6 +396,35 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Chặn tuyệt đối thư mục .vs và các file tạm của VS ở mọi cấp độ
+**/.vs/
+**/*.vsidx
+**/*.db
+**/*.v2
+**/dtbcache.v2
+**/CodeChunks.db
+**/SemanticSymbols.db
+
+# --- Bổ sung thêm để hoàn thiện ---
+# Hệ thống & Trình duyệt
+.DS_Store
+Thumbs.db
+
+# Bảo mật & Môi trường (CỰC KỲ QUAN TRỌNG)
+.env
+.env.local
+appsettings.Development.json
+
+# Logs & Caches
+*.log
+*.cache
+*.tmp
+
+# Đảm bảo tuyệt đối cho các thư mục biên dịch
+**/bin/
+**/obj/
+**/TestResults/
+
 # JetBrains Rider
 *.sln.iml
 
