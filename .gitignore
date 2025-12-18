@@ -425,6 +425,31 @@ appsettings.Development.json
 **/obj/
 **/TestResults/
 
+# --- CHẶN TRIỆT ĐỂ TÀN DƯ CÒN LẠI ---
+# Chặn các file rác đặc thù hiện ra trong ảnh của bạn
+**/*.suo
+**/*.user
+**/*.userosscache
+**/DocumentLayout.json
+**/metadata.v9.bin
+**/projects.v9.bin
+**/*.v2
+**/dtbcache.v2
+**/futdcache.v2
+**/CodeChunks.db
+**/SemanticSymbols.db
+
+# Chặn các file hệ thống ẩn của Windows
+[Tt]humbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Chặn file log và temp lồng nhau
+**/*.log
+**/*.tmp
+**/*.cache
+**/TestResults/
+
 # JetBrains Rider
 *.sln.iml
 
