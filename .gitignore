@@ -396,6 +396,15 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Chặn tuyệt đối thư mục .vs và các file tạm của VS ở mọi cấp độ
+**/.vs/
+**/*.vsidx
+**/*.db
+**/*.v2
+**/dtbcache.v2
+**/CodeChunks.db
+**/SemanticSymbols.db
+
 # JetBrains Rider
 *.sln.iml
 
