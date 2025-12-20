@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using StudentPortal.Data;
 using Microsoft.Extensions.DependencyInjection;
+using StudentPortal.Business.Interface;
+using StudentPortal.Data;
+using StudentPortal.Services.Implementations;
+using StudentPortal.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<StudentPortalContext>(options =>
@@ -16,6 +19,10 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
 
 var app = builder.Build();
 
