@@ -5,6 +5,7 @@ using StudentPortal.Business.Interface;
 using StudentPortal.Data;
 using StudentPortal.Services.Implementations;
 using StudentPortal.Services.Interfaces;
+using StudentPortal.Business.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<StudentPortalContext>(options =>
@@ -24,6 +25,10 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
 
+builder.Services.AddScoped<ICourseSectionService, CourseSectionService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<ICourseMaterialService, CourseMaterialService>();
+builder.Services.AddScoped<IScoreService, ScoreService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
