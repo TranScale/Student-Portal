@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using StudentPortal.Business.Interface;
+using StudentPortal.Business.Interface; 
 using StudentPortal.Data;
 using StudentPortal.Data_Access.Repository.Interface;
 using StudentPortal.Models;
-using StudentPortal.Services.Interfaces;
 
-namespace StudentPortal.Services.Implementations
+namespace StudentPortal.Business.Implementation
 {
     public class ProfileService : IProfileService
     {

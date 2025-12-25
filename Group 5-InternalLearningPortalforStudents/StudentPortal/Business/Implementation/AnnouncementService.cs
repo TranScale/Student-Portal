@@ -1,36 +1,61 @@
-﻿using StudentPortal.Business.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using StudentPortal.Data;
 using StudentPortal.Models;
-using StudentPortal.Data_Access.Repository.Implementation;
+using StudentPortal.Business.Interface;
+using StudentPortal.Data_Access.Repository.Interface;
 
-namespace StudentPortal.Business.Implementation
+namespace StudentPortal.Business.Implementation 
 {
     public class AnnouncementService : IAnnouncementService
     {
-        private readonly Repository<Announcement> _repo;
-        public AnnouncementService(Repository<Announcement> repo)
+        private readonly IRepository<Announcement> _repo;
+        private readonly StudentPortalContext _context;
+
+        // FIX: Dùng IRepository<Announcement>, không dùng Repository<Announcement>
+        public AnnouncementService(
+            IRepository<Announcement> repo,
+            StudentPortalContext context)
         {
             _repo = repo;
+            _context = context;
         }
 
         public async Task<bool> CreateAnnouncement(Announcement announcement)
         {
             try
             {
+                announcement.CreatedDate = DateTime.Now;
                 await _repo.Add(announcement);
                 return true;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
-
 
         public async Task<bool> UpdateAnnouncement(Announcement announcement)
         {
             try
             {
-                await _repo.Update(announcement);
+                var existing = await _context.Announcements
+                    .FirstOrDefaultAsync(a => a.AnnouncementId == announcement.AnnouncementId);
+
+                if (existing == null) return false;
+
+                existing.Title = announcement.Title;
+                existing.Summary = announcement.Summary;
+                existing.Content = announcement.Content;
+                existing.Taker = announcement.Taker;
+                existing.ExpiredDate = announcement.ExpiredDate;
+
+                await _context.SaveChangesAsync();
                 return true;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<bool> DeleteAnnouncement(int id)
@@ -40,23 +65,37 @@ namespace StudentPortal.Business.Implementation
                 await _repo.Delete(id);
                 return true;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<IEnumerable<Announcement>> GetAllAnnouncements()
         {
-            return await _repo.GetAll();
+            return await _context.Announcements
+                .Include(a => a.User)
+                .Where(a => a.ExpiredDate == null || a.ExpiredDate > DateTime.Now)
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Announcement>> GetAnnouncementsForUser(RecipientType user)
+        public async Task<IEnumerable<Announcement>> GetAnnouncementsForUser(RecipientType userType)
         {
-            var all = await _repo.GetAll();
-            return all.Where(a => a.Taker == user);
+            return await _context.Announcements
+                .Include(a => a.User)
+                .Where(a => a.Taker == userType
+                    && (a.ExpiredDate == null || a.ExpiredDate > DateTime.Now))
+                .OrderByDescending(a => a.CreatedDate)
+                .ToListAsync();
         }
 
         public async Task<Announcement?> GetById(int id)
         {
-            return await _repo.GetById(id);
+            return await _context.Announcements
+                .Include(a => a.User)
+                .FirstOrDefaultAsync(a => a.AnnouncementId == id
+                    && (a.ExpiredDate == null || a.ExpiredDate > DateTime.Now));
         }
     }
 }

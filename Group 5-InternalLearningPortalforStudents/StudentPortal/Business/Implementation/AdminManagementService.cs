@@ -1,8 +1,8 @@
-﻿using StudentPortal.Models;
-using StudentPortal.Services.Interfaces;
+﻿using StudentPortal.Business.Interface;
+using StudentPortal.Models;
 using StudentPortal.Data_Access.Repository.Interface;
 
-namespace StudentPortal.Services.Implementations
+namespace StudentPortal.Business.Implementation
 {
     public class AdminManagementService : IAdminManagementService
     {

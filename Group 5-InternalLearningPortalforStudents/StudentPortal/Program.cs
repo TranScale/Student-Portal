@@ -6,8 +6,6 @@ using StudentPortal.Business.Interface;
 using StudentPortal.Data;
 using StudentPortal.Data_Access.Repository.Implementation;
 using StudentPortal.Data_Access.Repository.Interface;
-using StudentPortal.Services.Implementations;
-using StudentPortal.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<StudentPortalContext>(options =>

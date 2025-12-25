@@ -1,6 +1,6 @@
 ﻿using StudentPortal.Models;
 
-namespace StudentPortal.Services.Interfaces
+namespace StudentPortal.Business.Interface
 {
     public interface IAdminManagementService
     {
