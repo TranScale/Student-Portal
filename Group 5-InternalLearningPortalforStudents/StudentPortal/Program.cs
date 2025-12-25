@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StudentPortal.Business.Implementation;
 using StudentPortal.Business.Interface;
 using StudentPortal.Data;
+using StudentPortal.Data_Access.Repository.Implementation;
+using StudentPortal.Data_Access.Repository.Interface;
 using StudentPortal.Services.Implementations;
 using StudentPortal.Services.Interfaces;
-using StudentPortal.Business.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<StudentPortalContext>(options =>
@@ -20,6 +22,16 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IFacultyService, FacultyService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
