@@ -10,7 +10,7 @@ namespace StudentPortal.Data_Access.Repository.Implementation
     {
         private readonly StudentPortalContext _context;
         private readonly DbSet<T>? _dbSet;
-        public Repository(StudentPortalContext context, DbSet<T> _dbSet)
+        public Repository(StudentPortalContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
