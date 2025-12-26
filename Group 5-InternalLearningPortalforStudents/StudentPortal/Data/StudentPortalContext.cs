@@ -36,8 +36,5 @@ namespace StudentPortal.Data
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
         }
-
-
-
     }
 }
