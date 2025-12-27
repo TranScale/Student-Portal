@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StudentPortal.Business.Implementation;
@@ -39,23 +40,15 @@ builder.Services.AddScoped<ICourseSectionService, CourseSectionService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<ICourseMaterialService, CourseMaterialService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
-var app = builder.Build();
 
-// Seed database
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // <--- Test 
+    .AddCookie(options =>
     {
-        var context = services.GetRequiredService<StudentPortalContext>();
-        SeedData.Initialize(context);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred seeding the DB.");
-    }
-}
+        options.LoginPath = "/Account/LoginDemo"; // Nếu chưa login thì chuyển hướng về đây
+        options.AccessDeniedPath = "/Account/LoginDemo"; // Không có quyền cũng về đây
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    });
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -73,6 +66,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication(); // <--- Test
 
 app.UseAuthorization();
 
