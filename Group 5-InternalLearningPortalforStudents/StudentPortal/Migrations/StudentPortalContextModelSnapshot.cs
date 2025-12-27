@@ -38,7 +38,7 @@ namespace StudentPortal.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Admins");
+                    b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Announcement", b =>
@@ -77,7 +77,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Certificate", b =>
@@ -120,7 +120,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Certificates");
+                    b.ToTable("Certificates", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Course", b =>
@@ -149,7 +149,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.CourseMaterial", b =>
@@ -184,7 +184,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("CourseSectionId");
 
-                    b.ToTable("CoursesMaterials");
+                    b.ToTable("CoursesMaterials", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.CourseSection", b =>
@@ -226,7 +226,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("LecturerId");
 
-                    b.ToTable("CoursesSections");
+                    b.ToTable("CoursesSections", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Department", b =>
@@ -255,7 +255,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Enrollment", b =>
@@ -281,7 +281,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Faculty", b =>
@@ -305,7 +305,7 @@ namespace StudentPortal.Migrations
 
                     b.HasKey("FacultyId");
 
-                    b.ToTable("Faculties");
+                    b.ToTable("Faculties", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Lecturer", b =>
@@ -329,7 +329,7 @@ namespace StudentPortal.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Lecturers");
+                    b.ToTable("Lecturers", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.ScheduleItem", b =>
@@ -353,7 +353,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("CourseSectionId");
 
-                    b.ToTable("ScheduleItems");
+                    b.ToTable("ScheduleItems", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Score", b =>
@@ -393,7 +393,7 @@ namespace StudentPortal.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Scores");
+                    b.ToTable("Scores", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Student", b =>
@@ -424,7 +424,7 @@ namespace StudentPortal.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.User", b =>
@@ -476,7 +476,7 @@ namespace StudentPortal.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("StudentPortal.Models.Admin", b =>
