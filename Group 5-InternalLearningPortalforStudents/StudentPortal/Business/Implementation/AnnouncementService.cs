@@ -1,13 +1,14 @@
 ﻿using StudentPortal.Business.Interface;
 using StudentPortal.Models;
 using StudentPortal.Data_Access.Repository.Implementation;
+using StudentPortal.Data_Access.Repository.Interface;
 
 namespace StudentPortal.Business.Implementation
 {
     public class AnnouncementService : IAnnouncementService
     {
-        private readonly Repository<Announcement> _repo;
-        public AnnouncementService(Repository<Announcement> repo)
+        private readonly IRepository<Announcement> _repo;
+        public AnnouncementService(IRepository<Announcement> repo)
         {
             _repo = repo;
         }

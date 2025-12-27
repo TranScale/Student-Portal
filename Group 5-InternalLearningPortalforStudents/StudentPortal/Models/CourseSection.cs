@@ -48,5 +48,8 @@ namespace StudentPortal.Models
         //Một lớp học có các tài liệu
         [ValidateNever]
         public List<CourseMaterial> Materials { get; set; } = new();
+
+        //Thêm: Một CourseSection gồm nhiều ScheduleItem
+        public List<ScheduleItem> Schedules { get; set; } = new();
     }
 }
