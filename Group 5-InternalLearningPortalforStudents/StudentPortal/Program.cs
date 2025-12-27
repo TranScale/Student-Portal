@@ -54,6 +54,20 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<StudentPortal.Data.StudentPortalContext>();
+        StudentPortal.Data.DbInitSeed.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Đã xảy ra lỗi khi khởi tạo dữ liệu (Seeding DB).");
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
