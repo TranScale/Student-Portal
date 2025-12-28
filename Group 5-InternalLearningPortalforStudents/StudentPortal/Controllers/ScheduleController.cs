@@ -7,7 +7,7 @@ using StudentPortal.Models;
 
 namespace StudentPortal.Controllers
 {
-    [Authorize] 
+    [Authorize]
     public class ScheduleController : Controller
     {
         private readonly StudentPortalContext _context;
@@ -19,55 +19,55 @@ namespace StudentPortal.Controllers
             _userManager = userManager;
         }
 
-        // GET: /Schedule
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            List<CourseSection> sections = new List<CourseSection>();
+            List<CourseSection> schedules = new List<CourseSection>();
 
-            // TRƯỜNG HỢP 1: SINH VIÊN (Xem lịch các lớp đã đăng ký)
+            // 1. NẾU LÀ SINH VIÊN -> Xem Lịch Học
             if (User.IsInRole("Student"))
             {
-                // Tìm StudentId từ UserId
                 var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
                 if (student != null)
                 {
-                    // Lấy các lớp từ bảng Enrollment
-                    // Điều kiện: Status = Approved (Đã duyệt) hoặc Pending (Chờ duyệt)
-                    // Không lấy Cancelled
-                    sections = await _context.Enrollments
-                        .Include(e => e.CourseSection)
-                            .ThenInclude(cs => cs.Course) // Lấy tên môn
-                        .Include(e => e.CourseSection)
-                            .ThenInclude(cs => cs.Lecturer) // Lấy tên GV
-                                .ThenInclude(l => l.User)
+                    // Lấy các lớp đã đăng ký (trừ lớp đã hủy)
+                    schedules = await _context.Enrollments
                         .Where(e => e.StudentId == student.StudentId && e.Status != EnrollmentStatus.Cancelled)
+                        .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
+                        .Include(e => e.CourseSection).ThenInclude(cs => cs.Lecturer).ThenInclude(l => l.User)
                         .Select(e => e.CourseSection)
                         .ToListAsync();
 
+                    ViewBag.Title = "Lịch Học Của Tôi";
                     ViewBag.Role = "Student";
                 }
             }
-
-            // TRƯỜNG HỢP 2: GIẢNG VIÊN (Xem lịch các lớp mình dạy)
+            // 2. NẾU LÀ GIẢNG VIÊN -> Xem Lịch Dạy
             else if (User.IsInRole("Lecturer"))
             {
-                // Tìm LecturerId từ UserId
                 var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
                 if (lecturer != null)
                 {
-                    // Lấy các lớp do chính giảng viên này đứng lớp
-                    sections = await _context.CoursesSections
-                        .Include(cs => cs.Course) // Lấy tên môn
+                    // Lấy các lớp mình đứng lớp
+                    schedules = await _context.CoursesSections
                         .Where(cs => cs.LecturerId == lecturer.LecturerId)
+                        .Include(cs => cs.Course)
                         .ToListAsync();
 
+                    ViewBag.Title = "Lịch Dạy Của Tôi";
                     ViewBag.Role = "Lecturer";
                 }
             }
-            return View(sections);
+            // 3. NẾU LÀ ADMIN -> Chuyển sang trang CRUD
+            else if (User.IsInRole("Admin"))
+            {
+                // Chuyển hướng sang Controller quản lý lớp học (Bạn phải tạo Controller này nhé)
+                return RedirectToAction("Index", "CourseSections");
+            }
+
+            return View(schedules);
         }
     }
 }

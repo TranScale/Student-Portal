@@ -8,6 +8,7 @@ using StudentPortal.Data_Access.Repository.Interface;
 using StudentPortal.Models;
 using StudentPortal.Services.Implementations;
 using StudentPortal.Services.Interfaces;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +40,13 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 .AddDefaultUI();
 
 // --- 3. ĐĂNG KÝ SERVICE & REPOSITORY ---
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        // Ngắt vòng lặp vô tận khi dữ liệu quan hệ chằng chịt
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 builder.Services.AddRazorPages(); // Thêm dòng này nếu dùng Identity UI mặc định
 
 // Đăng ký Repository Generic

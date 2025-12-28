@@ -1,0 +1,138 @@
+﻿@model List<StudentPortal.Models.Score>
+@{
+    ViewData["Title"] = "Nhập điểm chi tiết";
+    int sectionId = ViewBag.SectionId != null ? (int)ViewBag.SectionId : 0;
+}
+
+<form asp-action="EnterGrades" method="post">
+    <input type="hidden" name="sectionId" value="@sectionId" />
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3><i class="bi bi-pencil-fill"></i> Nhập Điểm Thành Phần</h3>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-save"></i> Lưu Bảng Điểm</button>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0 align-middle" id="gradesTable">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 15%">Mã SV</th>
+                            <th style="width: 20%">Họ Tên</th>
+                            <th style="width: 15%">Quá Trình (30%)</th>
+                            <th style="width: 15%">Giữa Kỳ (20%)</th>
+                            <th style="width: 15%">Cuối Kỳ (50%)</th>
+                            <th>Tổng (Auto)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            // Tính toán giá trị ban đầu (Server side)
+                            var pScore = Model[i].ProcessScore;
+                            var mScore = Model[i].MiddleScore;
+                            var eScore = Model[i].ExamScore;
+                            var rowTotal = (pScore * 0.3) + (mScore * 0.2) + (eScore * 0.5);
+
+                            <tr>
+                                <td>@(i + 1)</td>
+
+                                @* Dùng dấu ? (Null Conditional) để tránh sập web nếu thiếu data *@
+                                <td class="fw-bold">@Model[i].Student?.StudentCode</td>
+                                <td>@Model[i].Student?.User?.FullName</td>
+
+                                @* HIDDEN INPUTS *@
+                                <input type="hidden" asp-for="@Model[i].ScoreId" />
+                                <input type="hidden" asp-for="@Model[i].StudentId" />
+                                <input type="hidden" asp-for="@Model[i].CourseSectionId" />
+                                @* Cần bind lại Student để nếu validation lỗi thì không mất tên *@
+                                <input type="hidden" asp-for="@Model[i].Student.StudentCode" />
+                                <input type="hidden" asp-for="@Model[i].Student.User.FullName" />
+
+                                @* NHẬP ĐIỂM QUÁ TRÌNH (Class: score-input, data-weight: 0.3) *@
+                                <td>
+                                    <input asp-for="@Model[i].ProcessScore"
+                                           class="form-control text-center score-input process"
+                                           data-weight="0.3"
+                                           type="number" step="0.1" min="0" max="10" />
+                                </td>
+
+                                @* NHẬP ĐIỂM GIỮA KỲ (Class: score-input, data-weight: 0.2) *@
+                                <td>
+                                    <input asp-for="@Model[i].MiddleScore"
+                                           class="form-control text-center score-input middle"
+                                           data-weight="0.2"
+                                           type="number" step="0.1" min="0" max="10" />
+                                </td>
+
+                                @* NHẬP ĐIỂM CUỐI KỲ (Class: score-input, data-weight: 0.5) *@
+                                <td>
+                                    <input asp-for="@Model[i].ExamScore"
+                                           class="form-control text-center score-input exam"
+                                           data-weight="0.5"
+                                           type="number" step="0.1" min="0" max="10" />
+                                </td>
+
+                                @* CỘT TỔNG - Sẽ được JS cập nhật *@
+                                <td class="fw-bold text-danger total-score">
+                                    @rowTotal.ToString("0.0")
+                                </td>
+
+                                @* Hidden Input lưu Value (Tổng kết) để gửi về Server *@
+                                <input type="hidden" asp-for="@Model[i].Value" class="total-value-input" />
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+@* --- PHẦN JAVASCRIPT TỰ ĐỘNG TÍNH ĐIỂM --- *@
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy tất cả các ô nhập điểm
+            const inputs = document.querySelectorAll('.score-input');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', function () {
+                    // Khi nhập liệu, tìm dòng (tr) chứa ô input đó
+                    const row = this.closest('tr');
+                    calculateRowTotal(row);
+                });
+            });
+
+            function calculateRowTotal(row) {
+                // Lấy giá trị từ 3 ô input trong dòng đó
+                const process = parseFloat(row.querySelector('.process').value) || 0;
+                const middle = parseFloat(row.querySelector('.middle').value) || 0;
+                const exam = parseFloat(row.querySelector('.exam').value) || 0;
+
+                // Tính toán theo trọng số
+                const total = (process * 0.3) + (middle * 0.2) + (exam * 0.5);
+
+                // Hiển thị ra cột Tổng (làm tròn 1 chữ số thập phân)
+                const totalCell = row.querySelector('.total-score');
+                totalCell.innerText = total.toFixed(1);
+
+                // Cập nhật vào hidden input để gửi về Server (nếu cần mapping vào biến Value)
+                const hiddenTotal = row.querySelector('.total-value-input');
+                if(hiddenTotal) {
+                    hiddenTotal.value = total.toFixed(1); // Hoặc logic xếp loại A, B, C tùy bạn
+                }
+            }
+        });
+    </script>
+}
