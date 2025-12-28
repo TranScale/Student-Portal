@@ -16,8 +16,6 @@ namespace StudentPortal.Business.Interface
         // Đăng ký tài khoản cho quản trị viên (chỉ Admin thực hiện)
         Task<bool> RegisterAdmin(User user, Admin admin);
 
-        // Mã hóa mật khẩu trước khi lưu vào DB  
-        string GetPasswordHash(string password);
     }
 }
 

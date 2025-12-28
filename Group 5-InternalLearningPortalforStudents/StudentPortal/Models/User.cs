@@ -1,37 +1,48 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Identity; // <--- THÊM
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudentPortal.Models
 {
-    public class User
+    // 1. Kế thừa IdentityUser<int> (Dùng int làm khóa chính)
+    public class User : IdentityUser<int>
     {
-        public int UserId {  get; set; }
-        [Display(Name = "Đường dẫn hình ảnh")]
-        public string? ImagePath { get; set; } //Link dẫn đường ảnh
+       
+        // public int UserId { get; set; }      
+        // public string UserName { get; set; }
+        // public string Email { get; set; }    
+        // public string PasswordHash { get; set; } 
+        // public string PhoneNumber { get; set; } 
+
+        
+
         [Display(Name = "Họ và tên")]
         public string? FullName { get; set; }
-        [Display(Name = "Số điện thoại")]
-        public string? PhoneNumber { get; set; }
-        public string? Email { get; set; }
+
+        [Display(Name = "Đường dẫn hình ảnh")]
+        public string? ImagePath { get; set; }
+
         [Display(Name = "Ngày sinh")]
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
+
         [Display(Name = "Địa chỉ")]
-        public string? Address { get; set; } //Địa chỉ, đường, quận,phường
+        public string? Address { get; set; }
         [Display(Name = "Thành phố")]
-        public string? City { get; set; } // Thành phố
+        public string? City { get; set; }
         [Display(Name = "Quốc gia")]
-        public string? Country { get; set; } // Quốc gia
+        public string? Country { get; set; }
 
-        [Display(Name = "Tên người dùng")]
-        public string UserName { get; set; } = string.Empty;
+
         [Display(Name = "Mật khẩu")]
-        public string Password { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty; // Mã hash của password
+        [NotMapped] // Thêm cái này để không tạo cột trong DB, chỉ dùng ở Form
+        public string? Password { get; set; }
 
-        public UserRoles UserRole { get; set; } // Student, lecturer, admin
+        // Enum Role của bạn (Vẫn giữ để hiển thị Profile, dù Identity có bảng Role riêng)
+        public UserRoles UserRole { get; set; }
 
-        //Navigation 
+        // --- NAVIGATION (GIỮ NGUYÊN) ---
         [ValidateNever]
         public Student? Student { get; set; }
         [ValidateNever]
@@ -40,10 +51,6 @@ namespace StudentPortal.Models
         public Lecturer? Lecturer { get; set; }
         [ValidateNever]
         public List<Announcement>? Announcements { get; set; }
-
-        //Sở hữu chứng chỉ
         public List<Certificate>? Certificates { get; set; }
-
-
     }
 }

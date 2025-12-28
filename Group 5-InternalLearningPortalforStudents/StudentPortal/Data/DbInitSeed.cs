@@ -1,38 +1,45 @@
-﻿using StudentPortal.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StudentPortal.Data;
+using StudentPortal.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StudentPortal.Data
 {
     public static class DbInitSeed
     {
-        public static void Initialize(StudentPortalContext context)
+        // Thêm tham số UserManager và RoleManager
+        public static async Task InitializeAsync(StudentPortalContext context,
+                                                 UserManager<User> userManager,
+                                                 RoleManager<IdentityRole<int>> roleManager)
         {
-            // Kiểm tra database
-            context.Database.EnsureCreated();
+            // 1. Tạo database nếu chưa có
+            await context.Database.EnsureCreatedAsync();
 
-            // Check xem đã có dữ liệu chưa
+            // 2. Kiểm tra dữ liệu cũ
             if (context.Faculties.Any())
             {
-                return; // Đã có dữ liệu
+                return; // Đã có dữ liệu thì dừng
             }
 
-            // 1. Tạo Khoa (Faculty) - Model này trong file ĐÚNG
+            // ==========================================
+            // PHẦN 1: DỮ LIỆU DANH MỤC (KHOA, NGÀNH, MÔN)
+            // ==========================================
+
+            // A. Tạo Khoa
             var faculties = new Faculty[]
             {
                 new Faculty { FacultyName = "Công nghệ thông tin", FacultyCode = "CNTT", FacultyDescription = "Khoa đào tạo CNTT" },
                 new Faculty { FacultyName = "Kinh tế", FacultyCode = "KT", FacultyDescription = "Khoa Kinh tế và Quản lý" }
             };
             context.Faculties.AddRange(faculties);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            // 2. Tạo Ngành (Department)
-            // LƯU Ý: Model Department trong file bị lỗi hiển thị (hiện là CourseMaterial). 
-            // Tôi giả định dùng DepartmentName và DepartmentCode theo chuẩn Faculty.
-            var cntt = context.Faculties.First(f => f.FacultyCode == "CNTT");
-            var kt = context.Faculties.First(f => f.FacultyCode == "KT");
+            // B. Tạo Ngành
+            var cntt = await context.Faculties.FirstAsync(f => f.FacultyCode == "CNTT");
+            var kt = await context.Faculties.FirstAsync(f => f.FacultyCode == "KT");
 
             var departments = new Department[]
             {
@@ -41,13 +48,11 @@ namespace StudentPortal.Data
                 new Department { DepartmentName = "Quản trị kinh doanh", DepartmentCode = "BA", FacultyId = kt.FacultyId }
             };
             context.Departments.AddRange(departments);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            // 3. Tạo Môn học (Course)
-            // LƯU Ý: Model Course trong file bị lỗi hiển thị (hiện là CourseSection).
-            // Tôi giả định dùng CourseName, CourseCode, Credits.
-            var se = context.Departments.First(d => d.DepartmentCode == "SE");
-            var ba = context.Departments.First(d => d.DepartmentCode == "BA");
+            // C. Tạo Môn học
+            var se = await context.Departments.FirstAsync(d => d.DepartmentCode == "SE");
+            var ba = await context.Departments.FirstAsync(d => d.DepartmentCode == "BA");
 
             var courses = new Course[]
             {
@@ -56,103 +61,155 @@ namespace StudentPortal.Data
                 new Course { CourseName = "Kinh tế vi mô", CourseCode = "ECO101", CourseCredit = 3, DepartmentId = ba.DepartmentId }
             };
             context.Courses.AddRange(courses);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            // 4. Tạo Users (Admin, Lecturer, Student)
-            // Model User đã kiểm tra kỹ: UserName, Password, FullName...
-            var users = new User[]
+
+            // ==========================================
+            // PHẦN 2: TẠO USER & ROLE (IDENTITY)
+            // ==========================================
+
+            // A. Tạo Role trước (Admin, Lecturer, Student)
+            string[] roleNames = { "Admin", "Lecturer", "Student" };
+            foreach (var roleName in roleNames)
             {
-                // Admin
-                new User {
-                    UserName = "admin",
-                    Password = "123",
-                    PasswordHash = "HASH_ADMIN", // Demo hash
-                    FullName = "Quản trị viên",
-                    Email = "admin@portal.com",
-                    UserRole = UserRoles.Admin,
-                    DateOfBirth = DateTime.Parse("1990-01-01"),
-                    PhoneNumber = "0909000111",
-                    Address = "HCM",
-                    City = "HCM",
-                    Country = "Vietnam"
-                },
-                // Lecturer
-                new User {
-                    UserName = "gv01",
-                    Password = "123",
-                    PasswordHash = "HASH_GV",
-                    FullName = "Nguyễn Văn Giảng",
-                    Email = "giangnv@portal.com",
-                    UserRole = UserRoles.Lecturer,
-                    DateOfBirth = DateTime.Parse("1985-05-15")
-                },
-                // Student 1
-                new User {
-                    UserName = "sv01",
-                    Password = "123",
-                    PasswordHash = "HASH_SV",
-                    FullName = "Trần Học Trò",
-                    Email = "troth@portal.com",
-                    UserRole = UserRoles.Student,
-                    DateOfBirth = DateTime.Parse("2003-08-20")
-                },
-                // Student 2
-                new User {
-                    UserName = "sv02",
-                    Password = "123",
-                    PasswordHash = "HASH_SV",
-                    FullName = "Lê Thị Bưởi",
-                    Email = "buoilt@portal.com",
-                    UserRole = UserRoles.Student,
-                    DateOfBirth = DateTime.Parse("2003-09-10")
-                }
-            };
-            context.Users.AddRange(users);
-            context.SaveChanges();
-
-            // 5. Link User vào các bảng chi tiết (Admin, Lecturer, Student)
-            var adminUser = context.Users.First(u => u.UserName == "admin");
-            var lecturerUser = context.Users.First(u => u.UserName == "gv01");
-            var studentUser1 = context.Users.First(u => u.UserName == "sv01");
-            var studentUser2 = context.Users.First(u => u.UserName == "sv02");
-
-            // Tạo Admin chi tiết - Model Admin: UserId
-            context.Admins.Add(new Admin { UserId = adminUser.UserId });
-
-            // Tạo Lecturer chi tiết - Model Lecturer: UserId, FacultyId
-            context.Lecturers.Add(new Lecturer { UserId = lecturerUser.UserId, FacultyId = cntt.FacultyId });
-
-            // Tạo Student chi tiết - Model Student: UserId, StudentCode, DepartmentId, IsGraduate
-            context.Students.AddRange(new Student[] {
-                new Student { UserId = studentUser1.UserId, StudentCode = "SE001", DepartmentId = se.DepartmentId, IsGraduate = false },
-                new Student { UserId = studentUser2.UserId, StudentCode = "SE002", DepartmentId = se.DepartmentId, IsGraduate = false }
-            });
-            context.SaveChanges();
-
-            // 6. Tạo Lớp học phần (CourseSection)
-            // Model CourseSection đã kiểm tra kỹ: Room, Capacity, Days, Sessions, DayStart, DayEnd...
-            var courseCsharp = context.Courses.First(c => c.CourseCode == "PRN211");
-            var lecturer = context.Lecturers.First(l => l.UserId == lecturerUser.UserId);
-
-            var sections = new CourseSection[]
-            {
-                new CourseSection
+                if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    CourseId = courseCsharp.CourseId,
-                    LecturerId = lecturer.LecturerId,
-                    Room = "P301",
-                    Capacity = 30,
-                    Days = ClassDays.Monday | ClassDays.Wednesday, // Enum Flag
-                    Sessions = StudySessions.Ca1, // Enum
-                    DayStart = DateTime.Now,
-                    DayEnd = DateTime.Now.AddMonths(3)
+                    await roleManager.CreateAsync(new IdentityRole<int>(roleName));
                 }
-            };
-            context.CoursesSections.AddRange(sections);
-            context.SaveChanges();
+            }
 
-            // 7. Tạo Thông báo (Announcement)
-            // Model Announcement đã kiểm tra kỹ: Title, Summary, Content, CreatedDate, Taker...
+            // B. Hàm tạo User (Local Function để tái sử dụng code)
+            async Task CreateUserWithRole(User user, string password, string role)
+            {
+                // Identity tự check trùng user/email và tự Hash password
+                var result = await userManager.CreateAsync(user, password);
+
+                if (result.Succeeded)
+                {
+                    // Gán Role
+                    await userManager.AddToRoleAsync(user, role);
+                }
+            }
+
+            // C. Định nghĩa và tạo các User
+            var passwordChung = "Student@123"; // Password phải có Hoa, thường, số, ký tự đặc biệt
+
+            // 1. Admin
+            var adminUser = new User
+            {
+                UserName = "admin",
+                Email = "admin@portal.com",
+                FullName = "Quản trị viên",
+                UserRole = UserRoles.Admin, // Enum của bạn
+                DateOfBirth = DateTime.Parse("1990-01-01"),
+                PhoneNumber = "0909000111",
+                Address = "HCM",
+                City = "HCM",
+                Country = "Vietnam",
+                EmailConfirmed = true
+            };
+            await CreateUserWithRole(adminUser, passwordChung, "Admin");
+
+            // 2. Lecturer
+            var lecturerUser = new User
+            {
+                UserName = "gv01",
+                Email = "giangnv@portal.com",
+                FullName = "Nguyễn Văn Giảng",
+                UserRole = UserRoles.Lecturer,
+                DateOfBirth = DateTime.Parse("1985-05-15"),
+                EmailConfirmed = true
+            };
+            await CreateUserWithRole(lecturerUser, passwordChung, "Lecturer");
+
+            // 3. Student 1
+            var studentUser1 = new User
+            {
+                UserName = "sv01",
+                Email = "troth@portal.com",
+                FullName = "Trần Học Trò",
+                UserRole = UserRoles.Student,
+                DateOfBirth = DateTime.Parse("2003-08-20"),
+                EmailConfirmed = true
+            };
+            await CreateUserWithRole(studentUser1, passwordChung, "Student");
+
+            // 4. Student 2
+            var studentUser2 = new User
+            {
+                UserName = "sv02",
+                Email = "buoilt@portal.com",
+                FullName = "Lê Thị Bưởi",
+                UserRole = UserRoles.Student,
+                DateOfBirth = DateTime.Parse("2003-09-10"),
+                EmailConfirmed = true
+            };
+            await CreateUserWithRole(studentUser2, passwordChung, "Student");
+
+
+            // ==========================================
+            // PHẦN 3: TẠO PROFILE CHI TIẾT (ADMIN, LECTURER, STUDENT)
+            // ==========================================
+            // Lưu ý: Lúc này các User trên đã có Id (int) do Identity sinh ra.
+
+            // 1. Admin Profile
+            if (await context.Users.AnyAsync(u => u.UserName == "admin"))
+            {
+                var user = await context.Users.FirstAsync(u => u.UserName == "admin");
+                context.Admins.Add(new Admin { UserId = user.Id }); // Dùng user.Id
+            }
+
+            // 2. Lecturer Profile
+            if (await context.Users.AnyAsync(u => u.UserName == "gv01"))
+            {
+                var user = await context.Users.FirstAsync(u => u.UserName == "gv01");
+                context.Lecturers.Add(new Lecturer { UserId = user.Id, FacultyId = cntt.FacultyId });
+            }
+
+            // 3. Student Profiles
+            if (await context.Users.AnyAsync(u => u.UserName == "sv01"))
+            {
+                var user = await context.Users.FirstAsync(u => u.UserName == "sv01");
+                context.Students.Add(new Student { UserId = user.Id, StudentCode = "SE001", DepartmentId = se.DepartmentId, IsGraduate = false });
+            }
+
+            if (await context.Users.AnyAsync(u => u.UserName == "sv02"))
+            {
+                var user = await context.Users.FirstAsync(u => u.UserName == "sv02");
+                context.Students.Add(new Student { UserId = user.Id, StudentCode = "SE002", DepartmentId = se.DepartmentId, IsGraduate = false });
+            }
+
+            await context.SaveChangesAsync();
+
+
+            // ==========================================
+            // PHẦN 4: DỮ LIỆU NGHIỆP VỤ (SECTION, ANNOUNCEMENT)
+            // ==========================================
+
+            // Lấy lại thông tin cần thiết
+            var lecturerEntity = await context.Lecturers.FirstOrDefaultAsync();
+            var courseEntity = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "PRN211");
+            var adminUserEntity = await context.Users.FirstAsync(u => u.UserName == "admin");
+
+            if (lecturerEntity != null && courseEntity != null)
+            {
+                var sections = new CourseSection[]
+                {
+                    new CourseSection
+                    {
+                        CourseId = courseEntity.CourseId,
+                        LecturerId = lecturerEntity.LecturerId,
+                        Room = "P301",
+                        Capacity = 30,
+                        Days = ClassDays.Monday | ClassDays.Wednesday,
+                        Sessions = StudySessions.Ca1,
+                        DayStart = DateTime.Now,
+                        DayEnd = DateTime.Now.AddMonths(3)
+                    }
+                };
+                context.CoursesSections.AddRange(sections);
+            }
+
             var announcements = new Announcement[]
             {
                 new Announcement
@@ -161,12 +218,13 @@ namespace StudentPortal.Data
                     Summary = "Lịch nghỉ tết Nguyên Đán",
                     Content = "Toàn trường nghỉ tết từ ngày 20/12 AL đến hết mùng 10 AL.",
                     CreatedDate = DateTime.Now,
-                    Taker = RecipientType.All, // Enum
-                    UserId = adminUser.UserId
+                    Taker = RecipientType.All,
+                    UserId = adminUserEntity.Id // Dùng Id của Admin
                 }
             };
             context.Announcements.AddRange(announcements);
-            context.SaveChanges();
+
+            await context.SaveChangesAsync();
         }
     }
 }
