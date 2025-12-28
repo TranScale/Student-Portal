@@ -7,7 +7,7 @@ using StudentPortal.Models;
 
 namespace StudentPortal.Controllers
 {
-    [Authorize(Roles = "Student")]
+    [Authorize]
     public class EnrollmentsController : Controller
     {
         private readonly StudentPortalContext _context;
