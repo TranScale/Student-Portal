@@ -128,7 +128,5 @@ namespace StudentPortal.Business.Implementation
             }
             return false;
         }
-
-        // XÓA hàm GetPasswordHash -> Không cần thiết nữa
     }
 }
