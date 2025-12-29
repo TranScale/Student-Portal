@@ -70,7 +70,8 @@ namespace StudentPortal.Controllers
             var enrollments = await _context.Enrollments
                 .AsNoTracking()
                 .Include(e => e.Student).ThenInclude(s => s.User)
-                .Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
+                //.Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
+                .Where(e => e.CourseSectionId == sectionId)
                 .OrderBy(e => e.Student.StudentCode)
                 .ToListAsync();
 
@@ -80,7 +81,7 @@ namespace StudentPortal.Controllers
                 .ToListAsync();
 
             // TẠO DANH SÁCH VIEW MODEL ĐỂ HIỂN THỊ
-            // Logic: Duyệt qua từng sinh viên, nếu có điểm rồi thì điền vào, chưa có thì tạo mới
+            // Duyệt qua từng sinh viên, nếu có điểm rồi thì điền vào, chưa có thì tạo mới
             var modelList = new List<Score>();
 
             foreach (var enrollment in enrollments)
@@ -121,49 +122,69 @@ namespace StudentPortal.Controllers
         public async Task<IActionResult> EnterGrades(List<Score> models, int sectionId)
         {
             var user = await _userManager.GetUserAsync(User);
+            // Cần kiểm tra null cho user và lecturer để tránh lỗi runtime
+            if (user == null) return RedirectToAction("Login", "Account");
+
             var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+            if (lecturer == null) return Forbid(); // Hoặc xử lý lỗi phù hợp
 
             if (models != null && models.Count > 0)
             {
                 foreach (var item in models)
                 {
-                    // Tính toán điểm tổng kết (để gán Value - Enum)
+                    // Quá trình 30% + Giữa kỳ 20% + Cuối kỳ 50%
                     float total = (item.ProcessScore * 0.3f) + (item.MiddleScore * 0.2f) + (item.ExamScore * 0.5f);
+
+                    // Tính toán ScoreValues dựa trên total
+                    ScoreValues calculatedGrade;
+
+                    if (total >= 8.5)
+                        calculatedGrade = ScoreValues.A;
+                    else if (total >= 7.0)
+                        calculatedGrade = ScoreValues.B;
+                    else if (total >= 5.5)
+                        calculatedGrade = ScoreValues.C;
+                    else if (total >= 4.0)
+                        calculatedGrade = ScoreValues.D;
+                    else
+                        calculatedGrade = ScoreValues.F;
+
+                    // LƯU VÀO DB
                     if (item.ScoreId == 0)
                     {
-                        // == TRƯỜNG HỢP THÊM MỚI (INSERT) ==
-                        // Chỉ thêm nếu có nhập điểm (tránh lưu rác)
-                        if (item.ProcessScore > 0 || item.MiddleScore > 0 || item.ExamScore > 0)
+                        // == INSERT ==
+                        // Chỉ lưu nếu sinh viên có ít nhất một đầu điểm > 0 hoặc giảng viên cố tình nhập 0
+                        if (item.ProcessScore >= 0 || item.MiddleScore >= 0 || item.ExamScore >= 0)
                         {
                             var newScore = new Score
                             {
                                 CourseSectionId = sectionId,
                                 StudentId = item.StudentId,
-                                LecturerId = lecturer.LecturerId, // Gán ID giảng viên đang nhập
+                                LecturerId = lecturer.LecturerId,
                                 ProcessScore = item.ProcessScore,
                                 MiddleScore = item.MiddleScore,
                                 ExamScore = item.ExamScore,
-                                Value = item.Value // Đã tính ở trên
+                                Value = calculatedGrade // <--- Gán giá trị đã tính toán
                             };
                             _context.Scores.Add(newScore);
                         }
                     }
                     else
                     {
-                        // == TRƯỜNG HỢP CẬP NHẬT (UPDATE) ==
+                        // == UPDATE ==
                         var scoreInDb = await _context.Scores.FindAsync(item.ScoreId);
                         if (scoreInDb != null)
                         {
                             scoreInDb.ProcessScore = item.ProcessScore;
                             scoreInDb.MiddleScore = item.MiddleScore;
                             scoreInDb.ExamScore = item.ExamScore;
-                            scoreInDb.Value = item.Value; // Cập nhật lại xếp loại
-                            scoreInDb.LecturerId = lecturer.LecturerId; // Cập nhật người sửa cuối cùng
+                            scoreInDb.Value = calculatedGrade; // <--- Cập nhật xếp loại mới
+                            scoreInDb.LecturerId = lecturer.LecturerId; // Cập nhật người sửa
                         }
                     }
                 }
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã lưu bảng điểm thành công!";
+                TempData["Success"] = "Đã lưu bảng điểm và xếp loại thành công!";
             }
 
             return RedirectToAction(nameof(EnterGrades), new { sectionId = sectionId });

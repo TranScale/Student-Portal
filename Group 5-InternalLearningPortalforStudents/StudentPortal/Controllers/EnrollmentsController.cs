@@ -86,7 +86,7 @@ namespace StudentPortal.Controllers
                 {
                     StudentId = studentId,
                     CourseSectionId = id,
-                    Status = EnrollmentStatus.Pending // Chờ duyệt
+                    //Status = EnrollmentStatus.Pending // Chờ duyệt
                 };
                 _context.Add(enrollment);
 
