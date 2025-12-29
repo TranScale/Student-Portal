@@ -1,8 +1,243 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "StudentDashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@* <div class="card mt-3 border-0" style="background: linear-gradient(90deg, rgba(106,17,203,1) 0%, rgba(37,117,252,1) 100%); border-radius: 15px;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="text-white">
+                <h3 class="mb-2 font-weight-bold">Xin chào, Trần Viết Hải! 👋</h3>
+                <p class="mb-0" style="font-size: 1.1rem; opacity: 0.9;">Chào mừng bạn quay trở lại Cổng thông tin sinh viên</p>
+            </div>
+            <div class="d-none d-md-block">
+                <img src="~/assets/images/man-laptop.png" alt="Welcome" style="height: 160px; object-fit: contain;" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+</div> *@
+<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+
+            <div class="col-12 col-lg-6 col-xl-6 border-light">
+                <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; min-height: 100px;">
+                    <h4 class="mb-2 text-white font-weight-bold">Xin chào, Trần Viết Hải! </h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">
+                        Chào mừng bạn quay trở lại Cổng thông tin sinh viên
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-3 col-xl-3 border-light">
+                <div class="card-body">
+                    <h4 class="mb-2 text-white font-weight-bold">Tổng số điểm</h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">8.5</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-3 col-xl-3 border-light">
+                <div class="card-body">
+                    <h4 class="mb-2 text-white font-weight-bold">Số tín chỉ</h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">135/147</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-8">
+        <div class="row">
+
+            <div class="col-12 col-lg-5 mb-3">
+                <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
+                    <div class="card-header d-flex justify-content-between align-items-center border-0 p-2">
+                        <button class="btn btn-sm text-white-50"><i class="fa fa-chevron-left"></i></button>
+                        <span class="font-weight-bold text-white">Tháng 12 - 2025</span>
+                        <button class="btn btn-sm text-white-50"><i class="fa fa-chevron-right"></i></button>
+                    </div>
+                    <div class="card-body p-2">
+                        <table class="table table-borderless table-sm text-center text-white mb-0" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr class="text-white-50">
+                                    <th class="p-1">T2</th>
+                                    <th class="p-1">T3</th>
+                                    <th class="p-1">T4</th>
+                                    <th class="p-1">T5</th>
+                                    <th class="p-1">T6</th>
+                                    <th class="p-1">T7</th>
+                                    <th class="text-danger p-1">CN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted p-2">24</td>
+                                    <td class="text-muted p-2">25</td>
+                                    <td class="text-muted p-2">26</td>
+                                    <td class="text-muted p-2">27</td>
+                                    <td class="text-muted p-2">28</td>
+                                    <td class="p-2">1</td>
+                                    <td class="p-2">2</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">3</td>
+                                    <td class="p-2">4</td>
+                                    <td class="p-2">5</td>
+                                    <td class="p-2">6</td>
+                                    <td class="p-2">7</td>
+                                    <td class="p-2">8</td>
+                                    <td class="p-2">9</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">10</td>
+                                    <td class="p-2">11</td>
+                                    <td class="p-2">12</td>
+                                    <td class="p-2">13</td>
+                                    <td class="p-2">14</td>
+                                    <td class="p-2">15</td>
+                                    <td class="p-2">16</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">17</td>
+                                    <td class="p-2">18</td>
+                                    <td class="p-2">19</td>
+                                    <td class="p-2">20</td>
+                                    <td class="p-2">21</td>
+                                    <td class="p-2">22</td>
+                                    <td class="p-2">23</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">24</td>
+                                    <td class="p-2">25</td>
+                                    <td class="p-2">26</td>
+                                    <td class="p-2">27</td>
+                                    <td class="p-2">28</td>
+                                    <td class="p-1">
+                                        <span style="display:inline-block; width:28px; height:28px; line-height:26px; border: 1px solid #fff; border-radius: 50%; font-weight: bold; background: rgba(255,255,255,0.1);">29</span>
+                                    </td>
+                                    <td class="p-2">30</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">31</td>
+                                    <td class="text-muted p-2">1</td>
+                                    <td class="text-muted p-2">2</td>
+                                    <td class="text-muted p-2">3</td>
+                                    <td class="text-muted p-2">4</td>
+                                    <td class="text-muted p-2">5</td>
+                                    <td class="text-muted p-2">6</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-7 mb-3">
+                <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
+                    <div class="card-header d-flex justify-content-between align-items-center border-bottom border-light-3 p-2 pl-3 pr-3">
+                        <span class="text-white font-weight-bold"><i class="fa fa-calendar-check-o mr-2"></i>Thời khóa biểu</span>
+                    </div>
+
+                    <div class="card-body p-0" style="height: 330px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush bg-transparent">
+
+                            <li class="list-group-item bg-transparent border-light-3 py-2">
+                                <div class="d-flex">
+                                    <div class="mr-2 mt-1">
+                                        <span class="badge badge-primary">09:00</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h6 class="mb-1 text-white font-weight-bold" style="font-size: 0.85rem; line-height: 1.3;">Workshop "Nền tảng vàng cho thành công OLYMPIC"</h6>
+                                        <div class="small text-white-50" style="font-size: 0.75rem;">
+                                            <i class="fa fa-user mr-1"></i> P. CTSV &bull;
+                                            <i class="fa fa-map-marker ml-1 mr-1"></i> Phòng Democracy 03.10
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="list-group-item bg-transparent border-light-3 py-2">
+                                <div class="d-flex">
+                                    <div class="mr-2 mt-1">
+                                        <span class="badge badge-info">10:00</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h6 class="mb-1 text-white font-weight-bold" style="font-size: 0.85rem; line-height: 1.3;">Vòng loại Hùng biện Tiếng Anh Liên Trường</h6>
+                                        <div class="small text-white-50" style="font-size: 0.75rem;">
+                                            <i class="fa fa-user mr-1"></i> Khoa Tiếng Anh <br>
+                                            <span class="text-success"><i class="fa fa-globe mr-1"></i> Online (Teams)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="list-group-item bg-transparent border-0 py-2">
+                                <div class="d-flex">
+                                    <div class="mr-2 mt-1">
+                                        <span class="badge badge-warning">18:00</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h6 class="mb-1 text-white font-weight-bold" style="font-size: 0.85rem; line-height: 1.3;">Mentoring Green Business Challenge</h6>
+                                        <div class="small text-white-50" style="font-size: 0.75rem;">
+                                            <i class="fa fa-user mr-1"></i> Khoa KT &bull;
+                                            <i class="fa fa-map-marker ml-1 mr-1"></i> Phòng Einstein 04.01
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4 col-xl-4">
+        <div class="card h-100" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="card-body">
+                <div class="card-title text-white">Vertical Form</div>
+                <hr style="border-top: 1px solid rgba(255,255,255,0.1);">
+
+                <form>
+                    <div class="form-group mb-3">
+                        <label for="input-1" class="text-white-50">Họ và tên</label>
+                        <input type="text" class="form-control bg-transparent text-white border-white-50" id="input-1" placeholder="Điền họ và tên">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-2" class="text-white-50">Email</label>
+                        <input type="text" class="form-control bg-transparent text-white border-white-50" id="input-2" placeholder="Điền email">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-3" class="text-white-50">Số điện thoại</label>
+                        <input type="text" class="form-control bg-transparent text-white border-white-50" id="input-3" placeholder="Điền số điện thoại">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-4" class="text-white-50">Mã sinh viên</label>
+                        <input type="text" class="form-control bg-transparent text-white border-white-50" id="input-4" placeholder="Điền mã sinh viên">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-5" class="text-white-50">Ngành</label>
+                        <input type="text" class="form-control bg-transparent text-white border-white-50" id="input-5" placeholder="Điền ngành của bạn">
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-light px-5 w-100"><i class="icon-lock"></i> Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/plugins/Chart.js/Chart.min.js"></script>
+    
+    <script src="~/assets/js/index.js"></script>
+}
