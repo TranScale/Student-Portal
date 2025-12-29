@@ -1,0 +1,59 @@
+﻿@model IEnumerable<StudentPortal.Models.Enrollment>
+@{
+    ViewData["Title"] = "Môn học của tôi";
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-journal-bookmark-fill"></i> Môn Học Của Tôi</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="text-end mb-3">
+        <a asp-action="Register" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Đăng Ký Môn Mới
+        </a>
+    </div>
+
+    <table class="table table-hover border shadow-sm">
+        <thead class="table-primary">
+            <tr>
+                <th>Môn Học</th>
+                <th>Giảng Viên</th>
+                <th>Trạng Thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@item.CourseSection.Course.CourseName</td>
+                    <td>@(item.CourseSection.Lecturer?.User?.FullName ?? "TBA")</td>
+                    <td>
+                        @if (item.Status == StudentPortal.Models.EnrollmentStatus.Approved)
+                        {
+                            <span class="badge bg-success">Đã duyệt</span>
+                        }
+                        else if (item.Status == StudentPortal.Models.EnrollmentStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Đã hủy</span>
+                        }
+                    </td>
+                    <td>
+                        <form asp-action="CancelRegistration" method="post" onsubmit="return confirm('Hủy môn này?');">
+                            <input type="hidden" name="id" value="@item.EnrollmentId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

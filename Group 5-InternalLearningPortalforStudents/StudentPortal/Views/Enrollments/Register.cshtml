@@ -1,0 +1,48 @@
+﻿@model IEnumerable<StudentPortal.Models.CourseSection>
+@{
+    ViewData["Title"] = "Đăng ký tín chỉ";
+}
+
+<div class="container mt-4">
+    <h3 class="text-success">Đăng Ký Tín Chỉ</h3>
+    <hr />
+
+    <table class="table table-bordered align-middle">
+        <thead class="bg-light">
+            <tr>
+                <th>Lớp HP</th>
+                <th>Môn Học</th>
+                <th>Số TC</th>
+                <th>Giảng Viên</th>
+                <th>Phòng</th>
+                <th>Lịch Học</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><span class="badge bg-secondary">@item.CourseSectionId</span></td>
+                    <td class="fw-bold">@item.Course.CourseName</td>
+                    <td>@item.Course.CourseCredit</td>
+                    <td>@(item.Lecturer?.User?.FullName ?? "TBA")</td>
+                    <td>@item.Room</td>
+                    <td>
+                        <small>Thứ @item.Days <br /> (@item.Sessions)</small>
+                    </td>
+                    <td>
+                        <form asp-action="ConfirmRegistration" method="post">
+                            <input type="hidden" name="id" value="@item.CourseSectionId" />
+                            <button type="submit" class="btn btn-success btn-sm">Đăng Ký</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+</div>

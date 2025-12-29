@@ -1,0 +1,85 @@
+﻿@using StudentPortal.Models
+@model List<StudentPortal.Models.CourseSection>
+
+@{
+    ViewData["Title"] = "Thời khóa biểu";
+
+    // Định nghĩa danh sách các Ca học và Các Thứ để chạy vòng lặp
+    var sessions = new[] {
+        StudySessions.Ca1, StudySessions.Ca2, StudySessions.Ca3, StudySessions.Ca4, StudySessions.Ca5
+    };
+
+    var days = new[] {
+        ClassDays.Monday, ClassDays.Tuesday, ClassDays.Wednesday,
+        ClassDays.Thursday, ClassDays.Friday, ClassDays.Saturday, ClassDays.Sunday
+    };
+
+    // Hàm helper hiển thị tên thứ tiếng Việt
+    string GetDayName(ClassDays day) => day switch
+    {
+        ClassDays.Monday => "Thứ 2",
+        ClassDays.Tuesday => "Thứ 3",
+        ClassDays.Wednesday => "Thứ 4",
+        ClassDays.Thursday => "Thứ 5",
+        ClassDays.Friday => "Thứ 6",
+        ClassDays.Saturday => "Thứ 7",
+        ClassDays.Sunday => "CN",
+        _ => ""
+    };
+
+    // Hàm helper hiển thị giờ học (Giả định)
+    string GetSessionTime(StudySessions session) => session switch
+    {
+        StudySessions.Ca1 => "Ca 1 (07:00 - 09:15)",
+        StudySessions.Ca2 => "Ca 2 (09:30 - 11:45)",
+        StudySessions.Ca3 => "Ca 3 (12:30 - 14:45)",
+        StudySessions.Ca4 => "Ca 4 (15:00 - 17:15)",
+        StudySessions.Ca5 => "Ca 5 (17:30 - 19:45)",
+        _ => ""
+    };
+}
+
+<div class="container mt-4">
+    <h2 class="text-center text-primary mb-4"><i class="bi bi-calendar-week"></i> Thời Khóa Biểu Trong Tuần</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle shadow-sm">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th style="width: 15%">Ca Học</th>
+                    @foreach (var day in days)
+                    {
+                        <th style="width: 12%">@GetDayName(day)</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var session in sessions)
+                {
+                    <tr>
+                        <td class="bg-light fw-bold text-nowrap">@GetSessionTime(session)</td>
+                        @foreach (var day in days)
+                        {
+                            // LOGIC TÌM MÔN HỌC TRONG Ô NÀY
+                            // Kiểm tra xem có môn nào học vào (Thứ này) VÀ (Ca này) không
+                            var classesInCell = Model.Where(c => c.Days.HasFlag(day) && c.Sessions.HasFlag(session)).ToList();
+
+                            <td class="@(classesInCell.Any() ? "table-info" : "")">
+                                @foreach (var cls in classesInCell)
+                                {
+                                    <div class="card border-0 bg-transparent">
+                                        <div class="fw-bold text-primary">@cls.Course.CourseCode</div>
+                                        <div class="small">@cls.Course.CourseName</div>
+                                        <div class="badge bg-warning text-dark mt-1">
+                                            <i class="bi bi-geo-alt-fill"></i> @cls.Room
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
