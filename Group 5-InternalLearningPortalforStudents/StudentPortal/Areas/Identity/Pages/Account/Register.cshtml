@@ -1,0 +1,110 @@
+﻿@page
+@model RegisterModel
+@{
+    Layout = "~/Views/Shared/_UnauthorizeLayout.cshtml";
+    ViewData["Title"] = "Đăng ký Giảng viên";
+}
+
+<div id="wrapper">
+    <div class="card card-authentication1 mx-auto my-4">
+        <div class="card-body">
+            <div class="card-content p-2">
+                <div class="text-center">
+                    <img src="~/assets/images/logo-icon.png" alt="logo icon">
+                </div>
+                <div class="card-title text-uppercase text-center py-3">Đăng ký Giảng viên</div>
+
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.FullName" class="sr-only">Họ và tên</label>
+                        <div class="position-relative has-icon-right">
+                            <input asp-for="Input.FullName" class="form-control input-shadow" placeholder="Nhập Họ và tên">
+                            <div class="form-control-position">
+                                <i class="icon-user"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.Email" class="sr-only">Email</label>
+                        <div class="position-relative has-icon-right">
+                            <input asp-for="Input.Email" class="form-control input-shadow" placeholder="Nhập Email cá nhân">
+                            <div class="form-control-position">
+                                <i class="icon-envelope-open"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.FacultyId" class="sr-only">Khoa công tác</label>
+                        <div class="position-relative has-icon-right">
+                            <select asp-for="Input.FacultyId" asp-items="Model.FacultyList" class="form-control input-shadow">
+                                <option value="">-- Chọn Khoa công tác --</option>
+                            </select>
+                            <div class="form-control-position">
+                                <i class="icon-graduation"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.FacultyId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.Password" class="sr-only">Mật khẩu</label>
+                        <div class="position-relative has-icon-right">
+                            <input asp-for="Input.Password" class="form-control input-shadow" placeholder="Tạo mật khẩu">
+                            <div class="form-control-position">
+                                <i class="icon-lock"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.ConfirmPassword" class="sr-only">Xác nhận mật khẩu</label>
+                        <div class="position-relative has-icon-right">
+                            <input asp-for="Input.ConfirmPassword" class="form-control input-shadow" placeholder="Nhập lại mật khẩu">
+                            <div class="form-control-position">
+                                <i class="icon-lock"></i>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="icheck-material-white">
+                            <input type="checkbox" id="user-checkbox" checked="" required />
+                            <label for="user-checkbox">Tôi đồng ý với các Điều khoản & Quy định</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-light btn-block waves-effect waves-light">Đăng ký ngay</button>
+
+                    <div class="text-center mt-3">Hoặc đăng ký bằng</div>
+
+                    <div class="form-row mt-4">
+                        <div class="form-group mb-0 col-6">
+                            <button type="button" class="btn btn-light btn-block"><i class="fa fa-facebook-square"></i> Facebook</button>
+                        </div>
+                        <div class="form-group mb-0 col-6 text-right">
+                            <button type="button" class="btn btn-light btn-block"><i class="fa fa-twitter-square"></i> Twitter</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <div class="card-footer text-center py-3">
+            <p class="text-warning mb-0">Đã có tài khoản? <a asp-page="./Login"> Đăng nhập tại đây</a></p>
+        </div>
+    </div>
+
+    <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

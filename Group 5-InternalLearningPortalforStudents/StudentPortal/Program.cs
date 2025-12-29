@@ -21,6 +21,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<StudentPortalContext>(options =>
     options.UseSqlServer(connectionString));
 
+//builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<StudentPortalContext>();
+
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -110,7 +112,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Student}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();

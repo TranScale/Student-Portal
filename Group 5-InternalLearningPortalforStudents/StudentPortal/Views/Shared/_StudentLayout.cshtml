@@ -35,7 +35,7 @@
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
             <div class="brand-logo">
-                <a href="~/_Layout.cshtml">
+                <a href="~/">
                     <img src="~/assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
                     <h5 class="logo-text">uEF - Student Portal</h5>
                 </a>
@@ -49,7 +49,7 @@
                 </li>
 
                 <li>
-                    <a href="/Home/Profile">
+                    <a href="/Student/Profile">
                         <i class="zmdi zmdi-face"></i> <span>Thông tin cá nhân</span>
                     </a>
                 </li>
@@ -61,13 +61,13 @@
                 </li>
 
                 <li>
-                    <a href="/Home/Schedule">
+                    <a href="/Student/Schedule">
                         <i class="zmdi zmdi-grid"></i> <span>Thời khóa biểu</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="/Home/Notifications">
+                    <a href="/Student/Notifications">
                         <i class="zmdi zmdi-notifications-active"></i> <span>Thông báo</span>
                     </a>
                 </li>
@@ -148,7 +148,13 @@
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item"><i class="icon-settings mr-2"></i> Setting</li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Logout</li>
+                            <li>
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Student", new { area = "" })" method="post">
+                                    <button type="submit" class="dropdown-item" style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;">
+                                        <i class="icon-power mr-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>
