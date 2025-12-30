@@ -29,6 +29,8 @@ namespace StudentPortal.Data
         public DbSet<Score> Scores { get; set; }
         public DbSet<ScheduleItem> ScheduleItems { get; set; }
         public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<Attendee> Attendees { get; set; }
+        public DbSet<Semester> Semesters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
