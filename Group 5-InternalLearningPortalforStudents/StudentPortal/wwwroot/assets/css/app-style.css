@@ -1,4 +1,4 @@
-/*
+﻿/*
 Template Name: Dashtreme Admin
 Author: CODERVENT
 Email: codervent@gmail.com
@@ -19,7 +19,7 @@ File: app-style
   - Buttons
   - User Cards
   - Forms
-  - Tables
+  - table
   - Alerts
   - Badges
   - Paginations
@@ -1997,6 +1997,90 @@ table.grid td {
 .table-active, .table-active>td, .table-active>th {
     background-color: rgba(255, 255, 255, 0.07);
 }
+/* 1. ĐỊNH HÌNH KHUNG BANNER */
+/* Mình bỏ background color đi, để nó ăn theo màu của Card hoặc Theme */
+.profile-header-banner {
+    height: 200px; /* Bắt buộc phải có chiều cao để tạo khoảng trống */
+    position: relative;
+    /* Nếu theme của bạn nền đen, banner sẽ đen. Nếu muốn banner khác màu body, thêm class bg- màu vào div HTML */
+}
+
+/* 2. ĐỊNH VỊ AVATAR (QUAN TRỌNG NHẤT) */
+/* Code này giúp Avatar trồi lên trên Banner */
+.profile-user-avatar {
+    position: relative;
+    margin-top: -70px; /* Kéo lên 70px so với vị trí gốc */
+    padding-left: 20px;
+    z-index: 1; /* Đảm bảo nằm đè lên trên */
+}
+
+    .profile-user-avatar img {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        /* Giữ lại border để tách biệt avatar với nền, nhưng dùng màu trong suốt hoặc theo theme */
+        border: 4px solid rgba(255, 255, 255, 0.2);
+    }
+
+/* 3. RESPONSIVE MOBILE */
+@media (max-width: 768px) {
+    .profile-user-avatar {
+        text-align: center;
+        margin-top: -50px; /* Mobile kéo lên ít hơn chút */
+        padding-left: 0;
+    }
+
+    .profile-user-info {
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+/* Icon box chỉnh lại size cho đều, bỏ màu nền cứng */
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    background: rgba(255,255,255,0.1); /* Giữ độ mờ nhẹ để thấy icon */
+}
+
+.custom-table-scroll {
+    max-height: 250px; /* Chiều cao tối đa, quá mức này sẽ hiện scroll */
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    /* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari/Edge) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+    /* Chỉnh giao diện thanh cuộn (Webkit) */
+    .custom-table-scroll::-webkit-scrollbar {
+        width: 6px; /* Độ rộng thanh cuộn */
+    }
+
+    .custom-table-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-table-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3); /* Màu thanh cuộn mờ */
+        border-radius: 20px;
+    }
+
+    /* --- GHIM TIÊU ĐỀ (STICKY HEADER) --- */
+    /* Giúp dòng tiêu đề đứng yên khi cuộn */
+    .custom-table-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        /* Phải có màu nền, nếu không chữ sẽ bị trôi xuyên qua header */
+        /* Mình lấy màu gần giống background thẻ Card của bạn */
+        background-color: rgba(69, 88, 115, 0.95);
+        color: #fff; /* Chữ màu trắng cho nổi */
+        border-top: none; /* Bỏ viền trên cho đỡ thô */
+    }
 
 /* Alerts*/
 .alert {

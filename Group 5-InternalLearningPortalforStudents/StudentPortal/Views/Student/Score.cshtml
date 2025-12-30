@@ -1,0 +1,119 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using StudentPortal.Models
+@inject UserManager<User> UserManager
+@{
+    ViewData["Title"] = "StudentDashboard";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var fullName = currentUser?.FullName ?? "người đẹp";
+}
+<div class="container-fluid p-0">
+    <div class="uef-header-section mb-3">
+        <h6 class="font-weight-bold">
+            <i class="fa fa-cog uef-icon-red mr-2"></i> HỌC KỲ - NĂM HỌC
+        </h6>
+        <div class="uef-red-line"></div>
+    </div>
+
+    <div class="uef-filter-box">
+        <div class="row mb-3">
+            <div class="col-md-6 mb-2 mb-md-0">
+                <select class="form-control custom-select-uef">
+                    <option>Học kỳ 1 - Năm học 2025 - 2026</option>
+                    <option>Học kỳ 2 - Năm học 2025 - 2026</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="card bg-transparent">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-light pb-2">
+                <h5 class="card-title text-white mb-0">
+                    <i class="fa fa-certificate"></i> XEM ĐIỂM
+                </h5>
+            </div>
+
+            <div class="table-responsive custom-table-scroll">
+                <table class="table table-hover text-white">
+                    <thead>
+                        <tr style="background-color: rgba(0,0,0,0.2);">
+                            <th scope="col">Stt</th>
+                            <th scope="col">Mã MH <i class="fa fa-caret-up"></i></th>
+                            <th scope="col">Nhóm/tổ môn học</th>
+                            <th scope="col">Tên môn học</th>
+                            <th scope="col">Số tín chỉ</th>
+                            <th scope="col">ĐIểm quá trình (30%)</th>
+                            <th scope="col">Điểm giữa kỳ (20%)</th>
+                            <th scope="col">Điểm thi</th>
+                            <th scope="col">Điểm TK (10)</th>
+                            <th scope="col">Điểm TK (C)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="font-weight-bold" style="background-color: rgba(255,255,255,0.2); color: #fff;">
+                            <td colspan="11">Học kỳ 2 - Năm học 2025 - 2026</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>ITE1231E</td>
+                            <td>A01E</td>
+                            <td>Kiểm chứng chất lượng phần mềm</td>
+                            <td>3</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>ITE1360</td>
+                            <td>A00</td>
+                            <td>Thực tập tốt nghiệp</td>
+                            <td>3</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>ITE1446</td>
+                            <td>A00</td>
+                            <td>Chuyên đề tốt nghiệp</td>
+                            <td>6</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 p-3 rounded" style="background-color: rgba(255, 255, 255, 0.1); color: #fff; font-size: 0.9rem;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled mb-0">
+                            <li>- Điểm trung bình học kỳ hệ 4:</li>
+                            <li>- Điểm trung bình học kỳ hệ 10:</li>
+                            <li>- Số tín chỉ đạt học kỳ:</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled mb-0">
+                            <li>- Điểm trung bình tích lũy hệ 4:</li>
+                            <li>- Điểm trung bình tích lũy hệ 10:</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

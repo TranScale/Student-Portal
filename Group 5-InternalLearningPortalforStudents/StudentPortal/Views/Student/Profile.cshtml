@@ -1,0 +1,253 @@
+﻿@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="profile-header-banner">
+                    <div class="banner-content text-right p-4">
+                        <h3 class="mt-5">WELCOME TO UEF</h3>
+                        <p>Be who you want to be</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-lg-2 col-md-3">
+                        <div class="profile-user-avatar">
+                            <img src="https://via.placeholder.com/150" class="img-fluid img-thumbnail rounded" alt="user avatar">
+                        </div>
+                    </div>
+                    <div class="col-lg-10 col-md-9">
+                        <div class="profile-user-info mt-3 mt-md-0 ml-md-3">
+                            <h4 class="mb-1">Trần Học Trò</h4>
+                            <p class="mb-0"><i class="fa fa-desktop mr-1"></i> Công nghệ thông tin &nbsp;|&nbsp; <i class="fa fa-map-marker mr-1"></i> Hồ Chí Minh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body border-top">
+                <ul class="nav nav-pills nav-pills-primary">
+                    <li class="nav-item">
+                        <a href="javascript:void();" class="nav-link active"><i class="icon-user"></i> Hồ sơ cá nhân</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void();" class="nav-link"><i class="icon- "></i> Thông tin cá nhân </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mt-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-uppercase pb-2">Thông tin liên hệ</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fa fa-envelope-o mr-2"></i> <strong>Email:</strong> troth@uef.edu.vn</li>
+                    <li class="mb-2"><i class="fa fa-id-card-o mr-2"></i> <strong>MSSV:</strong> 225051529</li>
+                    <li class="mb-2"><i class="fa fa-phone mr-2"></i> <strong>SĐT:</strong> 0898445830</li>
+                </ul>
+                <hr>
+                <h5 class="card-title text-uppercase pb-2">Thành viên của</h5>
+                <div class="media align-items-center mb-3">
+                    <div class="icon-box mr-3"><i class="fa fa-university"></i></div>
+                    <div class="media-body">
+                        <h6 class="mt-0 mb-1">Trường đại học</h6>
+                        <p class="mb-0 small">UEF Đại học Kinh tế - Tài chính</p>
+                    </div>
+                </div>
+                <div class="media align-items-center mb-3">
+                    <div class="icon-box mr-3"><i class="fa fa-briefcase"></i></div>
+                    <div class="media-body">
+                        <h6 class="mt-0 mb-1">Khoa</h6>
+                        <p class="mb-0 small">Công Nghệ Thông Tin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="row mt-3">
+            <div class="col-12 col-lg-6">
+                <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-white">Điểm TB Tích lũy</p>
+                                <h4 class="mb-0 text-white mt-2">3.42</h4>
+                            </div>
+                            <div class="ml-auto font-35 text-white"><i class="fa fa-graduation-cap"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-white">Tín chỉ đã học</p>
+                                <h4 class="mb-0 text-white mt-2">135</h4>
+                            </div>
+                            <div class="ml-auto font-35 text-white"><i class="fa fa-book"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Danh sách các môn học</h5>
+
+                <div class="table-responsive custom-table-scroll">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Mã học phần</th>
+                                <th scope="col">Tên môn học</th>
+                                <th scope="col">Số TC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>CSC101</td>
+                                <td>Lập trình Web ASP.NET</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>ENG202</td>
+                                <td>Tiếng Anh chuyên ngành 2</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>SOFT01</td>
+                                <td>Kỹ năng mềm</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>TEST01</td>
+                                <td>Môn test cho dài ra 1</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">5</th>
+                                <td>TEST02</td>
+                                <td>Môn test cho dài ra 2</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">6</th>
+                                <td>TEST03</td>
+                                <td>Môn test cho dài ra 3</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <style>
+    1. ĐỊNH HÌNH KHUNG BANNER */
+    /* Mình bỏ background color đi, để nó ăn theo màu của Card hoặc Theme */
+    .profile-header-banner {
+        height: 200px; /* Bắt buộc phải có chiều cao để tạo khoảng trống */
+        position: relative;
+        /* Nếu theme của bạn nền đen, banner sẽ đen. Nếu muốn banner khác màu body, thêm class bg- màu vào div HTML */
+    }
+
+    /* 2. ĐỊNH VỊ AVATAR (QUAN TRỌNG NHẤT) */
+    /* Code này giúp Avatar trồi lên trên Banner */
+    .profile-user-avatar {
+        position: relative;
+        margin-top: -70px; /* Kéo lên 70px so với vị trí gốc */
+        padding-left: 20px;
+        z-index: 1; /* Đảm bảo nằm đè lên trên */
+    }
+
+        .profile-user-avatar img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            /* Giữ lại border để tách biệt avatar với nền, nhưng dùng màu trong suốt hoặc theo theme */
+            border: 4px solid rgba(255, 255, 255, 0.2);
+        }
+
+    /* 3. RESPONSIVE MOBILE */
+    @@media (max-width: 768px) {
+        .profile-user-avatar {
+            text-align: center;
+            margin-top: -50px; /* Mobile kéo lên ít hơn chút */
+            padding-left: 0;
+        }
+
+        .profile-user-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+    }
+
+    /* Icon box chỉnh lại size cho đều, bỏ màu nền cứng */
+    .icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-size: 18px;
+        background: rgba(255,255,255,0.1); /* Giữ độ mờ nhẹ để thấy icon */
+    }
+
+    .custom-table-scroll {
+        max-height: 250px; /* Chiều cao tối đa, quá mức này sẽ hiện scroll */
+        overflow-y: auto; /* Cho phép cuộn dọc */
+        /* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari/Edge) */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
+        /* Chỉnh giao diện thanh cuộn (Webkit) */
+        .custom-table-scroll::-webkit-scrollbar {
+            width: 6px; /* Độ rộng thanh cuộn */
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3); /* Màu thanh cuộn mờ */
+            border-radius: 20px;
+        }
+
+        /* --- GHIM TIÊU ĐỀ (STICKY HEADER) --- */
+        /* Giúp dòng tiêu đề đứng yên khi cuộn */
+        .custom-table-scroll thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            /* Phải có màu nền, nếu không chữ sẽ bị trôi xuyên qua header */
+            /* Mình lấy màu gần giống background thẻ Card của bạn */
+            background-color: rgba(69, 88, 115, 0.95);
+            color: #fff; /* Chữ màu trắng cho nổi */
+            border-top: none; /* Bỏ viền trên cho đỡ thô
+        }
+</style> *@

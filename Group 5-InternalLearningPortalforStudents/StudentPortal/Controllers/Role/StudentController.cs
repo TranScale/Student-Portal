@@ -52,5 +52,19 @@ namespace StudentPortal.Controllers.Role
 
             return View();
         }
+
+
+        //Đợi code sau
+        public ActionResult Profile()
+        {
+            return View();
+        }
+
+        public ActionResult Score()
+        {
+            return View();
+        }
+
+
     }
 }
