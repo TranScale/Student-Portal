@@ -7,6 +7,8 @@ namespace StudentPortal.Models
     public class Student
     {
         public int StudentId { get; set; }
+        [Display(Name = "Ngày nhập học")]
+        public DateOnly StartStudyDate { get; set; }
         [Required]
         [Display(Name = "Mã sinh viên")]
         public string StudentCode { get; set; } = string.Empty;
