@@ -51,5 +51,12 @@ namespace StudentPortal.Models
 
         //Thêm: Một CourseSection gồm nhiều ScheduleItem
         public List<ScheduleItem> Schedules { get; set; } = new();
+
+        [Display(Name = "Học kỳ")]
+        public int SemesterId { get; set; }
+
+        [ForeignKey("SemesterId")]
+        [ValidateNever]
+        public Semester Semester { get; set; } = null!;
     }
 }

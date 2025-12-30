@@ -16,6 +16,8 @@ namespace StudentPortal.Models
         public float MiddleScore { get; set; } //20%
         [Display(Name = "Điểm thi")]
         public float ExamScore { get; set; } // 50%
+        [Display(Name = "Điểm (Hệ số 10)")]
+        public float FinalScore { get; set; }
 
         //Khóa ngoại, điểm của một môn học
         [ForeignKey("CourseSection")]
