@@ -15,14 +15,17 @@
     </div>
 
     <div class="uef-filter-box">
-        <div class="row mb-3">
-            <div class="col-md-6 mb-2 mb-md-0">
-                <select class="form-control custom-select-uef">
-                    <option>Học kỳ 1 - Năm học 2025 - 2026</option>
-                    <option>Học kỳ 2 - Năm học 2025 - 2026</option>
-                </select>
+        <form method="get" asp-action="Score">
+            <div class="row mb-3">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <select class="form-control custom-select-uef"
+                            name="semesterId"
+                            asp-items="@(ViewData["SemesterList"] as SelectList)"
+                            onchange="this.form.submit()">
+                    </select>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 <div class="col-lg-12">

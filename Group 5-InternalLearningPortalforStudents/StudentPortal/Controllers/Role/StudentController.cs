@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using StudentPortal.Business;
+using StudentPortal.Business.Implementation;
+using StudentPortal.Data;
 using StudentPortal.Models;
 using StudentPortal.Services.Implementations;
 using System.Threading.Tasks;
-using StudentPortal.Business;
-using StudentPortal.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 namespace StudentPortal.Controllers.Role
 {
@@ -60,9 +62,39 @@ namespace StudentPortal.Controllers.Role
             return View();
         }
 
-        public ActionResult Score()
+        public async Task<IActionResult> Score(int? semesterId)
         {
-            return View();
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if(currentUser == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+                if(student == null)
+                {
+                    return View("Error");
+                }
+
+                DateTime studentDateStudy = student.StartStudyDate.ToDateTime(TimeOnly.MinValue);
+
+                var semester = await _context.Semesters
+                    .Where(s => s.StartDate.Date >= studentDateStudy)
+                    .OrderByDescending(s => s.StartDate)
+                    .Select(s => new
+                    {
+                        Id = s.SemesterId,
+                        DisplayText = $"{s.SemesterName} - Năm học {s.AcademicYear}"
+                    }).ToListAsync();
+                int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 0);
+                ViewData["SemesterList"] = new SelectList(semester, "Id", "DisplayText",selectedValue);
+                return View();
+            }
+            catch(Exception)
+            {
+                return View("Error");
+            }
         }
 
 
