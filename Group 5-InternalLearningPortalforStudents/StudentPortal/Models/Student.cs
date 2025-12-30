@@ -27,5 +27,8 @@ namespace StudentPortal.Models
         //Khóa ngoại, sinh viên có danh sách đăng ký
         [ValidateNever]
         public List<Enrollment> Enrollments { get; set; } = new();
+
+        [ValidateNever]
+        public List<Attendee> Attendances { get; set; } = new();
     }
 }
