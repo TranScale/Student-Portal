@@ -1,10 +1,58 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using StudentPortal.Models
-@inject UserManager<User> UserManager
+﻿@using StudentPortal.Models
+@model IEnumerable<Score>
 @{
-    ViewData["Title"] = "StudentDashboard";
-    var currentUser = await UserManager.GetUserAsync(User);
-    var fullName = currentUser?.FullName ?? "người đẹp";
+    ViewData["Title"] = "Xem điểm";
+
+    // 1. Lấy dữ liệu từ ViewData ép kiểu về List
+    var listScores = ViewData["ListScores"] as List<Score>;
+
+    // 2. Khởi tạo biến để tính toán thống kê
+    double diemTB_He10 = 0;
+    double diemTB_He4 = 0;
+    int tongTinChiHocKy = 0;
+    int soTinChiDat = 0;
+
+    // Biến tạm để tính tổng tích lũy cho học kỳ này
+    double tongDiemTinChi_10 = 0;
+    double tongDiemTinChi_4 = 0;
+
+    if (listScores != null && listScores.Any())
+    {
+        foreach (var item in listScores)
+        {
+            // Lấy số tín chỉ của môn
+            int tinChi = item.CourseSection?.Course?.CourseCredit ?? 0;
+
+            // Lấy điểm hệ 10
+            float d10 = item.FinalScore;
+
+            // Quy đổi sang hệ 4 (Quy tắc thông thường)
+            double d4 = 0;
+            if (d10 >= 8.5) { d4 = 4.0; }
+            else if (d10 >= 7.0) { d4 = 3.0; }
+            else if (d10 >= 5.5) { d4 = 2.0; }
+            else if (d10 >= 4.0) { d4 = 1.0; }
+            else { d4 = 0; }
+
+            // Cộng dồn tính toán
+            tongTinChiHocKy += tinChi;
+            tongDiemTinChi_10 += (d10 * tinChi);
+            tongDiemTinChi_4 += (d4 * tinChi);
+
+            // Kiểm tra qua môn (Giả sử >= 4.0 là qua môn)
+            if (d10 >= 4.0)
+            {
+                soTinChiDat += tinChi;
+            }
+        }
+
+        // Tính trung bình
+        if (tongTinChiHocKy > 0)
+        {
+            diemTB_He10 = tongDiemTinChi_10 / tongTinChiHocKy;
+            diemTB_He4 = tongDiemTinChi_4 / tongTinChiHocKy;
+        }
+    }
 }
 <div class="container-fluid p-0">
     <div class="uef-header-section mb-3">
@@ -31,70 +79,54 @@
 <div class="col-lg-12">
     <div class="card bg-transparent">
         <div class="card-body">
-
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-light pb-2">
-                <h5 class="card-title text-white mb-0">
-                    <i class="fa fa-certificate"></i> XEM ĐIỂM
-                </h5>
-            </div>
-
             <div class="table-responsive custom-table-scroll">
                 <table class="table table-hover text-white">
                     <thead>
                         <tr style="background-color: rgba(0,0,0,0.2);">
                             <th scope="col">Stt</th>
                             <th scope="col">Mã MH <i class="fa fa-caret-up"></i></th>
-                            <th scope="col">Nhóm/tổ môn học</th>
+                            <th scope="col">Nhóm/Tổ</th>
                             <th scope="col">Tên môn học</th>
-                            <th scope="col">Số tín chỉ</th>
-                            <th scope="col">ĐIểm quá trình (30%)</th>
-                            <th scope="col">Điểm giữa kỳ (20%)</th>
-                            <th scope="col">Điểm thi</th>
+                            <th scope="col" class="text-center">Số TC</th>
+                            <th scope="col">Đ.Quá trình (30%)</th>
+                            <th scope="col">Đ.Giữa kỳ (20%)</th>
+                            <th scope="col">Đ.Thi</th>
                             <th scope="col">Điểm TK (10)</th>
                             <th scope="col">Điểm TK (C)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="font-weight-bold" style="background-color: rgba(255,255,255,0.2); color: #fff;">
-                            <td colspan="11">Học kỳ 2 - Năm học 2025 - 2026</td>
+                            <td colspan="10">@ViewData["CurrentSemesterName"]</td>
                         </tr>
 
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>ITE1231E</td>
-                            <td>A01E</td>
-                            <td>Kiểm chứng chất lượng phần mềm</td>
-                            <td>3</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>ITE1360</td>
-                            <td>A00</td>
-                            <td>Thực tập tốt nghiệp</td>
-                            <td>3</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>ITE1446</td>
-                            <td>A00</td>
-                            <td>Chuyên đề tốt nghiệp</td>
-                            <td>6</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        @if (listScores != null && listScores.Any())
+                        {
+                            int stt = 1;
+                            foreach (var item in listScores)
+                            {
+                                <tr>
+                                    <th scope="row">@(stt++)</th>
+                                    <td>@item.CourseSection?.Course?.CourseCode</td>
+                                    <td>@item.CourseSection?.Room</td>
+                                    <td>@item.CourseSection?.Course?.CourseName</td>
+                                    <td class="text-center">@item.CourseSection?.Course?.CourseCredit</td>
+
+                                    <td>@item.ProcessScore</td>
+                                    <td>@item.MiddleScore</td>
+                                    <td>@item.ExamScore</td>
+
+                                    <td class="font-weight-bold">@item.FinalScore</td>
+                                    <td class="font-weight-bold text-warning">@item.Value</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center py-3">Chưa có dữ liệu điểm.</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -103,15 +135,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ul class="list-unstyled mb-0">
-                            <li>- Điểm trung bình học kỳ hệ 4:</li>
-                            <li>- Điểm trung bình học kỳ hệ 10:</li>
-                            <li>- Số tín chỉ đạt học kỳ:</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-unstyled mb-0">
-                            <li>- Điểm trung bình tích lũy hệ 4:</li>
-                            <li>- Điểm trung bình tích lũy hệ 10:</li>
+                            <li>- Điểm trung bình học kỳ hệ 4: <span class="font-weight-bold">@diemTB_He4.ToString("N2")</span></li>
+                            <li>- Điểm trung bình học kỳ hệ 10: <span class="font-weight-bold">@diemTB_He10.ToString("N2")</span></li>
+                            <li>- Số tín chỉ đạt học kỳ: <span class="font-weight-bold">@soTinChiDat</span> / @tongTinChiHocKy</li>
                         </ul>
                     </div>
                 </div>

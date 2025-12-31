@@ -87,8 +87,20 @@ namespace StudentPortal.Controllers.Role
                         Id = s.SemesterId,
                         DisplayText = $"{s.SemesterName} - Năm học {s.AcademicYear}"
                     }).ToListAsync();
-                int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 0);
+                int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 1);
                 ViewData["SemesterList"] = new SelectList(semester, "Id", "DisplayText",selectedValue);
+
+                var currentSemester = semester.FirstOrDefault(s => s.Id == selectedValue);
+                ViewData["CurrentSemesterName"] = currentSemester?.DisplayText;
+
+                var scoreList = await _context.Scores
+                    .Include(s => s.CourseSection)
+                    .ThenInclude(cs => cs.Course)
+                    .Where(s => s.StudentId == student.StudentId && s.CourseSection.SemesterId == selectedValue)
+                    .ToListAsync();
+
+                ViewData["ListScores"] = scoreList;
+
                 return View();
             }
             catch(Exception)

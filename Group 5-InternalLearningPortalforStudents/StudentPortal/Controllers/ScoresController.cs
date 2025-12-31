@@ -134,6 +134,7 @@ namespace StudentPortal.Controllers
                 {
                     // Quá trình 30% + Giữa kỳ 20% + Cuối kỳ 50%
                     float total = (item.ProcessScore * 0.3f) + (item.MiddleScore * 0.2f) + (item.ExamScore * 0.5f);
+                    item.FinalScore = total;
 
                     // Tính toán ScoreValues dựa trên total
                     ScoreValues calculatedGrade;
@@ -164,7 +165,8 @@ namespace StudentPortal.Controllers
                                 ProcessScore = item.ProcessScore,
                                 MiddleScore = item.MiddleScore,
                                 ExamScore = item.ExamScore,
-                                Value = calculatedGrade // <--- Gán giá trị đã tính toán
+                                Value = calculatedGrade, // <--- Gán giá trị đã tính toán
+                                FinalScore = item.FinalScore
                             };
                             _context.Scores.Add(newScore);
                         }
@@ -178,6 +180,7 @@ namespace StudentPortal.Controllers
                             scoreInDb.ProcessScore = item.ProcessScore;
                             scoreInDb.MiddleScore = item.MiddleScore;
                             scoreInDb.ExamScore = item.ExamScore;
+                            scoreInDb.FinalScore = item.FinalScore;
                             scoreInDb.Value = calculatedGrade; // <--- Cập nhật xếp loại mới
                             scoreInDb.LecturerId = lecturer.LecturerId; // Cập nhật người sửa
                         }
