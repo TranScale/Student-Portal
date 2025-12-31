@@ -1,0 +1,48 @@
+﻿@model StudentPortal.Models.CourseMaterial
+
+@{
+    ViewData["Title"] = "Upload tài liệu";
+    int sectionId = ViewBag.SectionId;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Upload tài liệu mới</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="sectionId" value="@sectionId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Tên hiển thị tài liệu</label>
+                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Bài giảng chương 1..." required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Chọn File (PDF/Word)</label>
+                            <input type="file" name="fileUpload" class="form-control" required accept=".pdf,.doc,.docx,.ppt,.pptx" />
+                            <small class="text-muted">Chấp nhận file tài liệu office hoặc pdf.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" asp-route-sectionId="@sectionId" class="btn btn-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">Lưu & Upload</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

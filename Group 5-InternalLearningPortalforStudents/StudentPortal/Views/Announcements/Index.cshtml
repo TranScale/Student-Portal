@@ -1,0 +1,76 @@
+﻿@model IEnumerable<StudentPortal.Models.Announcement>
+@using StudentPortal.Models
+
+@{
+    ViewData["Title"] = "Bảng tin";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-megaphone"></i> Bảng tin thông báo</h2>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Đăng thông báo mới
+            </a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center text-muted py-5">
+                <h4>Hiện chưa có thông báo nào.</h4>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="card border-start border-4 border-primary shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title fw-bold text-dark">@item.Title</h5>
+                                <small class="text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+
+                            <span class="badge bg-info text-dark mb-2">
+                                Gửi đến: @item.Taker
+                            </span>
+
+                            <h6 class="card-subtitle mb-2 text-muted fst-italic">
+                                @item.Summary
+                            </h6>
+
+                            <p class="card-text mt-3">@item.Content</p>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                <small class="text-secondary">
+                                    Đăng bởi: <strong>@(item.User?.UserName ?? "Unknown")</strong>
+                                </small>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <form asp-action="Delete" asp-route-id="@item.AnnouncementId" method="post" onsubmit="return confirm('Xóa thông báo này?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa bài</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
