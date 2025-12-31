@@ -14,15 +14,6 @@ namespace StudentPortal.Models
         [Display(Name = "Ngày học")]
         [DataType(DataType.Date)]
         public DateTime ScheduleDate { get; set; }
-        //[Required]
-        //[Display(Name = "Giờ bắt đầu")]
-        //[DataType(DataType.Time)]
-        //public TimeSpan StartTime { get; set; } // Dùng TimeSpan để lưu giờ
-
-        //[Required]
-        //[Display(Name = "Giờ kết thúc")]
-        //[DataType(DataType.Time)]
-        public TimeSpan EndTime { get; set; }
 
         //Khóa ngoại, một thời khóa biểu là một môn học
         [ForeignKey("CourseSection")]
