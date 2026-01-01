@@ -1,0 +1,240 @@
+﻿<style>
+    /* --- GIỮ NGUYÊN STYLE NỀN & BỐ CỤC --- */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    .table-transparent {
+        color: #fff;
+        margin-bottom: 0;
+    }
+
+        .table-transparent th, .table-transparent td {
+            border-color: rgba(255, 255, 255, 0.15);
+            vertical-align: middle;
+            padding: 8px; /* Padding nhỏ gọn */
+        }
+
+        .table-transparent thead th {
+            background-color: rgba(255, 255, 255, 0.15);
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+    /* --- CỘT CA HỌC --- */
+    .session-col {
+        background-color: rgba(0, 0, 0, 0.25);
+        text-align: center;
+        width: 80px;
+        vertical-align: middle !important;
+    }
+
+    .session-name {
+        display: block;
+        font-weight: bold;
+        font-size: 1rem;
+        color: #fff;
+    }
+
+    .session-time {
+        display: block;
+        font-size: 0.65rem;
+        color: #ccc;
+        margin-top: 2px;
+    }
+
+    /* --- EVENT BLOCK --- */
+    .event-block {
+        border-radius: 4px;
+        padding: 6px 8px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+        border-left: 3px solid rgba(255,255,255,0.7);
+        cursor: pointer;
+        height: 100%;
+        overflow: hidden;
+    }
+
+        .event-block:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Palette màu */
+    .bg-cyan {
+        background: linear-gradient(45deg, #00b09b, #96c93d);
+    }
+
+    .bg-purple {
+        background: linear-gradient(45deg, #8e2de2, #4a00e0);
+    }
+
+    .bg-orange {
+        background: linear-gradient(45deg, #f12711, #f5af19);
+    }
+
+    .bg-blue {
+        background: linear-gradient(45deg, #2193b0, #6dd5ed);
+    }
+
+    .bg-pink {
+        background: linear-gradient(45deg, #ec008c, #fc6767);
+    }
+
+    /* --- TEXT STYLE NHỎ GỌN --- */
+    .subject-title {
+        display: block;
+        font-weight: bold;
+        font-size: 0.8rem; /* Chữ tên môn nhỏ */
+        line-height: 1.25;
+        margin-bottom: 4px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        word-wrap: break-word;
+    }
+
+    .subject-info {
+        display: block;
+        font-size: 0.7rem; /* Thông tin phụ rất nhỏ */
+        line-height: 1.2;
+        opacity: 0.95;
+        margin-bottom: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="col-lg-12">
+    <div class="card glass-card">
+        <div class="card-body p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2 mt-2 px-2">
+                <h5 class="card-title text-white mb-0" style="font-size: 1.1rem;">
+                    <i class="zmdi zmdi-calendar-check mr-2"></i> THỜI KHÓA BIỂU TUẦN 18
+                </h5>
+                <small class="text-white-50">29/12/2025 - 04/01/2026</small>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-transparent">
+                    <thead>
+                        <tr>
+                            <th scope="col">CA</th>
+                            <th scope="col">THỨ 2</th>
+                            <th scope="col">THỨ 3</th>
+                            <th scope="col">THỨ 4</th>
+                            <th scope="col">THỨ 5</th>
+                            <th scope="col">THỨ 6</th>
+                            <th scope="col">THỨ 7</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="session-col">
+                                <span class="session-name">CA 1</span>
+                                <span class="session-time">Sáng sớm</span>
+                            </td>
+                            <td>
+                                <div class="event-block bg-blue">
+                                    <span class="subject-title">Phát triển ứng dụng Web nâng cao</span>
+                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.A.18-07</span>
+                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Hoàng Văn Hiếu</span>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="session-col">
+                                <span class="session-name">CA 2</span>
+                                <span class="session-time">Sáng muộn</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="event-block bg-cyan">
+                                    <span class="subject-title">Phát triển Game (ITE1279E)</span>
+                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.A.20-05</span>
+                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Nguyễn Thanh Điền</span>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+
+                            <td>
+                                <div class="event-block bg-orange">
+                                    <span class="subject-title">Anh văn chuyên ngành CNTT 4</span>
+                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.B.05-12</span>
+                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Foreign L.</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="session-col">
+                                <span class="session-name">CA 3</span>
+                                <span class="session-time">Chiều 1</span>
+                            </td>
+                            <td></td>
+                            <td>
+                                <div class="event-block bg-purple">
+                                    <span class="subject-title">Quản trị dự án phần mềm</span>
+                                    <span class="subject-info">P.A.14-05 | Nhóm B02E</span>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="event-block bg-purple">
+                                    <span class="subject-title">Quản trị dự án phần mềm</span>
+                                    <span class="subject-info">P.A.14-05 | GV: Lê Viết Linh</span>
+                                </div>
+                            </td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="session-col">
+                                <span class="session-name">CA 4</span>
+                                <span class="session-time">Chiều 2</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="session-col">
+                                <span class="session-name">CA 5</span>
+                                <span class="session-time">Tối</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="event-block bg-pink">
+                                    <span class="subject-title">Họp nhóm đồ án tốt nghiệp</span>
+                                    <span class="subject-info">Google Meet</span>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

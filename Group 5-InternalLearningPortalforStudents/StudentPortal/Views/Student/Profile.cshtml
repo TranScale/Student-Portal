@@ -1,6 +1,8 @@
-﻿@{
+﻿@using StudentPortal.Models
+@{
     Layout = "~/Views/Shared/_StudentLayout.cshtml";
     ViewData["Title"] = "Thông tin cá nhân";
+    var listCourses = ViewData["CourseList"] as List<StudentPortal.Models.Enrollment>;
 }
 
 <div class="row mt-3">
@@ -24,8 +26,8 @@
                     </div>
                     <div class="col-lg-10 col-md-9">
                         <div class="profile-user-info mt-3 mt-md-0 ml-md-3">
-                            <h4 class="mb-1">Trần Học Trò</h4>
-                            <p class="mb-0"><i class="fa fa-desktop mr-1"></i> Công nghệ thông tin &nbsp;|&nbsp; <i class="fa fa-map-marker mr-1"></i> Hồ Chí Minh</p>
+                            <h4 class="mb-1">@ViewData["Name"]</h4>
+                            <p class="mb-0"><i class="fa fa-desktop mr-1"></i> @ViewData["Department"] &nbsp;|&nbsp; <i class="fa fa-map-marker mr-1"></i>@ViewData["City"]</p>
                         </div>
                     </div>
                 </div>
@@ -51,9 +53,9 @@
             <div class="card-body">
                 <h5 class="card-title text-uppercase pb-2">Thông tin liên hệ</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fa fa-envelope-o mr-2"></i> <strong>Email:</strong> troth@uef.edu.vn</li>
-                    <li class="mb-2"><i class="fa fa-id-card-o mr-2"></i> <strong>MSSV:</strong> 225051529</li>
-                    <li class="mb-2"><i class="fa fa-phone mr-2"></i> <strong>SĐT:</strong> 0898445830</li>
+                    <li class="mb-2"><i class="fa fa-envelope-o mr-2"></i> <strong>Email:</strong>@ViewData["Email"]</li>
+                    <li class="mb-2"><i class="fa fa-id-card-o mr-2"></i> <strong>MSSV:</strong>@ViewData["Code"]</li>
+                    <li class="mb-2"><i class="fa fa-phone mr-2"></i> <strong>SĐT:</strong> @ViewData["PhoneNumber"]</li>
                 </ul>
                 <hr>
                 <h5 class="card-title text-uppercase pb-2">Thành viên của</h5>
@@ -68,7 +70,7 @@
                     <div class="icon-box mr-3"><i class="fa fa-briefcase"></i></div>
                     <div class="media-body">
                         <h6 class="mt-0 mb-1">Khoa</h6>
-                        <p class="mb-0 small">Công Nghệ Thông Tin</p>
+                        <p class="mb-0 small">@ViewData["Faculty"]</p>
                     </div>
                 </div>
             </div>
@@ -97,7 +99,7 @@
                         <div class="d-flex align-items-center">
                             <div>
                                 <p class="mb-0 text-white">Tín chỉ đã học</p>
-                                <h4 class="mb-0 text-white mt-2">135</h4>
+                                <h4 class="mb-0 text-white mt-2">@ViewData["TotalCredits"]</h4>
                             </div>
                             <div class="ml-auto font-35 text-white"><i class="fa fa-book"></i></div>
                         </div>
@@ -121,42 +123,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>CSC101</td>
-                                <td>Lập trình Web ASP.NET</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>ENG202</td>
-                                <td>Tiếng Anh chuyên ngành 2</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>SOFT01</td>
-                                <td>Kỹ năng mềm</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>TEST01</td>
-                                <td>Môn test cho dài ra 1</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">5</th>
-                                <td>TEST02</td>
-                                <td>Môn test cho dài ra 2</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">6</th>
-                                <td>TEST03</td>
-                                <td>Môn test cho dài ra 3</td>
-                                <td>2</td>
-                            </tr>
+                            @if(listCourses != null && listCourses.Any())
+                            {
+                                int STT = 1;
+                                foreach(var item in listCourses)
+                                {
+                                    <tr>
+                                        <th scope="row">@(STT++)</th>
+                                        <td>@item.CourseSection.Course.CourseCode</td>
+                                        <td>@item.CourseSection.Course.CourseName</td>
+                                        <td>@item.CourseSection.Course.CourseCredit</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">Sinh viên chưa đăng ký môn học nào.</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

@@ -30,7 +30,7 @@ namespace StudentPortal.Controllers.Role
         }
 
         // GET: StudentController
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(DateTime? date)
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
@@ -52,14 +52,60 @@ namespace StudentPortal.Controllers.Role
             ViewData["StudentCode"] = student.StudentCode;
             ViewData["Deparment"] = student.Department.DepartmentName;
 
+            //Thời khóa biểu ở trang index
+            DateTime selectedDate = date ?? DateTime.Today;
+            ViewData["selectedDate"] = selectedDate;
+
+            var studentSchedule = await _context.ScheduleItems
+                .Include(s => s.CourseSection).ThenInclude(cs => cs.Course)
+                .Include(s => s.CourseSection).ThenInclude(cs => cs.Enrollments)
+                .Where(s => s.CourseSection.Enrollments.Any(e => e.StudentId == student.StudentId) && s.ScheduleDate.Date == selectedDate.Date)
+                .OrderBy(s => s.CourseSection.Sessions)
+                .ToListAsync();
+
+            ViewData["ListSchedule"] = studentSchedule;
+
             return View();
         }
 
 
         //Đợi code sau
-        public ActionResult Profile()
+        public async Task<ActionResult> Profile()
         {
-            return View();
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null) return RedirectToAction("Login", "Account");
+
+                var currentStudent = await _context.Students
+                    .Include(s => s.Department)
+                    .ThenInclude(d => d.Faculty)
+                    .Include(s => s.User)
+                    .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+                if (currentStudent == null) return View("Error");
+
+                ViewData["Name"] = currentStudent.User.FullName;
+                ViewData["Department"] = currentStudent.Department.DepartmentName;
+                ViewData["City"] = currentStudent.User.City ?? "Chưa có thông tin ";
+                ViewData["Email"] = currentStudent.User.Email;
+                ViewData["Code"] = currentStudent.StudentCode;
+                ViewData["PhoneNumber"] = currentStudent.User.PhoneNumber ?? "Chưa có thông tin";
+                ViewData["Facuty"] = currentStudent.Department.Faculty.FacultyName;
+
+                var listEnrollment = await _context.Enrollments
+                    .Include(e => e.CourseSection)
+                    .ThenInclude(cs => cs.Course)
+                    .Where(e => e.StudentId == currentStudent.StudentId)
+                    .ToListAsync();
+
+                int totalCredits = listEnrollment.Sum(e => e.CourseSection?.Course?.CourseCredit ?? 0);
+                ViewData["TotalCredits"] = totalCredits;
+                ViewData["CourseList"] = listEnrollment;
+                return View();
+            }
+            catch(Exception)
+            { return View("Error"); }
+            
         }
 
         public async Task<IActionResult> Score(int? semesterId)
@@ -107,6 +153,11 @@ namespace StudentPortal.Controllers.Role
             {
                 return View("Error");
             }
+        }
+
+        public ActionResult Schedule()
+        {
+            return View();
         }
 
 
