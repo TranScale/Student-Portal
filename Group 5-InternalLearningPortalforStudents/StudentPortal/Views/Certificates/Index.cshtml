@@ -1,0 +1,59 @@
+﻿@model IEnumerable<StudentPortal.Models.Certificate>
+
+@{
+    ViewData["Title"] = "Certificates";
+}
+
+<h1>Certificates</h1>
+
+@* Create chỉ cho Admin + Student *@
+@if (User.IsInRole("Admin") || User.IsInRole("Student"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.CertificateName)</th>
+            <th>@Html.DisplayNameFor(model => model.CertificateType)</th>
+            <th>@Html.DisplayNameFor(model => model.IssuedBy)</th>
+            <th>@Html.DisplayNameFor(model => model.IssuedDate)</th>
+            <th>@Html.DisplayNameFor(model => model.ExpiredDate)</th>
+            <th>@Html.DisplayNameFor(model => model.Score)</th>
+            <th>@Html.DisplayNameFor(model => model.FilePath)</th>
+            <th>User</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CertificateName</td>
+                <td>@item.CertificateType</td>
+                <td>@item.IssuedBy</td>
+                <td>@item.IssuedDate.ToString("dd/MM/yyyy")</td>
+                <td>@(item.ExpiredDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                <td>@item.Score</td>
+                <td>@item.FilePath</td>
+                <td>@item.User?.UserId</td>
+                <td>
+                    @* Tất cả đều được xem *@
+                    <a asp-action="Details" asp-route-id="@item.CertificateId">Details</a>
+
+                    @* Chỉ Admin mới được Edit/Delete *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <span> | </span>
+                        <a asp-action="Edit" asp-route-id="@item.CertificateId">Edit</a>
+                        <span> | </span>
+                        <a asp-action="Delete" asp-route-id="@item.CertificateId">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

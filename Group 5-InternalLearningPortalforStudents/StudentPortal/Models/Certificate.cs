@@ -30,7 +30,8 @@ namespace StudentPortal.Models
 
 
         //Quan hệ người sở hữu
+        [Required]
         public int UserId { get; set; }
-        public User User { get; set; } = null!;
+        public User? User { get; set; }
     }
 }
