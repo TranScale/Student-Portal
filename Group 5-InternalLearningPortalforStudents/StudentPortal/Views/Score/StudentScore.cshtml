@@ -3,29 +3,24 @@
 @{
     ViewData["Title"] = "Xem điểm";
 
-    // 1. Lấy dữ liệu từ ViewData ép kiểu về List
-    var listScores = ViewData["ListScores"] as List<Score>;
-
-    // 2. Khởi tạo biến để tính toán thống kê
+    // Khởi tạo biến để tính toán thống kê
     double diemTB_He10 = 0;
     double diemTB_He4 = 0;
     int tongTinChiHocKy = 0;
     int soTinChiDat = 0;
-
     // Biến tạm để tính tổng tích lũy cho học kỳ này
     double tongDiemTinChi_10 = 0;
     double tongDiemTinChi_4 = 0;
 
-    if (listScores != null && listScores.Any())
+    // Tính toán dựa trên Model (danh sách điểm thực tế)
+    if (Model != null && Model.Any())
     {
-        foreach (var item in listScores)
+        foreach (var item in Model)
         {
             // Lấy số tín chỉ của môn
             int tinChi = item.CourseSection?.Course?.CourseCredit ?? 0;
-
             // Lấy điểm hệ 10
             float d10 = item.FinalScore;
-
             // Quy đổi sang hệ 4 (Quy tắc thông thường)
             double d4 = 0;
             if (d10 >= 8.5) { d4 = 4.0; }
@@ -33,19 +28,16 @@
             else if (d10 >= 5.5) { d4 = 2.0; }
             else if (d10 >= 4.0) { d4 = 1.0; }
             else { d4 = 0; }
-
             // Cộng dồn tính toán
             tongTinChiHocKy += tinChi;
             tongDiemTinChi_10 += (d10 * tinChi);
             tongDiemTinChi_4 += (d4 * tinChi);
-
             // Kiểm tra qua môn (Giả sử >= 4.0 là qua môn)
             if (d10 >= 4.0)
             {
                 soTinChiDat += tinChi;
             }
         }
-
         // Tính trung bình
         if (tongTinChiHocKy > 0)
         {
@@ -61,9 +53,8 @@
         </h6>
         <div class="uef-red-line"></div>
     </div>
-
     <div class="uef-filter-box">
-        <form method="get" asp-action="Score">
+        <form method="get" asp-action="StudentScore">
             <div class="row mb-3">
                 <div class="col-md-6 mb-2 mb-md-0">
                     <select class="form-control custom-select-uef"
@@ -99,11 +90,10 @@
                         <tr class="font-weight-bold" style="background-color: rgba(255,255,255,0.2); color: #fff;">
                             <td colspan="10">@ViewData["CurrentSemesterName"]</td>
                         </tr>
-
-                        @if (listScores != null && listScores.Any())
+                        @if (Model != null && Model.Any())
                         {
                             int stt = 1;
-                            foreach (var item in listScores)
+                            foreach (var item in Model)
                             {
                                 <tr>
                                     <th scope="row">@(stt++)</th>
@@ -111,11 +101,9 @@
                                     <td>@item.CourseSection?.Room</td>
                                     <td>@item.CourseSection?.Course?.CourseName</td>
                                     <td class="text-center">@item.CourseSection?.Course?.CourseCredit</td>
-
                                     <td>@item.ProcessScore</td>
                                     <td>@item.MiddleScore</td>
                                     <td>@item.ExamScore</td>
-
                                     <td class="font-weight-bold">@item.FinalScore</td>
                                     <td class="font-weight-bold text-warning">@item.Value</td>
                                 </tr>
@@ -130,7 +118,6 @@
                     </tbody>
                 </table>
             </div>
-
             <div class="mt-3 p-3 rounded" style="background-color: rgba(255, 255, 255, 0.1); color: #fff; font-size: 0.9rem;">
                 <div class="row">
                     <div class="col-md-6">
@@ -142,7 +129,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

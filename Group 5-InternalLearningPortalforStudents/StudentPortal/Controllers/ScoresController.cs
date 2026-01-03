@@ -37,6 +37,7 @@ namespace StudentPortal.Controllers
             // Xem danh sách lớp mình dạy để nhập điểm
             if (User.IsInRole("Lecturer"))
             {
+                return RedirectToAction(nameof(EnterGrades));
                 var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
                 if (lecturer == null) return View("Error");
 
@@ -52,7 +53,7 @@ namespace StudentPortal.Controllers
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        // XEM ĐIỂM SINH VIÊN (StudentSchedule)
+        //XEM ĐIỂM SINH VIÊN(StudentSchedule)
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> StudentScore(int? semesterId)
         {
@@ -64,11 +65,9 @@ namespace StudentPortal.Controllers
                 var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
                 if (student == null) return View("Error");
 
-                DateTime studentDateStudy = student.StartStudyDate.ToDateTime(TimeOnly.MinValue);
-
                 var semester = await _context.Semesters
-                    .Where(s => s.StartDate.Date >= studentDateStudy)
-                    .OrderByDescending(s => s.StartDate)
+                    .Where(s => s.StartDate.Date >= student.StartStudyDate)
+                    .OrderBy(s => s.StartDate)
                     .Select(s => new
                     {
                         Id = s.SemesterId,
@@ -76,7 +75,6 @@ namespace StudentPortal.Controllers
                     }).ToListAsync();
 
                 int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 0);
-
                 ViewData["SemesterList"] = new SelectList(semester, "Id", "DisplayText", selectedValue);
 
                 var currentSemester = semester.FirstOrDefault(s => s.Id == selectedValue);
@@ -91,10 +89,10 @@ namespace StudentPortal.Controllers
                 return View(scoreList);
             }
             catch (Exception)
-            {
-                return View("Error");
-            }
+            { return View("Error"); }
         }
+
+
 
         [Authorize(Roles = "Lecturer")]
         [HttpGet]
@@ -107,14 +105,11 @@ namespace StudentPortal.Controllers
                 .Where(e => e.CourseSectionId == sectionId)
                 .OrderBy(e => e.Student.StudentCode)
                 .ToListAsync();
-
-            // Lấy danh sách điểm ĐÃ CÓ trong DB (Score)
+ 
             var existingScores = await _context.Scores
                 .Where(s => s.CourseSectionId == sectionId)
                 .ToListAsync();
 
-            // TẠO DANH SÁCH VIEW MODEL ĐỂ HIỂN THỊ
-            // Duyệt qua từng sinh viên, nếu có điểm rồi thì điền vào, chưa có thì tạo mới
             var modelList = new List<Score>();
 
             foreach (var enrollment in enrollments)
@@ -123,13 +118,12 @@ namespace StudentPortal.Controllers
 
                 if (score == null)
                 {
-                    // Nếu chưa có điểm -> Tạo object ảo để hiển thị trên form
                     score = new Score
                     {
                         StudentId = enrollment.StudentId,
-                        Student = enrollment.Student, // Gán để lấy tên hiển thị
+                        Student = enrollment.Student, 
                         CourseSectionId = sectionId,
-                        ScoreId = 0, // Đánh dấu là chưa có trong DB
+                        ScoreId = 0, 
                         ProcessScore = 0,
                         MiddleScore = 0,
                         ExamScore = 0
@@ -137,7 +131,6 @@ namespace StudentPortal.Controllers
                 }
                 else
                 {
-                    // Gán lại Student object để View hiển thị được Tên SV
                     score.Student = enrollment.Student;
                 }
 

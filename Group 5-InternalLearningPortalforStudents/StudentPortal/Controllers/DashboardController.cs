@@ -57,7 +57,7 @@ namespace StudentPortal.Controllers
             var student = await _context.Students.Include(s => s.Department).FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
             if (student == null)
             {
-                return View();
+                return View("Error");
             }
             ViewData["StudentCode"] = student.StudentCode;
             ViewData["Deparment"] = student.Department.DepartmentName;
@@ -78,74 +78,48 @@ namespace StudentPortal.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Lecturer")] // Chỉ giảng viên mới được vào
-        public async Task<IActionResult> LecturerIndex(DateTime? date)
+        [Authorize(Roles = "Lecturer")]
+        public IActionResult LecturerIndex(DateTime? date)
         {
-            // 1. Kiểm tra đăng nhập
-            var currentUser = await _userManager.GetUserAsync(User);
+            var currentUser = _userManager.GetUserAsync(User).Result;
             if (currentUser == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            // 2. Lấy thông tin Giảng viên
-            // SỬA: Lecturer quan hệ với Faculty (Khoa), không phải Department (Ngành)
-            // SỬA: Phải Include("User") để lấy FullName, Phone vì bảng Lecturer không lưu mấy cái đó
-            var lecturer = await _context.Lecturers
-                .Include(l => l.User)     // Lấy thông tin cá nhân
-                .Include(l => l.Faculty)  // Lấy thông tin Khoa
-                .FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
+            var lecturer = _context.Lecturers
+                .Include(l => l.User)
+                .Include(l => l.Faculty)
+                .FirstOrDefault(l => l.UserId == currentUser.Id);
 
             if (lecturer == null)
             {
-                ViewData["FullName"] = currentUser.FullName;
-                ViewData["LecturerCode"] = "Chưa cập nhật";
-                return View();
+                return View("Error");
             }
 
-            // 3. Đẩy dữ liệu sang View
-            // SỬA: Lấy từ lecturer.User... thay vì lecturer...
-            ViewData["FullName"] = lecturer.User.FullName ?? currentUser.FullName;
-            ViewData["Email"] = lecturer.User.Email ?? currentUser.Email;
-            ViewData["Phone"] = lecturer.User.PhoneNumber;
+            ViewData["Name"] = lecturer.User.FullName;
 
-            // SỬA: Model Lecturer không có LecturerCode, dùng tạm UserName hoặc Id
-            ViewData["LecturerCode"] = lecturer.User.UserName ?? "GV" + lecturer.LecturerId;
-
-            // SỬA: Lecturer thuộc về Faculty (Khoa)
-            ViewData["Department"] = lecturer.Faculty?.FacultyName ?? "Khoa chưa xác định";
-
-            // 4. XỬ LÝ LỊCH
             DateTime selectedDate = date ?? DateTime.Today;
             ViewData["selectedDate"] = selectedDate;
 
-            var lecturerSchedule = await _context.ScheduleItems
-                .Include(s => s.CourseSection).ThenInclude(cs => cs.Course)
-                .Where(s => s.CourseSection.LecturerId == lecturer.LecturerId
-                            && s.ScheduleDate.Date == selectedDate.Date)
-                .OrderBy(s => s.CourseSection.Sessions)
-                .ToListAsync();
+            var schedule = _context.ScheduleItems
+                .Include(si => si.CourseSection)
+                .ThenInclude(cs => cs.Lecturer)
+                .Where(si => si.CourseSection.LecturerId == lecturer.LecturerId && si.ScheduleDate.Date == selectedDate.Date)
+                .ToList();
 
-            ViewData["ListSchedule"] = lecturerSchedule;
+            ViewData["ListSchedule"] = schedule;
 
-            // 5. XỬ LÝ DANH SÁCH LỚP HỌC (TeachingList)
-            var teachingList = await _context.CoursesSections
-                .Include(cs => cs.Course)
-                .Include(cs => cs.Enrollments) // Include để đếm số sinh viên
-                .Where(cs => cs.LecturerId == lecturer.LecturerId)
-                .ToListAsync(); // Lấy về list trước rồi mới Select để tránh lỗi dịch Enum sang SQL
+            var teachingList = _context.CoursesSections
+                .Include(cs => cs.Course) 
+                .Include(cs => cs.Lecturer)
+                .Include(cs => cs.Semester)
+                .Where(cs => cs.LecturerId == lecturer.LecturerId
+                       && cs.Semester.StartDate <= DateTime.Now
+                       && cs.Semester.EndDate >= DateTime.Now)
+                .ToList();
 
-            // Map dữ liệu sang object dynamic cho View dễ dùng
-            ViewBag.TeachingList = teachingList.Select(cs => new
-            {
-                SubjectName = cs.Course.CourseName,
-                // SỬA: Model không có SectionCode, tự tạo mã lớp hiển thị từ Mã Môn + ID
-                ClassCode = $"{cs.Course.CourseCode}.{cs.CourseSectionId:D2}",
-                // SỬA: Dùng Enum ClassDays và StudySessions convert sang string
-                Time = $"{cs.Days} ({cs.Sessions})",
-                Room = cs.Room,
-                Students = cs.Enrollments.Count()
-            }).ToList();
+            ViewData["teachingList"] = teachingList;
 
             return View();
         }
@@ -193,50 +167,36 @@ namespace StudentPortal.Controllers
         {
             try
             {
-                // 1. Lấy User đang đăng nhập
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser == null) return RedirectToAction("Login", "Account");
 
-                // 2. Lấy thông tin Giảng viên (Kèm thông tin Khoa và User)
-                // Lưu ý: Giảng viên thường trực thuộc Khoa (Faculty), ít khi qua Department như Student
-                var currentLecturer = await _context.Lecturers
+                var lecturer = await _context.Lecturers
                     .Include(l => l.Faculty)
                     .Include(l => l.User)
                     .FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
 
-                if (currentLecturer == null) return View("Error");
+                if (lecturer == null) return View("Error");
 
-                // 3. Đổ dữ liệu ra ViewData (Giữ nguyên tên key để tái sử dụng View nếu cần)
-                ViewData["Name"] = currentLecturer.User.FullName;
+                ViewData["Name"] = lecturer.User.FullName;
+                ViewData["Faculty"] = lecturer.Faculty?.FacultyName ?? "Khoa";
+                ViewData["City"] = lecturer.User.City ?? "Chưa có thông tin";
+                ViewData["Email"] = lecturer.User.Email;
+                ViewData["PhoneNumber"] = lecturer.User.PhoneNumber ?? "Chưa có thông tin";
 
-                // Giảng viên thường không có "Lớp sinh hoạt" hay "Ngành" cụ thể như SV, 
-                // nên ta để hiển thị tên Khoa hoặc để trống.
-                ViewData["Department"] = currentLecturer.Faculty?.FacultyName ?? "Bộ môn chung";
-
-                ViewData["City"] = currentLecturer.User.City ?? "Chưa có thông tin";
-                ViewData["Email"] = currentLecturer.User.Email;
-                ViewData["Code"] = null; // Đổi thành mã GV
-                ViewData["PhoneNumber"] = currentLecturer.User.PhoneNumber ?? "Chưa có thông tin";
-                ViewData["Facuty"] = currentLecturer.Faculty?.FacultyName;
-
-                // 4. Lấy danh sách lớp HỌC PHẦN đang DẠY (Thay vì Enrollment)
                 var listTeaching = await _context.CoursesSections
                     .Include(cs => cs.Course)
-                    .Where(cs => cs.LecturerId == currentLecturer.LecturerId)
+                    .Where(cs => cs.LecturerId == lecturer.LecturerId)
                     .ToListAsync();
 
-                // 5. Tính toán (Thay vì tổng tín chỉ tích lũy, ta tính tổng tín chỉ đang giảng dạy)
-                int totalCredits = listTeaching.Sum(cs => cs.Course?.CourseCredit ?? 0);
+                int totalClass = listTeaching.Count();
 
-                ViewData["TotalCredits"] = totalCredits; // Tổng số tín chỉ đang dạy
-                ViewData["CourseList"] = listTeaching;   // Danh sách lớp đang dạy
+                ViewData["TotalClass"] = totalClass; 
+                ViewData["CourseList"] = listTeaching;   
 
                 return View();
             }
             catch (Exception)
-            {
-                return View("Error");
-            }
+            { return View("Error"); }
         }
 
         [HttpPost]

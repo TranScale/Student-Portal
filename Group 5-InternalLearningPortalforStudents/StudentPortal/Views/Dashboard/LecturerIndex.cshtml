@@ -7,24 +7,8 @@
     Layout = "_LecturerLayout";
     ViewData["Title"] = "LecturerDashboard";
 
-    // --- MÔ PHỎNG DỮ LIỆU ---
-    var fullName = ViewData["FullName"] as string ?? "Nguyễn Văn A";
-    var email = ViewData["Email"] as string ?? "gv001@university.edu.vn";
-    var phone = ViewData["Phone"] as string ?? "0988777666";
-    var lecturerCode = ViewData["LecturerCode"] as string ?? "GV123456";
-    var department = ViewData["Department"] as string ?? "Công nghệ thông tin";
+    var teachingList = ViewData["teachingList"] as List<StudentPortal.Models.CourseSection>;
 
-    var teachingList = ViewBag.TeachingList as List<dynamic>;
-    if (teachingList == null) // Fallback nếu chưa có controller
-    {
-        teachingList = new List<dynamic>
-        {
-            new { Id = 1, SubjectName = "Lập trình Web", ClassCode = "KTPM_K15_01", Time = "Thứ 2 (Tiết 1-3)", Room = "A2-301", Students = 45 },
-            new { Id = 2, SubjectName = "Cấu trúc dữ liệu", ClassCode = "CNTT_K16_02", Time = "Thứ 3 (Tiết 7-9)", Room = "B1-202", Students = 60 },
-            new { Id = 3, SubjectName = "Trí tuệ nhân tạo", ClassCode = "KHMT_K14_01", Time = "Thứ 4 (Tiết 1-3)", Room = "C1-101", Students = 35 },
-            new { Id = 4, SubjectName = "Đồ án cơ sở", ClassCode = "HTTT_K15_03", Time = "Thứ 6 (Tiết 4-6)", Room = "Online", Students = 10 }
-        };
-    }
 }
 
 <div class="card mt-3">
@@ -32,7 +16,7 @@
         <div class="row row-group m-0">
             <div class="col-12 col-lg-6 col-xl-6 border-light">
                 <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; min-height: 100px;">
-                    <h4 class="mb-2 text-white font-weight-bold">Xin chào, Giảng viên @fullName 👋</h4>
+                    <h4 class="mb-2 text-white font-weight-bold">Xin chào, Giảng viên @ViewData["Name"] 👋</h4>
                     <p class="mb-0 text-white small-font" style="opacity: 0.8">
                         Chúc thầy/cô một ngày làm việc hiệu quả.
                     </p>
@@ -46,7 +30,7 @@
             </div>
             <div class="col-12 col-lg-3 col-xl-3 border-light">
                 <div class="card-body">
-                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Sum(x => (int)x.Students)</h4>
+                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Sum(x => (int)x.Capacity)</h4>
                     <p class="mb-0 text-white small-font" style="opacity: 0.8">Tổng sinh viên đang quản lý</p>
                 </div>
             </div>
@@ -92,11 +76,11 @@
                                 {
                                     <tr>
                                         <th scope="row">@stt</th>
-                                        <td>@item.SubjectName</td>
-                                        <td><span class="badge badge-light">@item.ClassCode</span></td>
-                                        <td>@item.Time</td>
+                                        <td>@item.Course.CourseName</td>
+                                        <td><span class="badge badge-light">@item.Course.CourseCode</span></td>
+                                        <td>@item.Sessions</td>
                                         <td>@item.Room</td>
-                                        <td>@item.Students</td>
+                                        <td>@item.Capacity</td>
                                         <td>
                                             <button class="btn btn-sm btn-light">Điểm danh</button>
                                             <button class="btn btn-sm btn-outline-light">Nhập điểm</button>

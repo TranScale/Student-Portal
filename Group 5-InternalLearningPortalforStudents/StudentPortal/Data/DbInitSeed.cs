@@ -126,7 +126,7 @@ namespace StudentPortal.Data
                 var baId = listDepartments.First(d => d.DepartmentCode == "BA").DepartmentId;
 
                 // Dùng DateOnly.FromDateTime hoặc new DateOnly(y, m, d)
-                var startDate = new DateOnly(2023, 9, 5);
+                var startDate = new DateTime(2023, 9, 1);
 
                 context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv01").Id, StudentCode = "SE1701", DepartmentId = seId, StartStudyDate = startDate, IsGraduate = false });
                 context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv02").Id, StudentCode = "BA1702", DepartmentId = baId, StartStudyDate = startDate, IsGraduate = false });
@@ -148,13 +148,22 @@ namespace StudentPortal.Data
 
             var semester = new Semester
             {
-                SemesterName = "Học kỳ 1 Năm 2025 - 2026",
+                SemesterName = "Học kỳ 1 Năm",
                 AcademicYear = "2025-2026",
                 StartDate = startOfWeek,
                 EndDate = startOfWeek.AddMonths(4),
                 IsActive = true
             };
             context.Semesters.Add(semester);
+            var semester2 = new Semester
+            {
+                SemesterName = "Học kỳ 2 Năm",
+                AcademicYear = "2025-2026",
+                StartDate = startOfWeek.AddMonths(5),
+                EndDate = startOfWeek.AddMonths(9),
+                IsActive = true
+            };
+            context.Semesters.Add(semester2);
             await context.SaveChangesAsync();
 
             var activeSemester = await context.Semesters.FirstAsync();
