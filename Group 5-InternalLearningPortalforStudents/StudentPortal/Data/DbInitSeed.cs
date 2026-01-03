@@ -34,7 +34,8 @@ namespace StudentPortal.Data
             {
                 new Department { DepartmentName = "Kỹ thuật phần mềm", DepartmentCode = "SE", FacultyId = cntt.FacultyId },
                 new Department { DepartmentName = "Hệ thống thông tin", DepartmentCode = "IS", FacultyId = cntt.FacultyId },
-                new Department { DepartmentName = "Quản trị kinh doanh", DepartmentCode = "BA", FacultyId = kt.FacultyId }
+                new Department { DepartmentName = "Quản trị kinh doanh", DepartmentCode = "BA", FacultyId = kt.FacultyId },
+                new Department { DepartmentName = "An Toàn Thông Tin", DepartmentCode = "AT", FacultyId = cntt.FacultyId },
             };
             context.Departments.AddRange(departments);
             await context.SaveChangesAsync();
