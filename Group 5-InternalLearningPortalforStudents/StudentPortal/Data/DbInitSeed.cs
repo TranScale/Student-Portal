@@ -13,7 +13,7 @@ namespace StudentPortal.Data
             // 1. Tạo database
             await context.Database.EnsureCreatedAsync();
 
-            // 2. Check dữ liệu cũ
+            // 2. Check dữ liệu cũ (nếu có Faculty rồi thì thôi không init lại)
             if (context.Faculties.Any()) return;
 
             // ==========================================
@@ -99,49 +99,152 @@ namespace StudentPortal.Data
             await context.SaveChangesAsync();
 
             // ==========================================
-            // PHẦN 4: DỮ LIỆU NGHIỆP VỤ (SEMESTER & SECTION)
+            // PHẦN 4: DỮ LIỆU NGHIỆP VỤ (HỌC KỲ, LỚP, ENROLLMENT, SCHEDULE)
             // ==========================================
 
-            // --- 1. THÊM SEMESTER (BẮT BUỘC ĐỂ CÓ ID) ---
+            // 1. Tạo Semester (Lấy ngày hiện tại làm mốc để lúc nào chạy cũng có dữ liệu)
+            // Chúng ta set ngày bắt đầu là Thứ 2 tuần này để lịch hiển thị đẹp
+            DateTime today = DateTime.Today;
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime startOfWeek = today.AddDays(-1 * diff).Date;
+
             var semester = new Semester
             {
                 SemesterName = "Spring 2024",
                 AcademicYear = "2024",
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddMonths(4),
+                StartDate = startOfWeek, // Bắt đầu từ thứ 2 tuần này
+                EndDate = startOfWeek.AddMonths(4),
                 IsActive = true
             };
             context.Semesters.Add(semester);
-            await context.SaveChangesAsync(); // Lưu ngay để lấy SemesterId
+            await context.SaveChangesAsync();
 
-            // --- 2. TẠO LỚP HỌC (GẮN VỚI SEMESTER VỪA TẠO) ---
+            // 2. Tạo các Lớp học (CourseSection)
             var lecturerEntity = await context.Lecturers.FirstOrDefaultAsync();
-            var courseEntity = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "PRN211");
-
-            // Lấy lại Semester vừa lưu (hoặc dùng biến semester ở trên cũng được vì EF tự tracking)
+            var prn211 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "PRN211");
+            var csd201 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "CSD201");
+            var eco101 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "ECO101");
             var semesterEntity = await context.Semesters.FirstAsync();
 
-            if (lecturerEntity != null && courseEntity != null)
+            var sections = new List<CourseSection>();
+
+            if (lecturerEntity != null && prn211 != null && csd201 != null)
             {
-                var sections = new CourseSection[]
+                // Lớp 1: C# (PRN211) - Học Thứ 2, Thứ 4 - Ca 1 (Sáng)
+                sections.Add(new CourseSection
                 {
-                    new CourseSection
-                    {
-                        CourseId = courseEntity.CourseId,
-                        LecturerId = lecturerEntity.LecturerId,
-                        SemesterId = semesterEntity.SemesterId, 
-                        Room = "P301",
-                        Capacity = 30,
-                        Days = ClassDays.Monday | ClassDays.Wednesday,
-                        Sessions = StudySessions.Ca1,
-                        DayStart = semesterEntity.StartDate,
-                        DayEnd = semesterEntity.EndDate
-                    }
-                };
+                    CourseId = prn211.CourseId,
+                    LecturerId = lecturerEntity.LecturerId,
+                    SemesterId = semesterEntity.SemesterId,
+                    Room = "P301",
+                    Capacity = 30,
+                    Days = ClassDays.Monday | ClassDays.Wednesday, // Enum Flags
+                    Sessions = StudySessions.Ca1, // Ca sáng
+                    DayStart = semesterEntity.StartDate,
+                    DayEnd = semesterEntity.EndDate
+                });
+
+                // Lớp 2: Cấu trúc dữ liệu (CSD201) - Học Thứ 3, Thứ 5 - Ca 3 (Chiều)
+                sections.Add(new CourseSection
+                {
+                    CourseId = csd201.CourseId,
+                    LecturerId = lecturerEntity.LecturerId,
+                    SemesterId = semesterEntity.SemesterId,
+                    Room = "Lab-02",
+                    Capacity = 25,
+                    Days = ClassDays.Tuesday | ClassDays.Thursday,
+                    Sessions = StudySessions.Ca3, // Ca chiều
+                    DayStart = semesterEntity.StartDate,
+                    DayEnd = semesterEntity.EndDate
+                });
+
+
                 context.CoursesSections.AddRange(sections);
+                await context.SaveChangesAsync();
             }
 
-            // Tạo thông báo
+            // 3. Enrollment (QUAN TRỌNG: Sinh viên phải có Enrollment mới hiện lịch)
+            var savedSections = await context.CoursesSections.ToListAsync();
+            var studentEntity1 = await context.Students.FirstOrDefaultAsync(s => s.StudentCode == "SE001"); // sv01
+
+            if (studentEntity1 != null && savedSections.Any())
+            {
+                var enrollments = new List<Enrollment>();
+                foreach (var sec in savedSections)
+                {
+                    // Đăng ký sv01 vào tất cả các lớp vừa tạo
+                    enrollments.Add(new Enrollment
+                    {
+                        CourseSectionId = sec.CourseSectionId,
+                        StudentId = studentEntity1.StudentId,
+                    });
+                }
+                context.Enrollments.AddRange(enrollments);
+                await context.SaveChangesAsync();
+            }
+
+            // 4. Sinh ScheduleItem (Thời khóa biểu chi tiết từng ngày)
+            // Logic: Duyệt qua từng lớp, duyệt từ ngày bắt đầu đến kết thúc, nếu trúng thứ trong tuần thì tạo lịch
+            var scheduleItems = new List<ScheduleItem>();
+
+            foreach (var section in savedSections)
+            {
+                // Loop từ ngày bắt đầu đến ngày kết thúc của lớp học
+                for (DateTime date = section.DayStart; date <= section.DayEnd; date = date.AddDays(1))
+                {
+                    // Kiểm tra xem ngày này có khớp với lịch học (Monday, Tuesday...) không
+                    // Giả sử ClassDays là Enum Flags. Nếu không dùng Flags thì sửa lại logic if đơn giản.
+                    bool isClassDay = false;
+
+                    switch (date.DayOfWeek)
+                    {
+                        case DayOfWeek.Monday:
+                            if ((section.Days & ClassDays.Monday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Tuesday:
+                            if ((section.Days & ClassDays.Tuesday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Wednesday:
+                            if ((section.Days & ClassDays.Wednesday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Thursday:
+                            if ((section.Days & ClassDays.Thursday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Friday:
+                            if ((section.Days & ClassDays.Friday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Saturday:
+                            if ((section.Days & ClassDays.Saturday) != 0) isClassDay = true;
+                            break;
+                        case DayOfWeek.Sunday:
+                            if ((section.Days & ClassDays.Sunday) != 0) isClassDay = true;
+                            break;
+                    }
+
+                    if (isClassDay)
+                    {
+                        // Tính số tuần (đơn giản hóa: Tuần 1, Tuần 2...)
+                        int weekNum = (date.Subtract(section.DayStart).Days / 7) + 1;
+
+                        scheduleItems.Add(new ScheduleItem
+                        {
+                            CourseSectionId = section.CourseSectionId,
+                            ScheduleDate = date,
+                            ScheduleWeek = weekNum,
+                        });
+                    }
+                }
+            }
+
+            if (scheduleItems.Any())
+            {
+                context.ScheduleItems.AddRange(scheduleItems);
+                await context.SaveChangesAsync();
+            }
+
+            // ==========================================
+            // PHẦN 5: THÔNG BÁO
+            // ==========================================
             var adminUserEntity = await context.Users.FirstAsync(u => u.UserName == "admin");
             var announcements = new Announcement[]
             {

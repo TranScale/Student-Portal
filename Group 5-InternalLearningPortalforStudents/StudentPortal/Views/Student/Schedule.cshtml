@@ -1,240 +1,199 @@
-﻿<style>
-    /* --- GIỮ NGUYÊN STYLE NỀN & BỐ CỤC --- */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+﻿@using StudentPortal.Models
+@{
+    var scheduleList = ViewData["ScheduleList"] as List<ScheduleItem> ?? new List<ScheduleItem>();
+    var weekRange = ViewData["WeekRange"] as string;
+    var startOfWeek = ViewData["StartOfWeek"] != null ? (DateTime)ViewData["StartOfWeek"] : DateTime.Today;
+
+    // Lấy ngày để chuyển trang
+    var prevDate = ViewData["PrevDate"] as string;
+    var nextDate = ViewData["NextDate"] as string;
+
+}
+@functions {
+    // Hàm chọn màu ngẫu nhiên cho đẹp (hoặc bạn có thể logic theo môn học)
+    string GetColorClass(int index)
+    {
+        string[] colors = { "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1" };
+        return colors[index % colors.Length];
     }
-
-    .table-transparent {
-        color: #fff;
-        margin-bottom: 0;
-    }
-
-        .table-transparent th, .table-transparent td {
-            border-color: rgba(255, 255, 255, 0.15);
-            vertical-align: middle;
-            padding: 8px; /* Padding nhỏ gọn */
-        }
-
-        .table-transparent thead th {
-            background-color: rgba(255, 255, 255, 0.15);
-            text-transform: uppercase;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-align: center;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-    /* --- CỘT CA HỌC --- */
-    .session-col {
-        background-color: rgba(0, 0, 0, 0.25);
-        text-align: center;
-        width: 80px;
-        vertical-align: middle !important;
-    }
-
-    .session-name {
-        display: block;
-        font-weight: bold;
-        font-size: 1rem;
-        color: #fff;
-    }
-
-    .session-time {
-        display: block;
-        font-size: 0.65rem;
-        color: #ccc;
-        margin-top: 2px;
-    }
-
-    /* --- EVENT BLOCK --- */
-    .event-block {
-        border-radius: 4px;
-        padding: 6px 8px;
-        margin-bottom: 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        transition: transform 0.2s;
-        border-left: 3px solid rgba(255,255,255,0.7);
-        cursor: pointer;
-        height: 100%;
-        overflow: hidden;
-    }
-
-        .event-block:hover {
-            transform: translateY(-2px);
-        }
-
-    /* Palette màu */
-    .bg-cyan {
-        background: linear-gradient(45deg, #00b09b, #96c93d);
-    }
-
-    .bg-purple {
-        background: linear-gradient(45deg, #8e2de2, #4a00e0);
-    }
-
-    .bg-orange {
-        background: linear-gradient(45deg, #f12711, #f5af19);
-    }
-
-    .bg-blue {
-        background: linear-gradient(45deg, #2193b0, #6dd5ed);
-    }
-
-    .bg-pink {
-        background: linear-gradient(45deg, #ec008c, #fc6767);
-    }
-
-    /* --- TEXT STYLE NHỎ GỌN --- */
-    .subject-title {
-        display: block;
-        font-weight: bold;
-        font-size: 0.8rem; /* Chữ tên môn nhỏ */
-        line-height: 1.25;
-        margin-bottom: 4px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        word-wrap: break-word;
-    }
-
-    .subject-info {
-        display: block;
-        font-size: 0.7rem; /* Thông tin phụ rất nhỏ */
-        line-height: 1.2;
-        opacity: 0.95;
-        margin-bottom: 1px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-</style>
+}
 
 <div class="col-lg-12">
     <div class="card glass-card">
         <div class="card-body p-2">
-            <div class="d-flex justify-content-between align-items-center mb-2 mt-2 px-2">
-                <h5 class="card-title text-white mb-0" style="font-size: 1.1rem;">
-                    <i class="zmdi zmdi-calendar-check mr-2"></i> THỜI KHÓA BIỂU TUẦN 18
+
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-2 px-2">
+
+                <h5 class="card-title text-white mb-0" style="font-size: 1.2rem; font-weight: 700;">
+                    <i class="zmdi zmdi-calendar-check mr-2"></i> THỜI KHÓA BIỂU
                 </h5>
-                <small class="text-white-50">29/12/2025 - 04/01/2026</small>
+
+                <div class="d-flex align-items-center">
+
+                    <a href="@Url.Action("Schedule", new { date = prevDate })" class="nav-btn" title="Tuần trước">
+                        <i class="fa fa-chevron-left"></i>
+                    </a>
+
+                    <span class="date-badge">
+                        <i class="fa fa-calendar-o mr-1"></i> @weekRange
+                    </span>
+
+                    <a href="@Url.Action("Schedule", new { date = nextDate })" class="nav-btn" title="Tuần sau">
+                        <i class="fa fa-chevron-right"></i>
+                    </a>
+
+                    <a href="@Url.Action("Schedule")" class="btn btn-sm btn-light ml-3" style="font-size: 0.75rem; font-weight: bold; color: #333;">
+                        Hôm nay
+                    </a>
+                </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-transparent">
-                    <thead>
-                        <tr>
-                            <th scope="col">CA</th>
-                            <th scope="col">THỨ 2</th>
-                            <th scope="col">THỨ 3</th>
-                            <th scope="col">THỨ 4</th>
-                            <th scope="col">THỨ 5</th>
-                            <th scope="col">THỨ 6</th>
-                            <th scope="col">THỨ 7</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="session-col">
-                                <span class="session-name">CA 1</span>
-                                <span class="session-time">Sáng sớm</span>
-                            </td>
-                            <td>
-                                <div class="event-block bg-blue">
-                                    <span class="subject-title">Phát triển ứng dụng Web nâng cao</span>
-                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.A.18-07</span>
-                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Hoàng Văn Hiếu</span>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td class="session-col">
-                                <span class="session-name">CA 2</span>
-                                <span class="session-time">Sáng muộn</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <div class="event-block bg-cyan">
-                                    <span class="subject-title">Phát triển Game (ITE1279E)</span>
-                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.A.20-05</span>
-                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Nguyễn Thanh Điền</span>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-
-                            <td>
-                                <div class="event-block bg-orange">
-                                    <span class="subject-title">Anh văn chuyên ngành CNTT 4</span>
-                                    <span class="subject-info"><i class="fa fa-map-marker"></i> P.B.05-12</span>
-                                    <span class="subject-info"><i class="fa fa-user"></i> GV: Foreign L.</span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="session-col">
-                                <span class="session-name">CA 3</span>
-                                <span class="session-time">Chiều 1</span>
-                            </td>
-                            <td></td>
-                            <td>
-                                <div class="event-block bg-purple">
-                                    <span class="subject-title">Quản trị dự án phần mềm</span>
-                                    <span class="subject-info">P.A.14-05 | Nhóm B02E</span>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <div class="event-block bg-purple">
-                                    <span class="subject-title">Quản trị dự án phần mềm</span>
-                                    <span class="subject-info">P.A.14-05 | GV: Lê Viết Linh</span>
-                                </div>
-                            </td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td class="session-col">
-                                <span class="session-name">CA 4</span>
-                                <span class="session-time">Chiều 2</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td class="session-col">
-                                <span class="session-name">CA 5</span>
-                                <span class="session-time">Tối</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <div class="event-block bg-pink">
-                                    <span class="subject-title">Họp nhóm đồ án tốt nghiệp</span>
-                                    <span class="subject-info">Google Meet</span>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 </div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-transparent">
+        <thead>
+            <tr>
+                <th scope="col" class="session-col" style="border-bottom: none;">CA</th>
+                @* Render tiêu đề cột động theo ngày thực tế *@
+                <th scope="col">THỨ 2 <small class="header-date">@startOfWeek.ToString("dd/MM")</small></th>
+                <th scope="col">THỨ 3 <small class="header-date">@startOfWeek.AddDays(1).ToString("dd/MM")</small></th>
+                <th scope="col">THỨ 4 <small class="header-date">@startOfWeek.AddDays(2).ToString("dd/MM")</small></th>
+                <th scope="col">THỨ 5 <small class="header-date">@startOfWeek.AddDays(3).ToString("dd/MM")</small></th>
+                <th scope="col">THỨ 6 <small class="header-date">@startOfWeek.AddDays(4).ToString("dd/MM")</small></th>
+                <th scope="col">THỨ 7 <small class="header-date">@startOfWeek.AddDays(5).ToString("dd/MM")</small></th>
+                <th scope="col">CN <small class="header-date">@startOfWeek.AddDays(6).ToString("dd/MM")</small></th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Vòng lặp 5 CA *@
+            @for (int session = 1; session <= 5; session++)
+            {
+                <tr>
+                    <td class="session-col">
+                        <span class="session-name">@session</span>
+                        <span class="session-time">
+                            @(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))
+                        </span>
+                    </td>
+
+                    @* Vòng lặp 7 ngày (0=Thứ 2, 6=CN) *@
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        DateTime currentDate = startOfWeek.AddDays(i);
+
+                        // LOGIC TÌM KIẾM:
+                        // 1. Ngày trong ScheduleItem trùng ngày cột
+                        // 2. Ca học (Sessions) trong CourseSection trùng dòng hiện tại
+                        var item = scheduleList.FirstOrDefault(s =>
+                        s.ScheduleDate.Date == currentDate.Date &&
+                        (int)s.CourseSection.Sessions == session
+                        );
+
+                        <td>
+                            @if (item != null)
+                            {
+                                <div class="event-block" style="background-color: @GetColorClass(item.CourseSectionId)">
+
+                                    @* Tên Môn *@
+                                    <div class="subject-title">
+                                        @(item.CourseSection?.Course?.CourseName ?? "Môn học")
+                                    </div>
+
+                                    @* Phòng học *@
+                                    <div class="subject-info">
+                                        <i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")
+                                    </div>
+
+                                    @* Giảng viên *@
+                                    <div class="subject-info">
+                                        <i class="zmdi zmdi-account mr-1"></i> @(item.CourseSection?.Lecturer?.User?.FullName ?? "GV")
+                                    </div>
+
+                                    @* Ví dụ thêm Nhóm nếu muốn *@
+                                    @* <div class="subject-info badge badge-dark w-50">Nhóm 01</div> *@
+                                </div>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<style>
+    /* Ép cột có độ rộng bằng nhau (tùy chọn, giúp bảng đẹp hơn) */
+    .table-transparent {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    /* Style cho cái khối lịch học */
+    .event-block {
+        background-color: #17a2b8; /* Màu nền mặc định (xanh ngọc) */
+        color: #fff; /* Chữ màu trắng */
+        padding: 10px; /* Khoảng cách lề trong */
+        border-radius: 8px; /* Bo góc cho đẹp */
+        border-left: 5px solid #0c7cd5; /* Viền trái nhấn mạnh */
+        /* QUAN TRỌNG ĐỂ NÓ CAO LÊN */
+        display: flex;
+        flex-direction: column; /* Xếp nội dung theo chiều dọc */
+        gap: 5px; /* Khoảng cách giữa các dòng */
+        /* QUAN TRỌNG ĐỂ NÓ KHÔNG BỊ DÀI */
+        white-space: normal; /* Cho phép xuống dòng */
+        overflow: hidden; /* Ẩn phần thừa nếu có */
+
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Đổ bóng nhẹ */
+        min-height: 80px; /* Chiều cao tối thiểu */
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+
+        .event-block:hover {
+            transform: translateY(-3px); /* Hiệu ứng bay lên khi di chuột */
+        }
+
+    .subject-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
+    .subject-info {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%; /* Hình tròn */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none !important;
+        margin: 0 5px;
+    }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+            color: #fff;
+        }
+
+    .date-badge {
+        font-size: 0.9rem;
+        color: white;
+        font-weight: 600;
+        margin: 0 5px;
+    }
+</style>
+
