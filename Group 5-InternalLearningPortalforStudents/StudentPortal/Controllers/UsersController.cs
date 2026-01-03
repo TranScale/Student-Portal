@@ -31,7 +31,7 @@ namespace StudentPortal.Controllers
         {
             if (id == null) return NotFound();
 
-            var user = await _context.Users.FirstOrDefaultAsync(m => m.UserId == id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
             if (user == null) return NotFound();
 
             return View(user);
@@ -77,7 +77,7 @@ namespace StudentPortal.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, User user)
         {
-            if (id != user.UserId) return NotFound();
+            if (id != user.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -94,7 +94,7 @@ namespace StudentPortal.Controllers
         {
             if (id == null) return NotFound();
 
-            var user = await _context.Users.FirstOrDefaultAsync(m => m.UserId == id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
             if (user == null) return NotFound();
 
             return View(user);
@@ -106,7 +106,7 @@ namespace StudentPortal.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             // load user
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null) return RedirectToAction(nameof(Index));
 
             // 1) xóa bảng phụ thuộc trước (Admin/Student/Lecturer)

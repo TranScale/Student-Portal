@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentPortal.Data;
 using StudentPortal.Models;
@@ -25,48 +26,80 @@ namespace StudentPortal.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            // --- SINH VIÊN: Xem điểm của mình ---
+            // --- NẾU LÀ SINH VIÊN ---
+            // Chuyển hướng sang trang xem điểm chi tiết (StudentScore)
             if (User.IsInRole("Student"))
             {
-                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
-                if (student == null) return View("Error");
-
-                // Lấy danh sách điểm từ bảng Score
-                var myScores = await _context.Scores
-                    .Include(s => s.CourseSection).ThenInclude(cs => cs.Course)
-                    .Include(s => s.Lecturer).ThenInclude(l => l.User)
-                    .Where(s => s.StudentId == student.StudentId)
-                    .ToListAsync();
-
-                ViewBag.Role = "Student";
-                return View(myScores); // Trả về List<Score>
+                return RedirectToAction(nameof(StudentScore));
             }
 
-            // --- GIẢNG VIÊN: Chọn lớp để nhập điểm ---
+            // --- NẾU LÀ GIẢNG VIÊN ---
+            // Xem danh sách lớp mình dạy để nhập điểm
             if (User.IsInRole("Lecturer"))
             {
                 var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
                 if (lecturer == null) return View("Error");
 
-                // Lấy danh sách các lớp GV này dạy
                 var sections = await _context.CoursesSections
                     .Include(cs => cs.Course)
                     .Where(cs => cs.LecturerId == lecturer.LecturerId)
                     .ToListAsync();
 
                 ViewBag.Role = "Lecturer";
-                return View(sections); // Trả về List<CourseSection>
+                return View("LecturerIndex", sections); 
             }
 
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        // 2. FORM NHẬP ĐIỂM (GET)
+        // XEM ĐIỂM SINH VIÊN (StudentSchedule)
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> StudentScore(int? semesterId)
+        {
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null) return RedirectToAction("Login", "Account");
+
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+                if (student == null) return View("Error");
+
+                DateTime studentDateStudy = student.StartStudyDate.ToDateTime(TimeOnly.MinValue);
+
+                var semester = await _context.Semesters
+                    .Where(s => s.StartDate.Date >= studentDateStudy)
+                    .OrderByDescending(s => s.StartDate)
+                    .Select(s => new
+                    {
+                        Id = s.SemesterId,
+                        DisplayText = $"{s.SemesterName} - Năm học {s.AcademicYear}"
+                    }).ToListAsync();
+
+                int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 0);
+
+                ViewData["SemesterList"] = new SelectList(semester, "Id", "DisplayText", selectedValue);
+
+                var currentSemester = semester.FirstOrDefault(s => s.Id == selectedValue);
+                ViewData["CurrentSemesterName"] = currentSemester?.DisplayText;
+
+                var scoreList = await _context.Scores
+                    .Include(s => s.CourseSection)
+                    .ThenInclude(cs => cs.Course)
+                    .Where(s => s.StudentId == student.StudentId && s.CourseSection.SemesterId == selectedValue)
+                    .ToListAsync();
+
+                return View(scoreList);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
         [Authorize(Roles = "Lecturer")]
         [HttpGet]
         public async Task<IActionResult> EnterGrades(int sectionId)
         {
-            // Lấy danh sách sinh viên ĐANG HỌC lớp này (Enrollment)
             var enrollments = await _context.Enrollments
                 .AsNoTracking()
                 .Include(e => e.Student).ThenInclude(s => s.User)

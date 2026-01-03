@@ -28,13 +28,13 @@
             <div class="col-12 col-lg-3 col-xl-3 border-light">
                 <div class="card-body">
                     <h4 class="mb-2 text-white font-weight-bold">Tổng số điểm</h4>
-                    <p class="mb-0 text-white small-font" style="opacity: 0.8">8.5</p>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8"></p> //Thêm điểm
                 </div>
             </div>
             <div class="col-12 col-lg-3 col-xl-3 border-light">
                 <div class="card-body">
                     <h4 class="mb-2 text-white font-weight-bold">Số tín chỉ</h4>
-                    <p class="mb-0 text-white small-font" style="opacity: 0.8">135/147</p>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8"></p> // Thêm tín chỉ
                 </div>
             </div>
         </div>
@@ -54,32 +54,42 @@
                 <div class="card-title text-white">Thông tin cá nhân</div>
                 <hr style="border-top: 1px solid rgba(255,255,255,0.1);">
 
-                <form asp-controller="Home" asp-action="UpdateProfile" method="post">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">@TempData["Success"]</div>
+                }
+
+                <form asp-controller="Dashboard" asp-action="UpdateProfile" method="post">
                     <div class="form-group mb-3">
                         <label for="input-1" class="text-white-50">Họ và tên</label>
                         <input type="text" name="FullName" value="@fullName"
                                class="form-control bg-transparent text-white border-white-50" id="input-1" placeholder="Điền họ và tên">
                     </div>
+
                     <div class="form-group mb-3">
                         <label for="input-2" class="text-white-50">Email</label>
                         <input type="email" name="Email" value="@email" readonly
-                               class="form-control bg-transparent text-white border-white-50" id="input-2" placeholder="Điền email">
+                               class="form-control bg-transparent text-white border-white-50" id="input-2">
                     </div>
+
                     <div class="form-group mb-3">
                         <label for="input-3" class="text-white-50">Số điện thoại</label>
                         <input type="text" name="PhoneNumber" value="@phone"
                                class="form-control bg-transparent text-white border-white-50" id="input-3" placeholder="Điền số điện thoại">
                     </div>
+
                     <div class="form-group mb-3">
                         <label for="input-4" class="text-white-50">Mã sinh viên</label>
                         <input type="text" value="@studentCode" disabled
-                               class="form-control bg-transparent text-white border-white-50" id="input-4" placeholder="Chưa cập nhật">
+                               class="form-control bg-transparent text-white border-white-50" id="input-4">
                     </div>
+
                     <div class="form-group mb-3">
                         <label for="input-5" class="text-white-50">Ngành</label>
                         <input type="text" value="@department" disabled
-                               class="form-control bg-transparent text-white border-white-50" id="input-5" placeholder="Chưa phân ngành">
+                               class="form-control bg-transparent text-white border-white-50" id="input-5">
                     </div>
+
                     <div class="form-group">
                         <button type="submit" class="btn btn-light px-5 w-100">
                             <i class="icon-check"></i> Cập nhật

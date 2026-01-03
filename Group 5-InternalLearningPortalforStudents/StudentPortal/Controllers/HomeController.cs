@@ -1,7 +1,8 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using StudentPortal.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StudentPortal.Models;
+using System.Diagnostics;
 
 namespace StudentPortal.Controllers
 {
@@ -14,11 +15,23 @@ namespace StudentPortal.Controllers
         {
             _logger = logger;
         }
-
+        [Authorize]
         public IActionResult Index()
         {
+            if (User.IsInRole("Admin"))
+            {
+                return View();
+            }
+            if (User.IsInRole("Lecturer"))
+            {
+                return View();
+            }
 
-            return RedirectToPage("/Student/Index");
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction("StudentIndex", "Dashboard");
+            }
+            return View();
         }
 
         public IActionResult Privacy()

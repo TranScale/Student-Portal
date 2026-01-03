@@ -2,7 +2,7 @@
 @using System.Globalization
 
 @{
-    // 1. LẤY DỮ LIỆU TRỰC TIẾP TỪ VIEWDATA (Được thừa hưởng từ Index)
+    // 1. LẤY DỮ LIỆU TRỰC TIẾP TỪ VIEWDATA (Được thừa hưởng từ StudentIndex)
     // Lưu ý: Key phải khớp y chang bên Controller
     var selectedDate = ViewData["selectedDate"] as DateTime? ?? DateTime.Today;
     var listSchedule = ViewData["ListSchedule"] as List<ScheduleItem>;
@@ -17,13 +17,13 @@
     <div class="col-12 col-lg-5 mb-3">
         <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
             <div class="card-header d-flex justify-content-between align-items-center border-0 p-2">
-                <a href="@Url.Action("Index", new { date = selectedDate.AddMonths(-1) })" class="btn btn-sm text-white-50">
+                <a href="@Url.Action("LecturerIndex", new { date = selectedDate.AddMonths(-1) })" class="btn btn-sm text-white-50">
                     <i class="fa fa-chevron-left"></i>
                 </a>
 
                 <span class="font-weight-bold text-white">Tháng @selectedDate.Month - @selectedDate.Year </span>
 
-                <a href="@Url.Action("Index", new { date = selectedDate.AddMonths(1) })" class="btn btn-sm text-white-50">
+                <a href="@Url.Action("LecturerIndex", new { date = selectedDate.AddMonths(1) })" class="btn btn-sm text-white-50">
                     <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
@@ -59,7 +59,7 @@
                                         var dateParam = currentDay;
 
                                         <td class="p-1">
-                                            <a href="@Url.Action("Index", new { date = dateParam })" class="text-decoration-none @textClass">
+                                            <a href="@Url.Action("LecturerIndex", new { date = dateParam })" class="text-decoration-none @textClass">
                                                 <span style="@spanStyle">@currentDay.Day</span>
                                             </a>
                                         </td>
@@ -78,7 +78,7 @@
         <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
             <div class="card-header d-flex justify-content-between align-items-center border-bottom border-light-3 p-2 pl-3 pr-3">
                 <span class="text-white font-weight-bold">
-                    <i class="fa fa-calendar-check-o mr-2"></i>Lịch học ngày @selectedDate.ToString("dd/MM/yyyy")
+                    <i class="fa fa-calendar-check-o mr-2"></i>Lịch giảng dạy ngày @selectedDate.ToString("dd/MM/yyyy")
                 </span>
             </div>
 

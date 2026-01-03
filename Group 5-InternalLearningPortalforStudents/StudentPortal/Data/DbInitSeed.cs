@@ -10,51 +10,63 @@ namespace StudentPortal.Data
                                                  UserManager<User> userManager,
                                                  RoleManager<IdentityRole<int>> roleManager)
         {
-            // 1. Tạo database
+            // 1. Tạo database nếu chưa có
             await context.Database.EnsureCreatedAsync();
 
-            // 2. Check dữ liệu cũ (nếu có Faculty rồi thì thôi không init lại)
+            // 2. Kiểm tra nếu đã có dữ liệu Khoa thì không chạy lại (tránh trùng lặp)
             if (context.Faculties.Any()) return;
 
-            // ==========================================
+            // ==========================================================
             // PHẦN 1: DỮ LIỆU DANH MỤC (KHOA, NGÀNH, MÔN)
-            // ==========================================
+            // ==========================================================
+
+            // 1.1 Khoa (Faculties)
             var faculties = new Faculty[]
             {
-                new Faculty { FacultyName = "Công nghệ thông tin", FacultyCode = "CNTT", FacultyDescription = "Khoa đào tạo CNTT" },
-                new Faculty { FacultyName = "Kinh tế", FacultyCode = "KT", FacultyDescription = "Khoa Kinh tế và Quản lý" }
+                new Faculty { FacultyName = "Công nghệ thông tin", FacultyCode = "IT", FacultyDescription = "Đào tạo phần mềm và hệ thống." },
+                new Faculty { FacultyName = "Kinh tế", FacultyCode = "ECO", FacultyDescription = "Kinh doanh và quản lý." },
+                new Faculty { FacultyName = "Ngôn ngữ", FacultyCode = "LANG", FacultyDescription = "Ngoại ngữ quốc tế." },
+                new Faculty { FacultyName = "Điện - Điện tử", FacultyCode = "EE", FacultyDescription = "Kỹ thuật điện." }
             };
             context.Faculties.AddRange(faculties);
             await context.SaveChangesAsync();
 
-            var cntt = await context.Faculties.FirstAsync(f => f.FacultyCode == "CNTT");
-            var kt = await context.Faculties.FirstAsync(f => f.FacultyCode == "KT");
+            var listFaculties = await context.Faculties.ToListAsync();
 
-            var departments = new Department[]
+            // 1.2 Ngành (Departments)
+            var departments = new List<Department>
             {
-                new Department { DepartmentName = "Kỹ thuật phần mềm", DepartmentCode = "SE", FacultyId = cntt.FacultyId },
-                new Department { DepartmentName = "Hệ thống thông tin", DepartmentCode = "IS", FacultyId = cntt.FacultyId },
-                new Department { DepartmentName = "Quản trị kinh doanh", DepartmentCode = "BA", FacultyId = kt.FacultyId },
-                new Department { DepartmentName = "An Toàn Thông Tin", DepartmentCode = "AT", FacultyId = cntt.FacultyId },
+                new Department { DepartmentName = "Kỹ thuật phần mềm", DepartmentCode = "SE", FacultyId = listFaculties.First(f => f.FacultyCode == "IT").FacultyId },
+                new Department { DepartmentName = "An toàn thông tin", DepartmentCode = "IA", FacultyId = listFaculties.First(f => f.FacultyCode == "IT").FacultyId },
+                new Department { DepartmentName = "Quản trị kinh doanh", DepartmentCode = "BA", FacultyId = listFaculties.First(f => f.FacultyCode == "ECO").FacultyId },
+                new Department { DepartmentName = "Ngôn ngữ Anh", DepartmentCode = "EL", FacultyId = listFaculties.First(f => f.FacultyCode == "LANG").FacultyId },
+                new Department { DepartmentName = "Tự động hóa", DepartmentCode = "AU", FacultyId = listFaculties.First(f => f.FacultyCode == "EE").FacultyId }
             };
             context.Departments.AddRange(departments);
             await context.SaveChangesAsync();
 
-            var se = await context.Departments.FirstAsync(d => d.DepartmentCode == "SE");
-            var ba = await context.Departments.FirstAsync(d => d.DepartmentCode == "BA");
+            var listDepartments = await context.Departments.ToListAsync();
 
-            var courses = new Course[]
+            // 1.3 Môn học (Courses)
+            var courses = new List<Course>
             {
-                new Course { CourseName = "Lập trình C# căn bản", CourseCode = "PRN211", CourseCredit = 3, DepartmentId = se.DepartmentId },
-                new Course { CourseName = "Cấu trúc dữ liệu", CourseCode = "CSD201", CourseCredit = 3, DepartmentId = se.DepartmentId },
-                new Course { CourseName = "Kinh tế vi mô", CourseCode = "ECO101", CourseCredit = 3, DepartmentId = ba.DepartmentId }
+                new Course { CourseName = "Lập trình C# .NET", CourseCode = "PRN211", CourseCredit = 3, DepartmentId = listDepartments.First(d => d.DepartmentCode == "SE").DepartmentId },
+                new Course { CourseName = "Cấu trúc dữ liệu", CourseCode = "CSD201", CourseCredit = 3, DepartmentId = listDepartments.First(d => d.DepartmentCode == "SE").DepartmentId },
+                new Course { CourseName = "Web Java (JSP/Servlet)", CourseCode = "PRJ301", CourseCredit = 3, DepartmentId = listDepartments.First(d => d.DepartmentCode == "SE").DepartmentId },
+                new Course { CourseName = "Kinh tế vi mô", CourseCode = "ECO111", CourseCredit = 3, DepartmentId = listDepartments.First(d => d.DepartmentCode == "BA").DepartmentId },
+                new Course { CourseName = "Tiếng Anh học thuật", CourseCode = "ENG101", CourseCredit = 2, DepartmentId = listDepartments.First(d => d.DepartmentCode == "EL").DepartmentId },
+                new Course { CourseName = "Mạch điện tử", CourseCode = "EEC101", CourseCredit = 3, DepartmentId = listDepartments.First(d => d.DepartmentCode == "AU").DepartmentId }
             };
             context.Courses.AddRange(courses);
             await context.SaveChangesAsync();
 
-            // ==========================================
-            // PHẦN 2: USER & ROLE
-            // ==========================================
+            var listCourses = await context.Courses.ToListAsync();
+
+            // ==========================================================
+            // PHẦN 2: USER & ROLE & PROFILE
+            // ==========================================================
+
+            // Tạo Role cho Identity
             string[] roleNames = { "Admin", "Lecturer", "Student" };
             foreach (var roleName in roleNames)
             {
@@ -62,205 +74,213 @@ namespace StudentPortal.Data
                     await roleManager.CreateAsync(new IdentityRole<int>(roleName));
             }
 
-            async Task CreateUserWithRole(User user, string password, string role)
+            string passwordChung = "Student@123";
+
+            // Helper tạo user
+            async Task CreateUser(string u, string name, UserRoles roleEnum, string roleString)
             {
-                var result = await userManager.CreateAsync(user, password);
-                if (result.Succeeded) await userManager.AddToRoleAsync(user, role);
+                var user = new User
+                {
+                    UserName = u,
+                    Email = $"{u}@university.edu.vn",
+                    FullName = name,
+                    UserRole = roleEnum, // Gán Enum cho User
+                    DateOfBirth = DateTime.Parse("2000-01-01"),
+                    EmailConfirmed = true
+                };
+                var result = await userManager.CreateAsync(user, passwordChung);
+                if (result.Succeeded) await userManager.AddToRoleAsync(user, roleString);
             }
 
-            var passwordChung = "Student@123";
+            // 2.1 Admin
+            await CreateUser("admin", "Quản Trị Hệ Thống", UserRoles.Admin, "Admin");
+            var adminUser = await context.Users.FirstAsync(u => u.UserName == "admin");
+            context.Admins.Add(new Admin { UserId = adminUser.Id });
 
-            var adminUser = new User { UserName = "admin", Email = "admin@portal.com", FullName = "Quản trị viên", UserRole = UserRoles.Admin, DateOfBirth = DateTime.Parse("1990-01-01"), EmailConfirmed = true };
-            await CreateUserWithRole(adminUser, passwordChung, "Admin");
+            // 2.2 Giảng viên (3 người)
+            await CreateUser("gv01", "Nguyễn Văn Giảng", UserRoles.Lecturer, "Lecturer");
+            await CreateUser("gv02", "Trần Thị Lý", UserRoles.Lecturer, "Lecturer");
+            await CreateUser("gv03", "Lê Hùng Cường", UserRoles.Lecturer, "Lecturer");
 
-            var lecturerUser = new User { UserName = "gv01", Email = "giangnv@portal.com", FullName = "Nguyễn Văn Giảng", UserRole = UserRoles.Lecturer, DateOfBirth = DateTime.Parse("1985-05-15"), EmailConfirmed = true };
-            await CreateUserWithRole(lecturerUser, passwordChung, "Lecturer");
+            var listLecturerUsers = await context.Users.Where(u => u.UserName.StartsWith("gv")).ToListAsync();
+            // Gán Profile Lecturer
+            if (!context.Lecturers.Any())
+            {
+                context.Lecturers.Add(new Lecturer { UserId = listLecturerUsers.First(u => u.UserName == "gv01").Id, FacultyId = listFaculties.First(f => f.FacultyCode == "IT").FacultyId });
+                context.Lecturers.Add(new Lecturer { UserId = listLecturerUsers.First(u => u.UserName == "gv02").Id, FacultyId = listFaculties.First(f => f.FacultyCode == "ECO").FacultyId });
+                context.Lecturers.Add(new Lecturer { UserId = listLecturerUsers.First(u => u.UserName == "gv03").Id, FacultyId = listFaculties.First(f => f.FacultyCode == "IT").FacultyId });
+            }
 
-            var studentUser1 = new User { UserName = "sv01", Email = "troth@portal.com", FullName = "Trần Học Trò", UserRole = UserRoles.Student, DateOfBirth = DateTime.Parse("2003-08-20"), EmailConfirmed = true };
-            await CreateUserWithRole(studentUser1, passwordChung, "Student");
+            // 2.3 Sinh viên (5 người)
+            await CreateUser("sv01", "Nguyễn Văn An", UserRoles.Student, "Student");
+            await CreateUser("sv02", "Trần Thị Bích", UserRoles.Student, "Student");
+            await CreateUser("sv03", "Lê Văn Cường", UserRoles.Student, "Student");
+            await CreateUser("sv04", "Phạm Thị Dung", UserRoles.Student, "Student");
+            await CreateUser("sv05", "Đỗ Văn Em", UserRoles.Student, "Student");
 
-            var studentUser2 = new User { UserName = "sv02", Email = "buoilt@portal.com", FullName = "Lê Thị Bưởi", UserRole = UserRoles.Student, DateOfBirth = DateTime.Parse("2003-09-10"), EmailConfirmed = true };
-            await CreateUserWithRole(studentUser2, passwordChung, "Student");
+            var listStudentUsers = await context.Users.Where(u => u.UserName.StartsWith("sv")).ToListAsync();
+            // Gán Profile Student (CHÚ Ý: StartStudyDate là DateOnly)
+            if (!context.Students.Any())
+            {
+                var seId = listDepartments.First(d => d.DepartmentCode == "SE").DepartmentId;
+                var baId = listDepartments.First(d => d.DepartmentCode == "BA").DepartmentId;
 
-            // ==========================================
-            // PHẦN 3: PROFILE
-            // ==========================================
-            var userAdmin = await context.Users.FirstAsync(u => u.UserName == "admin");
-            if (!context.Admins.Any()) context.Admins.Add(new Admin { UserId = userAdmin.Id });
+                // Dùng DateOnly.FromDateTime hoặc new DateOnly(y, m, d)
+                var startDate = new DateOnly(2023, 9, 5);
 
-            var userLecturer = await context.Users.FirstAsync(u => u.UserName == "gv01");
-            if (!context.Lecturers.Any()) context.Lecturers.Add(new Lecturer { UserId = userLecturer.Id, FacultyId = cntt.FacultyId });
-
-            var userSv1 = await context.Users.FirstAsync(u => u.UserName == "sv01");
-            if (!context.Students.Any()) context.Students.Add(new Student { UserId = userSv1.Id, StudentCode = "SE001", DepartmentId = se.DepartmentId, IsGraduate = false });
-
-            var userSv2 = await context.Users.FirstAsync(u => u.UserName == "sv02");
-            if (!context.Students.Any()) context.Students.Add(new Student { UserId = userSv2.Id, StudentCode = "SE002", DepartmentId = se.DepartmentId, IsGraduate = false });
+                context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv01").Id, StudentCode = "SE1701", DepartmentId = seId, StartStudyDate = startDate, IsGraduate = false });
+                context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv02").Id, StudentCode = "BA1702", DepartmentId = baId, StartStudyDate = startDate, IsGraduate = false });
+                context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv03").Id, StudentCode = "SE1703", DepartmentId = seId, StartStudyDate = startDate, IsGraduate = false });
+                context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv04").Id, StudentCode = "SE1704", DepartmentId = seId, StartStudyDate = startDate, IsGraduate = false });
+                context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv05").Id, StudentCode = "BA1705", DepartmentId = baId, StartStudyDate = startDate, IsGraduate = false });
+            }
 
             await context.SaveChangesAsync();
 
-            // ==========================================
-            // PHẦN 4: DỮ LIỆU NGHIỆP VỤ (HỌC KỲ, LỚP, ENROLLMENT, SCHEDULE)
-            // ==========================================
+            // ==========================================================
+            // PHẦN 3: NGHIỆP VỤ (SEMESTER, LỚP, ENROLLMENT)
+            // ==========================================================
 
-            // 1. Tạo Semester (Lấy ngày hiện tại làm mốc để lúc nào chạy cũng có dữ liệu)
-            // Chúng ta set ngày bắt đầu là Thứ 2 tuần này để lịch hiển thị đẹp
+            // 3.1 Semester
             DateTime today = DateTime.Today;
             int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
             DateTime startOfWeek = today.AddDays(-1 * diff).Date;
 
             var semester = new Semester
             {
-                SemesterName = "Spring 2024",
-                AcademicYear = "2024",
-                StartDate = startOfWeek, // Bắt đầu từ thứ 2 tuần này
+                SemesterName = "Học kỳ 1 Năm 2025 - 2026",
+                AcademicYear = "2025-2026",
+                StartDate = startOfWeek,
                 EndDate = startOfWeek.AddMonths(4),
                 IsActive = true
             };
             context.Semesters.Add(semester);
             await context.SaveChangesAsync();
 
-            // 2. Tạo các Lớp học (CourseSection)
-            var lecturerEntity = await context.Lecturers.FirstOrDefaultAsync();
-            var prn211 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "PRN211");
-            var csd201 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "CSD201");
-            var eco101 = await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == "ECO101");
-            var semesterEntity = await context.Semesters.FirstAsync();
+            var activeSemester = await context.Semesters.FirstAsync();
 
-            var sections = new List<CourseSection>();
+            // 3.2 Lớp học phần (CourseSection)
+            var prn211 = listCourses.First(c => c.CourseCode == "PRN211");
+            var csd201 = listCourses.First(c => c.CourseCode == "CSD201");
+            var eco111 = listCourses.First(c => c.CourseCode == "ECO111");
 
-            if (lecturerEntity != null && prn211 != null && csd201 != null)
+            var gvIT = await context.Lecturers.FirstAsync(l => l.User.UserName == "gv01");
+            var gvEco = await context.Lecturers.FirstAsync(l => l.User.UserName == "gv02");
+
+            var sections = new List<CourseSection>
             {
-                // Lớp 1: C# (PRN211) - Học Thứ 2, Thứ 4 - Ca 1 (Sáng)
-                sections.Add(new CourseSection
+                new CourseSection
                 {
-                    CourseId = prn211.CourseId,
-                    LecturerId = lecturerEntity.LecturerId,
-                    SemesterId = semesterEntity.SemesterId,
-                    Room = "P301",
-                    Capacity = 30,
-                    Days = ClassDays.Monday | ClassDays.Wednesday, // Enum Flags
-                    Sessions = StudySessions.Ca1, // Ca sáng
-                    DayStart = semesterEntity.StartDate,
-                    DayEnd = semesterEntity.EndDate
-                });
-
-                // Lớp 2: Cấu trúc dữ liệu (CSD201) - Học Thứ 3, Thứ 5 - Ca 3 (Chiều)
-                sections.Add(new CourseSection
+                    CourseId = prn211.CourseId, LecturerId = gvIT.LecturerId, SemesterId = activeSemester.SemesterId,
+                    Room = "P.301", Capacity = 30,
+                    Days = ClassDays.Monday | ClassDays.Wednesday,
+                    Sessions = StudySessions.Ca1,
+                    DayStart = activeSemester.StartDate, DayEnd = activeSemester.EndDate
+                },
+                new CourseSection
                 {
-                    CourseId = csd201.CourseId,
-                    LecturerId = lecturerEntity.LecturerId,
-                    SemesterId = semesterEntity.SemesterId,
-                    Room = "Lab-02",
-                    Capacity = 25,
+                    CourseId = csd201.CourseId, LecturerId = gvIT.LecturerId, SemesterId = activeSemester.SemesterId,
+                    Room = "LAB.02", Capacity = 25,
                     Days = ClassDays.Tuesday | ClassDays.Thursday,
-                    Sessions = StudySessions.Ca3, // Ca chiều
-                    DayStart = semesterEntity.StartDate,
-                    DayEnd = semesterEntity.EndDate
-                });
-
-
-                context.CoursesSections.AddRange(sections);
-                await context.SaveChangesAsync();
-            }
-
-            // 3. Enrollment (QUAN TRỌNG: Sinh viên phải có Enrollment mới hiện lịch)
-            var savedSections = await context.CoursesSections.ToListAsync();
-            var studentEntity1 = await context.Students.FirstOrDefaultAsync(s => s.StudentCode == "SE001"); // sv01
-
-            if (studentEntity1 != null && savedSections.Any())
-            {
-                var enrollments = new List<Enrollment>();
-                foreach (var sec in savedSections)
+                    Sessions = StudySessions.Ca3,
+                    DayStart = activeSemester.StartDate, DayEnd = activeSemester.EndDate
+                },
+                new CourseSection
                 {
-                    // Đăng ký sv01 vào tất cả các lớp vừa tạo
-                    enrollments.Add(new Enrollment
-                    {
-                        CourseSectionId = sec.CourseSectionId,
-                        StudentId = studentEntity1.StudentId,
-                    });
+                    CourseId = eco111.CourseId, LecturerId = gvEco.LecturerId, SemesterId = activeSemester.SemesterId,
+                    Room = "P.405", Capacity = 40,
+                    Days = ClassDays.Friday,
+                    Sessions = StudySessions.Ca2,
+                    DayStart = activeSemester.StartDate, DayEnd = activeSemester.EndDate
                 }
-                context.Enrollments.AddRange(enrollments);
-                await context.SaveChangesAsync();
-            }
+            };
+            context.CoursesSections.AddRange(sections);
+            await context.SaveChangesAsync();
 
-            // 4. Sinh ScheduleItem (Thời khóa biểu chi tiết từng ngày)
-            // Logic: Duyệt qua từng lớp, duyệt từ ngày bắt đầu đến kết thúc, nếu trúng thứ trong tuần thì tạo lịch
-            var scheduleItems = new List<ScheduleItem>();
+            // 3.3 Enrollment & Score
+            // Đăng ký cho sinh viên sv01 vào lớp PRN211 và CSD201
+            var sv1 = await context.Students.FirstAsync(s => s.StudentCode == "SE1701");
+            var secPrn = sections.First(s => s.CourseId == prn211.CourseId);
+            var secCsd = sections.First(s => s.CourseId == csd201.CourseId);
 
-            foreach (var section in savedSections)
+            var enrollments = new List<Enrollment>
             {
-                // Loop từ ngày bắt đầu đến ngày kết thúc của lớp học
-                for (DateTime date = section.DayStart; date <= section.DayEnd; date = date.AddDays(1))
-                {
-                    // Kiểm tra xem ngày này có khớp với lịch học (Monday, Tuesday...) không
-                    // Giả sử ClassDays là Enum Flags. Nếu không dùng Flags thì sửa lại logic if đơn giản.
-                    bool isClassDay = false;
+                new Enrollment { StudentId = sv1.StudentId, CourseSectionId = secPrn.CourseSectionId, Status = EnrollmentStatus.Pending },
+                new Enrollment { StudentId = sv1.StudentId, CourseSectionId = secCsd.CourseSectionId, Status = EnrollmentStatus.Pending }
+            };
+            context.Enrollments.AddRange(enrollments);
 
+            // Tạo bảng điểm (Bắt buộc phải có để GV nhập điểm)
+            var scores = new List<Score>
+            {
+                new Score { StudentId = sv1.StudentId, CourseSectionId = secPrn.CourseSectionId, LecturerId = secPrn.LecturerId, Value = ScoreValues.F, ProcessScore=0, MiddleScore=0, ExamScore=0, FinalScore=0 },
+                new Score { StudentId = sv1.StudentId, CourseSectionId = secCsd.CourseSectionId, LecturerId = secCsd.LecturerId, Value = ScoreValues.F, ProcessScore=0, MiddleScore=0, ExamScore=0, FinalScore=0 }
+            };
+            context.Scores.AddRange(scores);
+            await context.SaveChangesAsync();
+
+            // 3.4 Tạo ScheduleItem (Lịch học) - Logic cũ của bạn vẫn tốt, chỉ bỏ Note đi
+            var scheduleItems = new List<ScheduleItem>();
+            foreach (var sec in sections)
+            {
+                for (DateTime date = sec.DayStart; date <= sec.DayEnd; date = date.AddDays(1))
+                {
+                    bool isClassDay = false;
                     switch (date.DayOfWeek)
                     {
-                        case DayOfWeek.Monday:
-                            if ((section.Days & ClassDays.Monday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Tuesday:
-                            if ((section.Days & ClassDays.Tuesday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Wednesday:
-                            if ((section.Days & ClassDays.Wednesday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Thursday:
-                            if ((section.Days & ClassDays.Thursday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Friday:
-                            if ((section.Days & ClassDays.Friday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Saturday:
-                            if ((section.Days & ClassDays.Saturday) != 0) isClassDay = true;
-                            break;
-                        case DayOfWeek.Sunday:
-                            if ((section.Days & ClassDays.Sunday) != 0) isClassDay = true;
-                            break;
+                        case DayOfWeek.Monday: if ((sec.Days & ClassDays.Monday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Tuesday: if ((sec.Days & ClassDays.Tuesday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Wednesday: if ((sec.Days & ClassDays.Wednesday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Thursday: if ((sec.Days & ClassDays.Thursday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Friday: if ((sec.Days & ClassDays.Friday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Saturday: if ((sec.Days & ClassDays.Saturday) != 0) isClassDay = true; break;
+                        case DayOfWeek.Sunday: if ((sec.Days & ClassDays.Sunday) != 0) isClassDay = true; break;
                     }
 
                     if (isClassDay)
                     {
-                        // Tính số tuần (đơn giản hóa: Tuần 1, Tuần 2...)
-                        int weekNum = (date.Subtract(section.DayStart).Days / 7) + 1;
-
+                        int weekNum = (date.Subtract(sec.DayStart).Days / 7) + 1;
                         scheduleItems.Add(new ScheduleItem
                         {
-                            CourseSectionId = section.CourseSectionId,
+                            CourseSectionId = sec.CourseSectionId,
                             ScheduleDate = date,
-                            ScheduleWeek = weekNum,
+                            ScheduleWeek = weekNum
+                            // BỎ CỘT NOTE VÌ SCHEDULEITEM KHÔNG CÓ CỘT NOTE
                         });
                     }
                 }
             }
-
             if (scheduleItems.Any())
             {
                 context.ScheduleItems.AddRange(scheduleItems);
                 await context.SaveChangesAsync();
             }
 
-            // ==========================================
-            // PHẦN 5: THÔNG BÁO
-            // ==========================================
-            var adminUserEntity = await context.Users.FirstAsync(u => u.UserName == "admin");
-            var announcements = new Announcement[]
+            // ==========================================================
+            // PHẦN 4: THÔNG BÁO (ANNOUNCEMENTS)
+            // ==========================================================
+            var announcements = new List<Announcement>
             {
                 new Announcement
                 {
-                    Title = "Thông báo nghỉ tết",
-                    Summary = "Lịch nghỉ tết Nguyên Đán",
-                    Content = "Toàn trường nghỉ tết từ ngày 20/12 AL đến hết mùng 10 AL.",
+                    Title = "Chào mừng năm học mới 2025-2026",
+                    Summary = "Lễ khai giảng",
+                    Content = "Kính mời toàn thể sinh viên tham gia lễ khai giảng tại Hội trường A vào lúc 8h00 ngày 05/09.",
                     CreatedDate = DateTime.Now,
                     Taker = RecipientType.All,
-                    UserId = adminUserEntity.Id
+                    UserId = adminUser.Id
+                },
+                new Announcement
+                {
+                    Title = "Thông báo đăng ký tín chỉ đợt 2",
+                    Summary = "Mở bổ sung lớp",
+                    Content = "Nhà trường mở thêm lớp PRN211 cho sinh viên khóa K17.",
+                    CreatedDate = DateTime.Now.AddDays(-2),
+                    Taker = RecipientType.Student,
+                    UserId = adminUser.Id
                 }
             };
             context.Announcements.AddRange(announcements);
-
             await context.SaveChangesAsync();
         }
     }

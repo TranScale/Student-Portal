@@ -31,7 +31,7 @@
                 <i class="fa fa-list-alt mr-2"></i> Danh sách môn học mở cho đăng ký
             </h5>
 
-            <form method="post" asp-action="SubmitRegistration" asp-controller="Student">
+            <form method="post" asp-action="SubmitRegistration" asp-controller="Enrollments">
                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-reg table-bordered">
                         <thead>
@@ -140,19 +140,19 @@
                             {
                                 <tr>
                                     <td>
-                                        <form method="post" asp-action="CancelRegistration" asp-controller="Student" asp-route-id="@item.EnrollmentId" onsubmit="return confirm('Bạn có chắc muốn hủy môn này?');">
+                                        <form method="post" asp-action="CancelRegistration" asp-controller="Enrollments" asp-route-id="@item.EnrollmentId" onsubmit="return confirm('Bạn có chắc muốn hủy môn này?');">
                                             <button type="submit" class="btn-delete" title="Hủy môn">
                                                 <i class="fa fa-times"></i>
                                             </button>
                                         </form>
                                     </td>
                                     <td>@item.CourseSection?.Course?.CourseCode</td>
-                                    <td class="text-left font-weight-bold" style="color: #0056b3;">
+                                    <td class="text-left font-weight-bold">
                                         @item.CourseSection?.Course?.CourseName
                                     </td>
                                     <td>@item.CourseSection?.Room</td>
-                                    <td class="text-left font-weight-bold" style="color: #00d4ff;">
-                                        @item.CourseSection?.Course?.CourseName
+                                    <td class="text-left font-weight-bold">
+                                        @item.CourseSection?.Course?.CourseCredit
                                     </td>
                                     <td>
                                         @string.Format("{0:N0}", (item.CourseSection?.Course?.CourseCredit ?? 0) * 850000)

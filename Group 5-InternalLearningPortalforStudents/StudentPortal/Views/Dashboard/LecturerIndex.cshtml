@@ -1,0 +1,124 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using StudentPortal.Models
+@using System.Globalization
+@inject UserManager<User> UserManager
+
+@{
+    Layout = "_LecturerLayout";
+    ViewData["Title"] = "LecturerDashboard";
+
+    // --- MÔ PHỎNG DỮ LIỆU ---
+    var fullName = ViewData["FullName"] as string ?? "Nguyễn Văn A";
+    var email = ViewData["Email"] as string ?? "gv001@university.edu.vn";
+    var phone = ViewData["Phone"] as string ?? "0988777666";
+    var lecturerCode = ViewData["LecturerCode"] as string ?? "GV123456";
+    var department = ViewData["Department"] as string ?? "Công nghệ thông tin";
+
+    var teachingList = ViewBag.TeachingList as List<dynamic>;
+    if (teachingList == null) // Fallback nếu chưa có controller
+    {
+        teachingList = new List<dynamic>
+        {
+            new { Id = 1, SubjectName = "Lập trình Web", ClassCode = "KTPM_K15_01", Time = "Thứ 2 (Tiết 1-3)", Room = "A2-301", Students = 45 },
+            new { Id = 2, SubjectName = "Cấu trúc dữ liệu", ClassCode = "CNTT_K16_02", Time = "Thứ 3 (Tiết 7-9)", Room = "B1-202", Students = 60 },
+            new { Id = 3, SubjectName = "Trí tuệ nhân tạo", ClassCode = "KHMT_K14_01", Time = "Thứ 4 (Tiết 1-3)", Room = "C1-101", Students = 35 },
+            new { Id = 4, SubjectName = "Đồ án cơ sở", ClassCode = "HTTT_K15_03", Time = "Thứ 6 (Tiết 4-6)", Room = "Online", Students = 10 }
+        };
+    }
+}
+
+<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+            <div class="col-12 col-lg-6 col-xl-6 border-light">
+                <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; min-height: 100px;">
+                    <h4 class="mb-2 text-white font-weight-bold">Xin chào, Giảng viên @fullName 👋</h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">
+                        Chúc thầy/cô một ngày làm việc hiệu quả.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3 col-xl-3 border-light">
+                <div class="card-body">
+                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Count</h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">Môn học đang đảm nhiệm</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3 col-xl-3 border-light">
+                <div class="card-body">
+                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Sum(x => (int)x.Students)</h4>
+                    <p class="mb-0 text-white small-font" style="opacity: 0.8">Tổng sinh viên đang quản lý</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-white">Lịch trình giảng dạy</h5>
+                <hr style="border-top: 1px solid rgba(255,255,255,0.1);">
+                <partial name="_LecturerCalendarPatial" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Danh sách lớp học phần đang giảng dạy</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Tên môn học</th>
+                                <th scope="col">Mã lớp</th>
+                                <th scope="col">Lịch học</th>
+                                <th scope="col">Phòng</th>
+                                <th scope="col">Sĩ số</th>
+                                <th scope="col">Tác vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (teachingList != null && teachingList.Count > 0)
+                            {
+                                int stt = 1;
+                                foreach (var item in teachingList)
+                                {
+                                    <tr>
+                                        <th scope="row">@stt</th>
+                                        <td>@item.SubjectName</td>
+                                        <td><span class="badge badge-light">@item.ClassCode</span></td>
+                                        <td>@item.Time</td>
+                                        <td>@item.Room</td>
+                                        <td>@item.Students</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-light">Điểm danh</button>
+                                            <button class="btn btn-sm btn-outline-light">Nhập điểm</button>
+                                        </td>
+                                    </tr>
+                                    stt++;
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center">Chưa có dữ liệu</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/assets/plugins/Chart.js/Chart.min.js"></script>
+    <script src="~/assets/js/index.js"></script>
+}

@@ -143,6 +143,28 @@ namespace StudentPortal.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var currentUser = await _userManager.FindByNameAsync(userNameToSignIn);
+
+                    if (currentUser != null)
+                    {
+                        // 2. Nếu là Student -> Luôn về Dashboard sinh viên
+                        if (await _userManager.IsInRoleAsync(currentUser, "Student"))
+                        {
+                            return RedirectToAction("StudentIndex", "Dashboard");
+                        }
+
+                        // 3. Nếu là Admin -> Luôn về Dashboard Admin (nếu bạn muốn)
+                        if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+                        {
+                            return RedirectToAction("AdminIndex", "Dashboard");
+                        }
+
+                        // 4. Nếu là Lecturer -> Luôn về Dashboard Giảng viên
+                        if (await _userManager.IsInRoleAsync(currentUser, "Lecturer"))
+                        {
+                            return RedirectToAction("LecturerIndex", "Dashboard");
+                        }
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

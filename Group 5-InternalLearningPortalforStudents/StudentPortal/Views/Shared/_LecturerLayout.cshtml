@@ -35,7 +35,7 @@
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
             <div class="brand-logo">
-                <a href="~/">
+                <a asp-controller="Dashboard" asp-action="LecturerIndex">
                     <img src="~/assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
                     <h5 class="logo-text">uEF - Student Portal</h5>
                 </a>
@@ -43,26 +43,26 @@
             <ul class="sidebar-menu do-nicescrol">
                 <li class="sidebar-header">MAIN NAVIGATION</li>
                 <li>
-                    <a href="/">
+                    <a asp-controller="Dashboard" asp-action="LecturerIndex">
                         <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
                     </a>
                 </li>
 
                 <li>
-                    <a asp-controller="Dashboard" asp-action="StudentProfile">
+                    <a asp-controller="Dashboard" asp-action="LecturerProfile">
                         <i class="zmdi zmdi-face"></i> <span>Thông tin cá nhân</span>
                     </a>
                 </li>
 
                 <li>
                     <a asp-controller="Score" asp-action="Index">
-                        <i class="fa fa-graduation-cap"></i> <span>Điểm</span>
+                        <i class="fa fa-graduation-cap"></i> <span>Nhập Điểm</span>
                     </a>
                 </li>
 
                 <li>
                     <a asp-controller="Schedule" asp-action="Index">
-                        <i class="zmdi zmdi-grid"></i> <span>Thời khóa biểu</span>
+                        <i class="zmdi zmdi-grid"></i> <span>Lịch giảng dạy</span>
                     </a>
                 </li>
 

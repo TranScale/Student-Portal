@@ -19,56 +19,91 @@ namespace StudentPortal.Controllers
             _userManager = userManager;
         }
 
-        
-        public async Task<IActionResult> Index()
+        // ĐIỀU HƯỚNG (INDEX)
+        public IActionResult Index()
+        {
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction(nameof(StudentSchedule));
+            }
+            if (User.IsInRole("Lecturer"))
+            {
+                return RedirectToAction(nameof(LecturerSchedule));
+            }
+            if (User.IsInRole("Admin"))
+            {
+                // Admin thì sang trang quản lý danh sách lớp
+                return RedirectToAction("Index", "CourseSections");
+            }
+            return RedirectToAction("AccessDenied", "Account");
+        }
+
+        // LỊCH HỌC SINH VIÊN (StudentSchedule)
+        [Authorize(Roles = "Student")]
+        public async Task<ActionResult> StudentSchedule(DateTime? date)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+            if (student == null) return View("Error");
+
+            DateTime anchorDate = date ?? DateTime.Today;
+
+            int diff = (7 + (anchorDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime startOfWeek = anchorDate.AddDays(-1 * diff).Date;
+            DateTime endOfWeek = startOfWeek.AddDays(6).Date;
+
+            var scheduleItems = await _context.ScheduleItems
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Course)
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Lecturer).ThenInclude(l => l.User)
+                .Where(si => si.CourseSection.Enrollments.Any(e => e.StudentId == student.StudentId))
+                .Where(si => si.ScheduleDate >= startOfWeek && si.ScheduleDate <= endOfWeek)
+                .ToListAsync();
+
+            ViewData["ScheduleList"] = scheduleItems;
+            ViewData["StartOfWeek"] = startOfWeek;
+            ViewData["WeekRange"] = $"{startOfWeek:dd/MM/yyyy} - {endOfWeek:dd/MM/yyyy}";
+
+            ViewData["PrevDate"] = startOfWeek.AddDays(-7).ToString("yyyy-MM-dd");
+            ViewData["NextDate"] = startOfWeek.AddDays(7).ToString("yyyy-MM-dd");
+
+            return View();
+        }
+
+        // LỊCH DẠY GIẢNG VIÊN (LecturerSchedule)
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> LecturerSchedule(DateTime? date)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            List<CourseSection> schedules = new List<CourseSection>();
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+            if (lecturer == null) return View("Error");
 
-            // 1. NẾU LÀ SINH VIÊN -> Xem Lịch Học
-            if (User.IsInRole("Student"))
-            {
-                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
-                if (student != null)
-                {
-                    // Lấy các lớp đã đăng ký (trừ lớp đã hủy)
-                    schedules = await _context.Enrollments
-                        .Where(e => e.StudentId == student.StudentId && e.Status != EnrollmentStatus.Cancelled)
-                        .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
-                        .Include(e => e.CourseSection).ThenInclude(cs => cs.Lecturer).ThenInclude(l => l.User)
-                        .Select(e => e.CourseSection)
-                        .ToListAsync();
+            // --- Logic tính toán Tuần (Giống SV) ---
+            DateTime anchorDate = date ?? DateTime.Today;
+            int diff = (7 + (anchorDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime startOfWeek = anchorDate.AddDays(-1 * diff).Date;
+            DateTime endOfWeek = startOfWeek.AddDays(6).Date;
 
-                    ViewBag.Title = "Lịch Học Của Tôi";
-                    ViewBag.Role = "Student";
-                }
-            }
-            // 2. NẾU LÀ GIẢNG VIÊN -> Xem Lịch Dạy
-            else if (User.IsInRole("Lecturer"))
-            {
-                var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
-                if (lecturer != null)
-                {
-                    // Lấy các lớp mình đứng lớp
-                    schedules = await _context.CoursesSections
-                        .Where(cs => cs.LecturerId == lecturer.LecturerId)
-                        .Include(cs => cs.Course)
-                        .ToListAsync();
+            // --- Query lấy lịch dạy ---
+            var scheduleItems = await _context.ScheduleItems
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Course)
+                // Lọc theo LecturerId của lớp học phần
+                .Where(si => si.CourseSection.LecturerId == lecturer.LecturerId)
+                .Where(si => si.ScheduleDate >= startOfWeek && si.ScheduleDate <= endOfWeek)
+                .OrderBy(si => si.ScheduleDate).ThenBy(si => si.CourseSection.DayStart)
+                .ToListAsync();
 
-                    ViewBag.Title = "Lịch Dạy Của Tôi";
-                    ViewBag.Role = "Lecturer";
-                }
-            }
-            // 3. NẾU LÀ ADMIN -> Chuyển sang trang CRUD
-            else if (User.IsInRole("Admin"))
-            {
-                // Chuyển hướng sang Controller quản lý lớp học (Bạn phải tạo Controller này nhé)
-                return RedirectToAction("Index", "CourseSections");
-            }
+            ViewData["StartOfWeek"] = startOfWeek;
+            ViewData["EndOfWeek"] = endOfWeek;
+            ViewData["WeekRange"] = $"Từ {startOfWeek:dd/MM/yyyy} đến {endOfWeek:dd/MM/yyyy}";
 
-            return View(schedules);
+            ViewData["PrevDate"] = startOfWeek.AddDays(-7).ToString("yyyy-MM-dd");
+            ViewData["NextDate"] = startOfWeek.AddDays(7).ToString("yyyy-MM-dd");
+
+            return View(scheduleItems); // Có thể dùng chung View với SV hoặc tạo View riêng
         }
     }
 }

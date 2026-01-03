@@ -26,7 +26,7 @@ namespace StudentPortal.Controllers
 
             return await _context.Users
                 .Where(u => u.Email == email)
-                .Select(u => u.UserId)
+                .Select(u => u.Id)
                 .FirstOrDefaultAsync();
         }
 

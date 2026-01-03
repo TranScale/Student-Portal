@@ -39,7 +39,7 @@
                 <td>@(item.ExpiredDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                 <td>@item.Score</td>
                 <td>@item.FilePath</td>
-                <td>@item.User?.UserId</td>
+                <td>@item.User?.Id</td>
                 <td>
                     @* Tất cả đều được xem *@
                     <a asp-action="Details" asp-route-id="@item.CertificateId">Details</a>
