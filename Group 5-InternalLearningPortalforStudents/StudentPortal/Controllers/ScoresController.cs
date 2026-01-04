@@ -26,34 +26,41 @@ namespace StudentPortal.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            // --- NẾU LÀ SINH VIÊN ---
-            // Chuyển hướng sang trang xem điểm chi tiết (StudentScore)
+            // --- NẾU LÀ GIẢNG VIÊN ---
+            if (User.IsInRole("Lecturer"))
+            {
+                var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
+                if (lecturer == null) return View("Error");
+
+                // Lấy học kỳ đang active
+                var currentSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
+                if (currentSemester == null)
+                {
+                    TempData["Error"] = "Không có học kỳ nào đang hoạt động.";
+                    return View("LecturerIndex", new List<CourseSection>());
+                }
+
+                // Lấy danh sách lớp giảng viên dạy trong kỳ này
+                var sections = await _context.CoursesSections
+                    .Include(cs => cs.Course)
+                    .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == currentSemester.SemesterId)
+                    .ToListAsync();
+
+                ViewBag.CurrentSemesterName = $"{currentSemester.SemesterName} - {currentSemester.AcademicYear}";
+
+                // Trả về View chính chứa danh sách
+                return View("LecturerIndex", sections);
+            }
+
+            // --- NẾU LÀ SINH VIÊN (Giữ nguyên logic cũ của bạn) ---
             if (User.IsInRole("Student"))
             {
                 return RedirectToAction(nameof(StudentScore));
             }
 
-            // --- NẾU LÀ GIẢNG VIÊN ---
-            // Xem danh sách lớp mình dạy để nhập điểm
-            if (User.IsInRole("Lecturer"))
-            {
-                return RedirectToAction(nameof(EnterGrades));
-                var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
-                if (lecturer == null) return View("Error");
-
-                var sections = await _context.CoursesSections
-                    .Include(cs => cs.Course)
-                    .Where(cs => cs.LecturerId == lecturer.LecturerId)
-                    .ToListAsync();
-
-                ViewBag.Role = "Lecturer";
-                return View("LecturerIndex", sections); 
-            }
-
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        //XEM ĐIỂM SINH VIÊN(StudentSchedule)
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> StudentScore(int? semesterId)
         {
@@ -65,7 +72,7 @@ namespace StudentPortal.Controllers
                 var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
                 if (student == null) return View("Error");
 
-                var semester = await _context.Semesters
+                var semesters = await _context.Semesters
                     .Where(s => s.StartDate.Date >= student.StartStudyDate)
                     .OrderBy(s => s.StartDate)
                     .Select(s => new
@@ -74,10 +81,10 @@ namespace StudentPortal.Controllers
                         DisplayText = $"{s.SemesterName} - Năm học {s.AcademicYear}"
                     }).ToListAsync();
 
-                int selectedValue = semesterId ?? (semester.FirstOrDefault()?.Id ?? 0);
-                ViewData["SemesterList"] = new SelectList(semester, "Id", "DisplayText", selectedValue);
+                int selectedValue = semesterId ?? (semesters.FirstOrDefault()?.Id ?? 0);
+                ViewData["SemesterList"] = new SelectList(semesters, "Id", "DisplayText", selectedValue);
 
-                var currentSemester = semester.FirstOrDefault(s => s.Id == selectedValue);
+                var currentSemester = semesters.FirstOrDefault(s => s.Id == selectedValue);
                 ViewData["CurrentSemesterName"] = currentSemester?.DisplayText;
 
                 var scoreList = await _context.Scores
@@ -89,23 +96,24 @@ namespace StudentPortal.Controllers
                 return View(scoreList);
             }
             catch (Exception)
-            { return View("Error"); }
+            {
+                return View("Error");
+            }
         }
-
-
 
         [Authorize(Roles = "Lecturer")]
         [HttpGet]
         public async Task<IActionResult> EnterGrades(int sectionId)
         {
+            // Lấy danh sách sinh viên đã Approved trong lớp
             var enrollments = await _context.Enrollments
                 .AsNoTracking()
                 .Include(e => e.Student).ThenInclude(s => s.User)
-                //.Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
-                .Where(e => e.CourseSectionId == sectionId)
+                .Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
                 .OrderBy(e => e.Student.StudentCode)
                 .ToListAsync();
- 
+
+            // Lấy điểm đã có (nếu có)
             var existingScores = await _context.Scores
                 .Where(s => s.CourseSectionId == sectionId)
                 .ToListAsync();
@@ -121,9 +129,8 @@ namespace StudentPortal.Controllers
                     score = new Score
                     {
                         StudentId = enrollment.StudentId,
-                        Student = enrollment.Student, 
+                        Student = enrollment.Student,
                         CourseSectionId = sectionId,
-                        ScoreId = 0, 
                         ProcessScore = 0,
                         MiddleScore = 0,
                         ExamScore = 0
@@ -133,12 +140,13 @@ namespace StudentPortal.Controllers
                 {
                     score.Student = enrollment.Student;
                 }
-
                 modelList.Add(score);
             }
 
             ViewBag.SectionId = sectionId;
-            return View(modelList);
+
+            // QUAN TRỌNG: Trả về PartialView để JS load vào Modal
+            return PartialView("_EnterGradesPartial", modelList);
         }
 
         // 3. LƯU ĐIỂM (POST)
@@ -148,75 +156,62 @@ namespace StudentPortal.Controllers
         public async Task<IActionResult> EnterGrades(List<Score> models, int sectionId)
         {
             var user = await _userManager.GetUserAsync(User);
-            // Cần kiểm tra null cho user và lecturer để tránh lỗi runtime
-            if (user == null) return RedirectToAction("Login", "Account");
-
             var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
-            if (lecturer == null) return Forbid(); // Hoặc xử lý lỗi phù hợp
+            if (lecturer == null) return Forbid();
 
             if (models != null && models.Count > 0)
             {
                 foreach (var item in models)
                 {
-                    // Quá trình 30% + Giữa kỳ 20% + Cuối kỳ 50%
+                    // Tính toán
                     float total = (item.ProcessScore * 0.3f) + (item.MiddleScore * 0.2f) + (item.ExamScore * 0.5f);
-                    item.FinalScore = total;
+                    item.FinalScore = (float)Math.Round(total, 2); // Làm tròn 2 chữ số
 
-                    // Tính toán ScoreValues dựa trên total
+                    // Xếp loại
                     ScoreValues calculatedGrade;
+                    if (total >= 8.5) calculatedGrade = ScoreValues.A;
+                    else if (total >= 7.0) calculatedGrade = ScoreValues.B;
+                    else if (total >= 5.5) calculatedGrade = ScoreValues.C;
+                    else if (total >= 4.0) calculatedGrade = ScoreValues.D;
+                    else calculatedGrade = ScoreValues.F;
 
-                    if (total >= 8.5)
-                        calculatedGrade = ScoreValues.A;
-                    else if (total >= 7.0)
-                        calculatedGrade = ScoreValues.B;
-                    else if (total >= 5.5)
-                        calculatedGrade = ScoreValues.C;
-                    else if (total >= 4.0)
-                        calculatedGrade = ScoreValues.D;
-                    else
-                        calculatedGrade = ScoreValues.F;
+                    // Cập nhật hoặc Thêm mới
+                    var scoreInDb = await _context.Scores.FirstOrDefaultAsync(s => s.StudentId == item.StudentId && s.CourseSectionId == sectionId);
 
-                    // LƯU VÀO DB
-                    if (item.ScoreId == 0)
+                    if (scoreInDb == null)
                     {
-                        // == INSERT ==
-                        // Chỉ lưu nếu sinh viên có ít nhất một đầu điểm > 0 hoặc giảng viên cố tình nhập 0
-                        if (item.ProcessScore >= 0 || item.MiddleScore >= 0 || item.ExamScore >= 0)
+                        // Insert
+                        var newScore = new Score
                         {
-                            var newScore = new Score
-                            {
-                                CourseSectionId = sectionId,
-                                StudentId = item.StudentId,
-                                LecturerId = lecturer.LecturerId,
-                                ProcessScore = item.ProcessScore,
-                                MiddleScore = item.MiddleScore,
-                                ExamScore = item.ExamScore,
-                                Value = calculatedGrade, // <--- Gán giá trị đã tính toán
-                                FinalScore = item.FinalScore
-                            };
-                            _context.Scores.Add(newScore);
-                        }
+                            CourseSectionId = sectionId,
+                            StudentId = item.StudentId,
+                            LecturerId = lecturer.LecturerId,
+                            ProcessScore = item.ProcessScore,
+                            MiddleScore = item.MiddleScore,
+                            ExamScore = item.ExamScore,
+                            FinalScore = item.FinalScore,
+                            Value = calculatedGrade
+                        };
+                        _context.Scores.Add(newScore);
                     }
                     else
                     {
-                        // == UPDATE ==
-                        var scoreInDb = await _context.Scores.FindAsync(item.ScoreId);
-                        if (scoreInDb != null)
-                        {
-                            scoreInDb.ProcessScore = item.ProcessScore;
-                            scoreInDb.MiddleScore = item.MiddleScore;
-                            scoreInDb.ExamScore = item.ExamScore;
-                            scoreInDb.FinalScore = item.FinalScore;
-                            scoreInDb.Value = calculatedGrade; // <--- Cập nhật xếp loại mới
-                            scoreInDb.LecturerId = lecturer.LecturerId; // Cập nhật người sửa
-                        }
+                        // Update
+                        scoreInDb.ProcessScore = item.ProcessScore;
+                        scoreInDb.MiddleScore = item.MiddleScore;
+                        scoreInDb.ExamScore = item.ExamScore;
+                        scoreInDb.FinalScore = item.FinalScore;
+                        scoreInDb.Value = calculatedGrade;
+                        scoreInDb.LecturerId = lecturer.LecturerId; // Cập nhật người sửa cuối cùng
+                        _context.Scores.Update(scoreInDb);
                     }
                 }
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã lưu bảng điểm và xếp loại thành công!";
+                TempData["Success"] = "Cập nhật bảng điểm thành công!";
             }
 
-            return RedirectToAction(nameof(EnterGrades), new { sectionId = sectionId });
+            // Sau khi lưu xong, quay lại trang danh sách
+            return RedirectToAction(nameof(Index));
         }
     }
 }

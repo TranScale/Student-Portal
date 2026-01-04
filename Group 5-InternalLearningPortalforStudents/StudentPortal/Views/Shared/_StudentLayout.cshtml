@@ -27,7 +27,7 @@
 
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme2">
 
     <!-- Start wrapper-->
     <div id="wrapper">
@@ -150,7 +150,7 @@
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-                                    <button type="submit" class="dropdown-item" style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;">
+                                    <button type="submit" class="dropdown-item" style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;" onclick="localStorage.removeItem('selectedTheme');">
                                         <i class="icon-power mr-2"></i> Logout
                                     </button>
                                 </form>

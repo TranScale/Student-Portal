@@ -1,0 +1,331 @@
+﻿@model List<StudentPortal.Models.Score>
+
+<style>
+    /* --- CSS CŨ --- */
+    .glass-content {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        border-radius: 15px;
+        color: #000;
+    }
+
+    .glass-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        background: transparent;
+    }
+
+    .glass-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        background: transparent;
+    }
+
+    .table-glass {
+        color: #000;
+    }
+
+        .table-glass thead th {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #000;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-glass td {
+            border-color: rgba(0, 0, 0, 0.1);
+            vertical-align: middle;
+        }
+
+    /* CSS INPUT */
+    .input-glass {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #000 !important;
+        font-weight: 800;
+        text-align: center;
+        border-radius: 8px;
+        transition: all 0.2s ease; /* Nhanh hơn chút để cảm giác tức thì */
+    }
+
+        .input-glass:focus {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #6a11cb;
+            box-shadow: 0 0 10px rgba(106, 17, 203, 0.2);
+        }
+
+    /* --- [QUAN TRỌNG] CSS KHI CÓ LỖI --- */
+    .input-error {
+        border: 2px solid #dc3545 !important; /* Viền đỏ dày hơn */
+        background-color: #f8d7da !important; /* Nền hồng báo động */
+        color: #721c24 !important; /* Chữ đỏ đậm */
+        box-shadow: 0 0 8px rgba(220, 53, 69, 0.6) !important;
+        animation: shake 0.3s; /* Rung lắc nhẹ cảnh báo */
+    }
+
+    /* Hiệu ứng rung lắc khi nhập sai */
+    @@keyframes shake {
+        0%
+
+    {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+
+    }
+
+    .total-score {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #d63384;
+        text-shadow: 0 0 2px rgba(255,255,255,0.5);
+        transition: color 0.3s ease;
+    }
+
+    /* Khi tổng kết bị lỗi do điểm thành phần sai */
+    .total-error {
+        color: #dc3545;
+        font-size: 1rem;
+        font-style: italic;
+    }
+
+    .student-name {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .student-code {
+        font-size: 0.85rem;
+        color: #333;
+    }
+</style>
+
+<div class="modal fade" id="gradeModal" tabindex="-1" role="dialog" aria-labelledby="gradeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content glass-content">
+            <div class="modal-header glass-header">
+                <h5 class="modal-title font-weight-bold" id="gradeModalLabel">
+                    <i class="fas fa-edit text-primary"></i> Nhập điểm chi tiết
+                </h5>
+                <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close" onclick="$('#gradeModal').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form asp-action="EnterGrades" method="post" id="gradeForm">
+                <div class="modal-body">
+                    <input type="hidden" name="sectionId" value="@ViewBag.SectionId" />
+
+                    @if (Model == null || Model.Count == 0)
+                    {
+                        <div class="alert alert-light text-center" style="background: rgba(255,255,255,0.5)">
+                            Chưa có sinh viên nào trong danh sách lớp này.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-glass table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%">Sinh viên</th>
+                                        <th class="text-center">Quá trình (30%)</th>
+                                        <th class="text-center">Giữa kỳ (20%)</th>
+                                        <th class="text-center">Cuối kỳ (50%)</th>
+                                        <th class="text-center">Tổng kết</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <tr class="grade-row">
+                                            <td>
+                                                <input type="hidden" name="models[@i].StudentId" value="@Model[i].StudentId" />
+                                                <input type="hidden" name="models[@i].ScoreId" value="@Model[i].ScoreId" />
+                                                <div class="student-name">@Model[i].Student.User.FullName</div>
+                                                <div class="student-code">@Model[i].Student.StudentCode</div>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.1" min="0" max="10"
+                                                       class="form-control input-glass js-score-process"
+                                                       name="models[@i].ProcessScore"
+                                                       value="@Model[i].ProcessScore" placeholder="0" />
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.1" min="0" max="10"
+                                                       class="form-control input-glass js-score-middle"
+                                                       name="models[@i].MiddleScore"
+                                                       value="@Model[i].MiddleScore" placeholder="0" />
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.1" min="0" max="10"
+                                                       class="form-control input-glass js-score-exam"
+                                                       name="models[@i].ExamScore"
+                                                       value="@Model[i].ExamScore" placeholder="0" />
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="total-score js-total-score">@Model[i].FinalScore</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer glass-footer">
+                    <button type="button" class="btn btn-outline-dark" data-dismiss="modal" onclick="$('#gradeModal').modal('hide')">Đóng</button>
+                    <button type="submit" id="btnSave" class="btn text-white"
+                            style="background: linear-gradient(45deg, #6a11cb, #2575fc); border:none;"
+                            title="Vui lòng nhập đúng điểm trước khi lưu">
+                        <i class="fas fa-save"></i> Lưu bảng điểm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        // --- CÁC HÀM XỬ LÝ LOGIC (GIỮ NGUYÊN) ---
+
+        function validateAndCalculate(inputElement) {
+            var row = inputElement.closest('tr');
+            var valStr = inputElement.val();
+
+            if (valStr === "") {
+                inputElement.removeClass('input-error');
+                calculateRow(row);
+                checkGlobalError();
+                return;
+            }
+
+            var currentVal = parseFloat(valStr);
+
+            if (currentVal < 0 || currentVal > 10) {
+                inputElement.addClass('input-error');
+                row.find('.js-total-score')
+                    .text("Sai điểm!")
+                    .addClass("total-error")
+                    .removeClass("total-score");
+            }
+            else {
+                inputElement.removeClass('input-error');
+                calculateRow(row);
+            }
+            checkGlobalError();
+        }
+
+        function checkGlobalError() {
+            var hasError = $('.input-error').length > 0;
+            if (hasError) {
+                $('#btnSave').prop('disabled', true)
+                             .css('opacity', '0.5')
+                             .css('cursor', 'not-allowed')
+                             .html('<i class="fas fa-exclamation-triangle"></i> Lỗi dữ liệu');
+            } else {
+                $('#btnSave').prop('disabled', false)
+                             .css('opacity', '1')
+                             .css('cursor', 'pointer')
+                             .html('<i class="fas fa-save"></i> Lưu bảng điểm');
+            }
+        }
+
+        function calculateRow(row) {
+            var p = parseFloat(row.find('.js-score-process').val());
+            var m = parseFloat(row.find('.js-score-middle').val());
+            var e = parseFloat(row.find('.js-score-exam').val());
+
+            p = isNaN(p) ? 0 : p;
+            m = isNaN(m) ? 0 : m;
+            e = isNaN(e) ? 0 : e;
+
+            if (p <= 10 && m <= 10 && e <= 10 && p >= 0 && m >= 0 && e >= 0) {
+                var total = (p * 0.3) + (m * 0.2) + (e * 0.5);
+                row.find('.js-total-score')
+                    .text(total.toFixed(2))
+                    .addClass("total-score")
+                    .removeClass("total-error");
+            }
+        }
+
+        // --- CÁC SỰ KIỆN (EVENTS) ---
+
+        // 1. KHI ĐANG GÕ
+        $('.input-glass').on('input', function () {
+            validateAndCalculate($(this));
+        });
+
+        // 2. KHI CLICK VÀO (FOCUS) - XỬ LÝ SỐ 0
+        $('.input-glass').on('focus', function () {
+            var val = $(this).val();
+            // Xóa số 0 để nhập cho nhanh
+            if (val == 0 || val == "0") {
+                $(this).val('');
+            } else {
+                $(this).select(); // Bôi đen nếu là số khác
+            }
+        });
+
+        // 3. KHI CLICK RA NGOÀI (BLUR)
+        $('.input-glass').on('blur', function () {
+            var val = $(this).val();
+            if (val === "") {
+                $(this).val(0); // Trả lại số 0 nếu để trống
+                validateAndCalculate($(this));
+            }
+        });
+
+        // 4. [MỚI] XỬ LÝ PHÍM ENTER ĐỂ ĐIỀU HƯỚNG
+        $('.input-glass').on('keydown', function (e) {
+            // Kiểm tra nếu phím nhấn là Enter (Code 13)
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault(); // Chặn việc submit form
+
+                // Lấy danh sách tất cả các ô input theo thứ tự xuất hiện trong DOM (từ trên xuống, từ trái qua)
+                var allInputs = $('.input-glass');
+
+                // Tìm vị trí (index) của ô hiện tại
+                var currentIndex = allInputs.index(this);
+
+                // Tính index của ô tiếp theo
+                var nextIndex = currentIndex + 1;
+
+                // Nếu vẫn còn ô tiếp theo trong danh sách
+                if (nextIndex < allInputs.length) {
+                    var nextInput = allInputs.eq(nextIndex);
+
+                    // Focus vào ô đó
+                    nextInput.focus();
+
+                    // (Tùy chọn) Bôi đen luôn để nhập đè (mặc dù sự kiện focus ở trên đã xử lý rồi)
+                    nextInput.select();
+                } else {
+                    // Nếu là ô cuối cùng của sinh viên cuối cùng, có thể focus vào nút Lưu (tùy chọn)
+                    $('#btnSave').focus();
+                }
+            }
+        });
+
+    });
+</script>

@@ -1,0 +1,70 @@
+﻿@model List<StudentPortal.Models.CourseSection>
+
+@{
+    Layout = "_LecturerLayout";
+    ViewData["Title"] = "Danh sách lớp giảng dạy";
+}
+
+<div class="container-fluid">
+    <h2 class="mt-4">Quản lý điểm - @ViewBag.CurrentSemesterName</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách lớp học</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã học phần</th>
+                            <th>Tên môn học</th>
+                            <th>Phòng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Course.CourseCode</td>
+                                <td>@item.Course.CourseName</td>
+                                <td>@item.Room</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm"
+                                            onclick="openGradeModal(@item.CourseSectionId)">
+                                        <i class="fa fa-edit"></i> Nhập điểm
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalContainer"></div>
+
+@section Scripts {
+    <script>
+        function openGradeModal(sectionId) {
+            // Sử dụng jQuery Ajax để gọi Action EnterGrades (GET)
+            $.get('/Score/EnterGrades', { sectionId: sectionId }, function (data) {
+                // Nhúng HTML trả về vào div container
+                $('#modalContainer').html(data);
+                // Hiển thị Modal (yêu cầu Bootstrap)
+                $('#gradeModal').modal('show');
+            }).fail(function () {
+                alert("Lỗi khi tải bảng điểm!");
+            });
+        }
+    </script>
+}

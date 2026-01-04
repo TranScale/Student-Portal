@@ -24,7 +24,7 @@ namespace StudentPortal.Controllers
         {
             if (User.IsInRole("Student"))
             {
-                return RedirectToAction(nameof(StudentSchedule));
+                return RedirectToAction(nameof(StudentSchedule));  
             }
             if (User.IsInRole("Lecturer"))
             {
@@ -32,7 +32,6 @@ namespace StudentPortal.Controllers
             }
             if (User.IsInRole("Admin"))
             {
-                // Admin thì sang trang quản lý danh sách lớp
                 return RedirectToAction("Index", "CourseSections");
             }
             return RedirectToAction("AccessDenied", "Account");
@@ -102,6 +101,8 @@ namespace StudentPortal.Controllers
 
             ViewData["PrevDate"] = startOfWeek.AddDays(-7).ToString("yyyy-MM-dd");
             ViewData["NextDate"] = startOfWeek.AddDays(7).ToString("yyyy-MM-dd");
+
+            ViewData["ScheduleList"] = scheduleItems;
 
             return View(scheduleItems); // Có thể dùng chung View với SV hoặc tạo View riêng
         }

@@ -1,0 +1,241 @@
+﻿@using StudentPortal.Models
+@{
+    ViewData["Title"] = "Lịch Giảng Dạy";
+    Layout = "_LecturerLayout"; // Đảm bảo dùng Layout chung
+
+    // 1. NHẬN DỮ LIỆU TỪ CONTROLLER
+    // Controller đã gán: ViewData["ScheduleList"] = scheduleItems;
+    var scheduleList = ViewData["ScheduleList"] as List<ScheduleItem> ?? new List<ScheduleItem>();
+
+    var weekRange = ViewData["WeekRange"] as string;
+
+    // Ép kiểu an toàn ngày bắt đầu tuần
+    var startOfWeek = ViewData["StartOfWeek"] != null
+                      ? (DateTime)ViewData["StartOfWeek"]
+                      : DateTime.Today;
+
+    // Các biến ngày để điều hướng
+    var prevDate = ViewData["PrevDate"] as string;
+    var nextDate = ViewData["NextDate"] as string;
+}
+
+@functions {
+    // Hàm chọn màu ngẫu nhiên dựa trên ID lớp để các môn khác nhau có màu khác nhau
+    string GetColorClass(int index)
+    {
+        string[] colors = { "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1", "#e83e8c", "#20c997" };
+        return colors[index % colors.Length];
+    }
+}
+
+<div class="col-lg-12">
+    <div class="card glass-card">
+        <div class="card-body p-2">
+
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-2 px-2">
+
+                <h5 class="card-title text-white mb-0" style="font-size: 1.2rem; font-weight: 700;">
+                    <i class="zmdi zmdi-calendar-check mr-2"></i> LỊCH GIẢNG DẠY
+                </h5>
+
+                <div class="d-flex align-items-center">
+                    <a href="@Url.Action("LecturerSchedule", new { date = prevDate })" class="nav-btn" title="Tuần trước">
+                        <i class="fa fa-chevron-left"></i>
+                    </a>
+
+                    <span class="date-badge">
+                        <i class="fa fa-calendar-o mr-1"></i> @weekRange
+                    </span>
+
+                    <a href="@Url.Action("LecturerSchedule", new { date = nextDate })" class="nav-btn" title="Tuần sau">
+                        <i class="fa fa-chevron-right"></i>
+                    </a>
+
+                    <a href="@Url.Action("LecturerSchedule")" class="btn btn-sm btn-light ml-3" style="font-size: 0.75rem; font-weight: bold; color: #333;">
+                        Hôm nay
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-transparent">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="session-col" style="border-bottom: none;">CA</th>
+                            <th scope="col">THỨ 2 <small class="header-date">@startOfWeek.ToString("dd/MM")</small></th>
+                            <th scope="col">THỨ 3 <small class="header-date">@startOfWeek.AddDays(1).ToString("dd/MM")</small></th>
+                            <th scope="col">THỨ 4 <small class="header-date">@startOfWeek.AddDays(2).ToString("dd/MM")</small></th>
+                            <th scope="col">THỨ 5 <small class="header-date">@startOfWeek.AddDays(3).ToString("dd/MM")</small></th>
+                            <th scope="col">THỨ 6 <small class="header-date">@startOfWeek.AddDays(4).ToString("dd/MM")</small></th>
+                            <th scope="col">THỨ 7 <small class="header-date">@startOfWeek.AddDays(5).ToString("dd/MM")</small></th>
+                            <th scope="col">CN <small class="header-date">@startOfWeek.AddDays(6).ToString("dd/MM")</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Vòng lặp 5 CA *@
+                        @for (int session = 1; session <= 5; session++)
+                        {
+                            <tr>
+                                <td class="session-col">
+                                    <span class="session-name">@session</span>
+                                    <span class="session-time">
+                                        @(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))
+                                    </span>
+                                </td>
+
+                                @* Vòng lặp 7 ngày *@
+                                @for (int i = 0; i < 7; i++)
+                                {
+                                    DateTime currentDate = startOfWeek.AddDays(i);
+
+                                    // Tìm lớp dạy trùng ngày và trùng ca
+                                    var item = scheduleList.FirstOrDefault(s =>
+                                    s.ScheduleDate.Date == currentDate.Date &&
+                                    (int)s.CourseSection.Sessions == session
+                                    );
+
+                                    <td>
+                                        @if (item != null)
+                                        {
+                                            // Click vào ô để xem chi tiết hoặc nhập điểm (tùy chọn mở rộng sau này)
+                                            <div class="event-block" style="background-color: @GetColorClass(item.CourseSectionId)"
+                                                 title="Mã lớp: @item.CourseSectionId">
+
+                                                @* Tên Môn *@
+                                                <div class="subject-title">
+                                                    @(item.CourseSection?.Course?.CourseName ?? "Môn học")
+                                                </div>
+
+                                                @* Phòng học *@
+                                                <div class="subject-info">
+                                                    <i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")
+                                                </div>
+
+                                                @* 3. HIỂN THỊ CHO GV: Thay tên GV bằng Sĩ số & Mã lớp *@
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <span class="badge badge-light text-dark" style="font-size: 0.7rem">
+                                                        <i class="fa fa-users"></i> @(item.CourseSection?.Capacity ?? 0)
+                                                    </span>
+                                                    <span class="badge badge-dark text-white ml-1" style="font-size: 0.7rem">
+                                                        #@item.CourseSectionId
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Tùy chỉnh cho bảng */
+    .table-transparent {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    /* Ô lịch học */
+    .event-block {
+        background-color: #17a2b8;
+        color: #fff;
+        padding: 8px;
+        border-radius: 6px;
+        border-left: 4px solid rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        white-space: normal;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        min-height: 85px; /* Đủ cao để chứa 3 dòng thông tin */
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+
+        .event-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+    .subject-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        line-height: 1.2;
+        margin-bottom: 2px;
+    }
+
+    .subject-info {
+        font-size: 0.8rem;
+        opacity: 0.95;
+    }
+
+    /* Nút điều hướng tuần */
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none !important;
+        margin: 0 5px;
+    }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+            color: #fff;
+        }
+
+    .date-badge {
+        font-size: 0.9rem;
+        color: white;
+        font-weight: 600;
+        margin: 0 5px;
+    }
+
+    /* Cột CA học */
+    .session-col {
+        vertical-align: middle !important;
+        text-align: center;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        width: 60px;
+    }
+
+    .session-name {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .session-time {
+        display: block;
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+
+    th {
+        text-align: center;
+        color: white;
+        vertical-align: middle !important;
+    }
+
+    .header-date {
+        display: block;
+        font-weight: normal;
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: 2px;
+    }
+</style>
