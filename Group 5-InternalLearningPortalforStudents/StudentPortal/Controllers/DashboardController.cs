@@ -25,7 +25,7 @@ namespace StudentPortal.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                return RedirectToAction(nameof(StudentIndex));
+                return RedirectToAction(nameof(AdminIndex));
             }
             if (User.IsInRole("Lecturer"))
             {
@@ -121,6 +121,16 @@ namespace StudentPortal.Controllers
 
             ViewData["teachingList"] = teachingList;
 
+            return View();
+        }
+
+        public async Task<ActionResult> AdminIndex(DateTime? date)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
             return View();
         }
 

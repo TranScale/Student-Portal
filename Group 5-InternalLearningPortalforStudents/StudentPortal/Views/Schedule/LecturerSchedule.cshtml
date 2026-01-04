@@ -23,9 +23,17 @@
     // Hàm chọn màu ngẫu nhiên dựa trên ID lớp để các môn khác nhau có màu khác nhau
     string GetColorClass(int index)
     {
-        string[] colors = { "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1", "#e83e8c", "#20c997" };
+        // Bộ màu lấy từ hình ảnh (Xanh Mint -> Xanh Ngọc -> Xanh Đậm)
+        string[] colors = {
+            "#09D1C7", // Xanh ngọc sáng (Đậm nhất trong nhóm sáng) - Ưu tiên số 1
+            "#46DFB1", // Xanh mint vừa
+            "#80EE98", // Xanh lá mạ nhạt
+            "#0C6478", // Xanh cổ vịt (để đổi gió nếu nhiều môn)
+            "#213A58"  // Xanh than (để tương phản tốt)
+        };
         return colors[index % colors.Length];
     }
+
 }
 
 <div class="col-lg-12">
@@ -97,27 +105,32 @@
                                     <td>
                                         @if (item != null)
                                         {
-                                            // Click vào ô để xem chi tiết hoặc nhập điểm (tùy chọn mở rộng sau này)
-                                            <div class="event-block" style="background-color: @GetColorClass(item.CourseSectionId)"
-                                                 title="Mã lớp: @item.CourseSectionId">
+                                            <div class="event-block"
+                                                 style="background-color: @GetColorClass(item.CourseSectionId); cursor: pointer;"
+                                                 onclick="openClassModal(this)"
+                                                 title="Bấm để xem chi tiết"
+                                                 data-schedule-id="@item.ScheduleItemId"
+                                                 data-course-name="@(item.CourseSection?.Course?.CourseName ?? "Môn học")"
+                                                 data-room="@(item.CourseSection?.Room ?? "Chưa xếp phòng")"
+                                                 data-time="Ca @session - @currentDate.ToString("dd/MM/yyyy")"
+                                                 data-capacity="@(item.CourseSection?.Capacity ?? 0)"
+                                                 data-class-id="@item.CourseSectionId">
 
-                                                @* Tên Môn *@
                                                 <div class="subject-title">
                                                     @(item.CourseSection?.Course?.CourseName ?? "Môn học")
                                                 </div>
 
-                                                @* Phòng học *@
                                                 <div class="subject-info">
                                                     <i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")
                                                 </div>
 
-                                                @* 3. HIỂN THỊ CHO GV: Thay tên GV bằng Sĩ số & Mã lớp *@
-                                                <div class="d-flex justify-content-between mt-1">
+                                                <div class="d-flex justify-content-between mt-1 align-items-center">
                                                     <span class="badge badge-light text-dark" style="font-size: 0.7rem">
                                                         <i class="fa fa-users"></i> @(item.CourseSection?.Capacity ?? 0)
                                                     </span>
-                                                    <span class="badge badge-dark text-white ml-1" style="font-size: 0.7rem">
-                                                        #@item.CourseSectionId
+
+                                                    <span style="font-size: 0.7rem; opacity: 0.8">
+                                                        <i class="fa fa-info-circle"></i> Chi tiết
                                                     </span>
                                                 </div>
                                             </div>
@@ -133,6 +146,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="classInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content glass-modal">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="modalCourseName" style="font-weight: bold; font-size: 1.5rem;">
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body text-white">
+                <div class="info-row mb-2">
+                    <i class="zmdi zmdi-time-interval mr-2 text-warning"></i>
+                    <span id="modalTime" style="font-size: 1.1rem;"></span>
+                </div>
+
+                <div class="info-row mb-2">
+                    <i class="zmdi zmdi-pin mr-2 text-warning"></i>
+                    Phòng: <span id="modalRoom" style="font-weight: bold;"></span>
+                </div>
+
+                <div class="info-row mb-2">
+                    <i class="fa fa-users mr-2 text-warning"></i>
+                    Sĩ số lớp: <span id="modalCapacity"></span>
+                </div>
+
+                <hr style="background-color: rgba(255,255,255,0.2);">
+
+                <div class="text-center mt-4">
+                    <a id="btnAttendance" href="#" class="btn btn-light btn-lg font-weight-bold shadow" style="color: #333; width: 100%; border-radius: 50px;">
+                        <i class="zmdi zmdi-check-all mr-2"></i> TIẾN HÀNH ĐIỂM DANH
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalContainer"></div>
+
 <style>
     /* CSS Tùy chỉnh cho bảng */
     .table-transparent {
@@ -142,20 +196,22 @@
 
     /* Ô lịch học */
     .event-block {
-        background-color: #17a2b8;
         color: #fff;
         padding: 8px;
         border-radius: 6px;
-        border-left: 4px solid rgba(0,0,0,0.2);
+        border-left: 4px solid rgba(0,0,0,0.1); 
         display: flex;
         flex-direction: column;
         gap: 2px;
         white-space: normal;
         overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        min-height: 85px; /* Đủ cao để chứa 3 dòng thông tin */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.08); 
+        min-height: 85px;
         transition: transform 0.2s;
         cursor: pointer;
+
+        text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        font-weight: 500;
     }
 
         .event-block:hover {
@@ -238,4 +294,78 @@
         opacity: 0.8;
         margin-top: 2px;
     }
+
+    .glass-modal {
+        background: rgba(20, 20, 20, 0.85); /* Màu nền đen mờ */
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        border-radius: 15px;
+    }
+
+    /* Hiệu ứng hover cho nút điểm danh */
+    #btnAttendance:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+        background-color: #fff !important;
+        color: #007bff !important; /* Đổi màu chữ khi hover */
+    }
 </style>
+
+<script>
+    function openClassModal(element) {
+        // ... (Lấy dữ liệu data- như cũ) ...
+        var scheduleId = element.getAttribute('data-schedule-id');
+        var courseName = element.getAttribute('data-course-name');
+        var room = element.getAttribute('data-room');
+        var time = element.getAttribute('data-time');
+        var capacity = element.getAttribute('data-capacity');
+        var classId = element.getAttribute('data-class-id');
+
+        // Điền dữ liệu vào Modal thông tin (Giữ nguyên)
+        if(document.getElementById('modalCourseName')) document.getElementById('modalCourseName').innerText = courseName;
+        if(document.getElementById('modalRoom')) document.getElementById('modalRoom').innerText = room;
+        if(document.getElementById('modalTime')) document.getElementById('modalTime').innerText = time;
+        if(document.getElementById('modalCapacity')) document.getElementById('modalCapacity').innerText = capacity;
+        if(document.getElementById('modalClassId')) document.getElementById('modalClassId').innerText = classId;
+
+        // --- SỬA ĐOẠN NÀY: XỬ LÝ NÚT ĐIỂM DANH ---
+        var btn = document.getElementById('btnAttendance');
+        if(btn) {
+            // Xóa href cũ để không chuyển trang
+            btn.removeAttribute('href');
+
+            // Gán sự kiện onclick mới: Gọi hàm loadAttendanceModal
+            btn.onclick = function() {
+                loadAttendanceModal(scheduleId);
+            };
+        }
+
+        // Mở Modal Thông tin
+        $('#classInfoModal').modal('show');
+    }
+
+    // --- HÀM MỚI: TẢI MODAL ĐIỂM DANH BẰNG AJAX ---
+    function loadAttendanceModal(scheduleId) {
+        // 1. Ẩn modal thông tin lớp học đi
+        $('#classInfoModal').modal('hide');
+
+        // 2. Hiện loading (Tùy chọn, để người dùng biết đang tải)
+        // $('body').css('cursor', 'wait');
+
+        // 3. Gọi Ajax về Server lấy HTML của Modal Điểm danh
+        $.get('/Attendee/GetAttendanceForm', { scheduleId: scheduleId }, function(data) {
+
+            // 4. Nhét HTML nhận được vào cái div container
+            $('#modalContainer').html(data);
+
+            // 5. Hiện Modal Điểm danh lên
+            $('#attendanceModal').modal('show');
+
+            // $('body').css('cursor', 'default');
+        }).fail(function() {
+            alert("Lỗi tải form điểm danh!");
+        });
+    }
+</script>

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="~/assets/css/adminStyle.css" rel="stylesheet" />
+    
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-university mr-2"></i> UNI<span style="color:var(--accent-purple)">ADMIN</span>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-title">Tổng quan</div>
+            <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="fas fa-th-large"></i> <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-chart-pie"></i> <span>Thống kê</span>
+            </a>
+
+            <div class="menu-title mt-3">Quản lý Đào tạo</div>
+            <a href="#" class="nav-link">
+                <i class="fas fa-book"></i> <span>Môn học</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-layer-group"></i> <span>Lớp học phần</span>
+            </a>
+            <a href="#" class="nav-link">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <span><i class="fas fa-file-signature"></i> Đăng ký tín chỉ</span>
+                    <span class="badge badge-warning text-dark">3</span>
+                </div>
+            </a>
+
+            <div class="menu-title mt-3">Người dùng</div>
+            <a href="#" class="nav-link">
+                <i class="fas fa-user-graduate"></i> <span>Sinh viên</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-chalkboard-teacher"></i> <span>Giảng viên</span>
+            </a>
+
+            <div class="menu-title mt-3">Hệ thống</div>
+            <a href="#" class="nav-link">
+                <i class="fas fa-cog"></i> <span>Cài đặt</span>
+            </a>
+            <a href="#" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm sinh viên, lớp học...">
+            </div>
+
+            <div class="d-flex align-items-center">
+                <div class="mr-4 position-relative" style="cursor: pointer">
+                    <i class="fas fa-bell text-white-50" style="font-size: 1.2rem"></i>
+                    <span class="position-absolute" style="top: -5px; right: -5px; width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%;"></span>
+                </div>
+
+                <div class="user-profile">
+                    <div class="text-right d-none d-md-block">
+                        <div class="font-weight-bold" style="font-size: 0.9rem;">Administrator</div>
+                        <div class="text-white-50" style="font-size: 0.75rem;">Phòng Đào tạo</div>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=7b2cbf&color=fff" class="user-avatar">
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,293 @@
+﻿@using StudentPortal.Models
+@using StudentPortal.ModelViews
+@model List<AttendanceViewModel>
+
+<style>
+    /* --- CSS GLASS (LẤY TỪ FORM NHẬP ĐIỂM) --- */
+    .glass-content {
+        background: rgba(255, 255, 255, 0.95); /* Tăng độ đậm nền một chút cho dễ nhìn hơn */
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        border-radius: 15px;
+        color: #000;
+    }
+
+    .glass-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        background: transparent;
+        padding: 1rem 1.5rem;
+    }
+
+    .glass-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        background: transparent;
+        padding: 1rem 1.5rem;
+    }
+
+    /* --- TABLE STYLES --- */
+    .table-glass {
+        color: #000;
+        margin-bottom: 0;
+    }
+
+        .table-glass thead th {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            border-top: none;
+            color: #555;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table-glass td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+            padding: 0.75rem 1rem;
+        }
+
+        .table-glass tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-glass tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+    /* --- INPUT GLASS (CHO GHI CHÚ) --- */
+    .input-glass {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        color: #000 !important;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+        .input-glass:focus {
+            background: #fff;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+
+    /* --- CUSTOM RADIO BUTTONS (THAY THẾ Ô ĐIỂM) --- */
+    /* Ẩn nút radio mặc định */
+    .btn-check {
+        position: absolute;
+        clip: rect(0,0,0,0);
+        pointer-events: none;
+    }
+
+    /* Style cho label giống nút bấm */
+    .btn-outline-custom {
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        background-color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.375rem 0.75rem;
+        transition: all 0.2s;
+    }
+
+        .btn-outline-custom:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* Trạng thái Selected: Có mặt (Xanh) */
+    .btn-check[value="Present"]:checked + .btn-outline-custom {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+    }
+
+    /* Trạng thái Selected: Vắng (Đỏ) */
+    .btn-check[value="Absent"]:checked + .btn-outline-custom {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+        box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+    }
+
+    /* Trạng thái Selected: Muộn (Vàng) */
+    .btn-check[value="Late"]:checked + .btn-outline-custom {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+        box-shadow: 0 4px 6px rgba(255, 193, 7, 0.2);
+    }
+
+    /* Group nút liền nhau */
+    .status-group .btn-outline-custom {
+        margin: 0;
+        border-radius: 0;
+    }
+
+        .status-group .btn-outline-custom:first-of-type {
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
+        }
+
+        .status-group .btn-outline-custom:last-of-type {
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+
+    /* --- TEXT STYLES --- */
+    .student-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #333;
+        margin-bottom: 2px;
+    }
+
+    .student-code {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-family: monospace; /* Font code cho đẹp */
+    }
+
+    .modal-title-custom {
+        font-weight: 800;
+        color: #495057;
+        font-size: 1.25rem;
+    }
+
+    /* Nút Lưu gradient đẹp */
+    .btn-gradient-save {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: transform 0.1s;
+    }
+
+        .btn-gradient-save:hover {
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-gradient-save:active {
+            transform: translateY(1px);
+        }
+
+</style>
+
+<div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content glass-content">
+
+            <div class="modal-header glass-header">
+                <div>
+                    <h5 class="modal-title modal-title-custom" id="attendanceModalLabel">
+                        <i class="far fa-calendar-check text-primary mr-2"></i>Điểm Danh
+                    </h5>
+                    <div class="text-muted small mt-1">
+                        Lớp: <strong>@ViewBag.CourseName</strong>
+                        <span class="mx-2">|</span>
+                        Phòng: <strong>@ViewBag.Room</strong>
+                    </div>
+                </div>
+                <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close" onclick="$('#attendanceModal').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form asp-controller="Attendee" asp-action="SaveAttendance" method="post" id="attendanceForm">
+                <div class="modal-body p-0">
+                    <input type="hidden" name="scheduleId" value="@ViewBag.ScheduleId" />
+
+                    @if (Model == null || Model.Count == 0)
+                    {
+                        <div class="p-5 text-center text-muted">
+                            <i class="fas fa-user-slash fa-3x mb-3" style="opacity: 0.3"></i>
+                            <p>Chưa có sinh viên nào trong danh sách lớp này.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive" style="max-height: 65vh; overflow-y: auto;">
+                            <table class="table table-glass">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;" class="text-center">#</th>
+                                        <th style="width: 30%;">Sinh viên</th>
+                                        <th style="width: 35%;" class="text-center">Trạng thái</th>
+                                        <th style="width: 30%;">Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <tr>
+                                            <input type="hidden" asp-for="@Model[i].StudentId" />
+                                            <input type="hidden" asp-for="@Model[i].ScheduleItemId" />
+                                            <input type="hidden" asp-for="@Model[i].AttendeeId" />
+                                            <input type="hidden" asp-for="@Model[i].StudentName" />
+                                            <input type="hidden" asp-for="@Model[i].StudentCode" />
+
+                                            <td class="text-center text-muted font-weight-bold">@(i + 1)</td>
+
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <div class="student-name">@Model[i].StudentName</div>
+                                                        <div class="student-code">@Model[i].StudentCode</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <div class="btn-group status-group" role="group" aria-label="Attendance Status">
+
+                                                    <input type="radio" class="btn-check" asp-for="@Model[i].Status" value="Present" id="status_present_@i">
+                                                    <label class="btn btn-outline-custom" for="status_present_@i">
+                                                        Có mặt
+                                                    </label>
+
+                                                    <input type="radio" class="btn-check" asp-for="@Model[i].Status" value="Absent" id="status_absent_@i">
+                                                    <label class="btn btn-outline-custom" for="status_absent_@i">
+                                                        Vắng
+                                                    </label>
+
+                                                    <input type="radio" class="btn-check" asp-for="@Model[i].Status" value="Late" id="status_late_@i">
+                                                    <label class="btn btn-outline-custom" for="status_late_@i">
+                                                        Muộn
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <input type="text" class="form-control input-glass"
+                                                       asp-for="@Model[i].Note"
+                                                       placeholder="Nhập ghi chú..."
+                                                       autocomplete="off" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer glass-footer">
+                    <button type="button" class="btn btn-outline-danger bg-white" data-dismiss="modal" onclick="$('#attendanceModal').modal('hide')">
+                        <i class="fas fa-times mr-1"></i> Đóng
+                    </button>
+                    <button type="submit" class="btn btn-gradient-save">
+                        <i class="fas fa-save mr-2"></i> Lưu Điểm Danh
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

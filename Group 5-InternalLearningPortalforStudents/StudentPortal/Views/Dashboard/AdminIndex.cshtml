@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-weight-bold text-white mb-0">Overview Dashboard</h2>
+    <div class="text-white-50 small"><i class="far fa-clock"></i> Cập nhật: @DateTime.Now.ToString("dd/MM/yyyy")</div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <i class="fas fa-user-graduate stat-icon"></i>
+            <span class="stat-value c-blue">1,250</span>
+            <span class="stat-label">Tổng Sinh viên</span>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <i class="fas fa-chalkboard-teacher stat-icon"></i>
+            <span class="stat-value c-pink">45</span>
+            <span class="stat-label">Tổng Giảng viên</span>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card" style="border-color: var(--accent-orange);">
+            <i class="fas fa-file-signature stat-icon"></i>
+            <span class="stat-value c-orange">3</span>
+            <span class="stat-label">Đơn chờ duyệt</span>
+            <div class="mt-1 small text-warning font-weight-bold"><i class="fas fa-exclamation-triangle"></i> Cần xử lý gấp</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <i class="fas fa-calendar-alt stat-icon"></i>
+            <span class="stat-value text-white h4 mt-2">HK2 (25-26)</span>
+            <span class="stat-label">Học kỳ hiện tại</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="glass-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="panel-title mb-0">Đăng ký Mới nhất</div>
+                <a href="#" class="btn btn-sm text-white-50">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table-admin">
+                    <thead>
+                        <tr>
+                            <th>Sinh viên</th>
+                            <th>Môn học</th>
+                            <th>Lớp/Phòng</th>
+                            <th>Trạng thái</th>
+                            <th class="text-right">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="mini-avatar">A</div>
+                                    <div>
+                                        <div class="font-weight-bold">Nguyễn Văn An</div>
+                                        <div class="small text-white-50">SV21001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="font-weight-bold">Lập trình Web</div>
+                                <div class="small text-white-50">WEB301</div>
+                            </td>
+                            <td><i class="fas fa-door-open"></i> A101</td>
+                            <td><span class="badge-pending">Chờ duyệt</span></td>
+                            <td class="text-right">
+                                <button class="btn btn-sm btn-success rounded-circle"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger rounded-circle"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/150?img=5" class="mini-avatar">
+                                    <div>
+                                        <div class="font-weight-bold">Trần Thị Bích</div>
+                                        <div class="small text-white-50">SV21005</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="font-weight-bold">Trí tuệ nhân tạo</div>
+                                <div class="small text-white-50">AI102</div>
+                            </td>
+                            <td><i class="fas fa-door-open"></i> C305</td>
+                            <td><span class="badge-pending">Chờ duyệt</span></td>
+                            <td class="text-right">
+                                <button class="btn btn-sm btn-success rounded-circle"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger rounded-circle"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="glass-panel">
+            <div class="panel-title">Tác vụ nhanh</div>
+
+            <a href="#" class="quick-btn">
+                <div class="qb-icon" style="color:#4cc9f0"><i class="fas fa-user-plus"></i></div>
+                <div>
+                    <div class="font-weight-bold">Thêm Người dùng</div>
+                    <div class="small text-white-50">Tạo tài khoản mới</div>
+                </div>
+            </a>
+
+            <a href="#" class="quick-btn">
+                <div class="qb-icon" style="color:#f72585"><i class="fas fa-book-medical"></i></div>
+                <div>
+                    <div class="font-weight-bold">Mở Lớp học phần</div>
+                    <div class="small text-white-50">Xếp lịch & phòng</div>
+                </div>
+            </a>
+
+            <a href="#" class="quick-btn">
+                <div class="qb-icon" style="color:#ff9f1c"><i class="fas fa-bullhorn"></i></div>
+                <div>
+                    <div class="font-weight-bold">Tạo Thông báo</div>
+                    <div class="small text-white-50">Gửi tin toàn trường</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
