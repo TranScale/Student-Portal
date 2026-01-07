@@ -92,19 +92,40 @@ namespace StudentPortal.Data
                 if (result.Succeeded) await userManager.AddToRoleAsync(user, roleString);
             }
 
+            // 2.0. TẠO GIẢNG VIÊN ẢO (ID = 0) - QUAN TRỌNG NHẤT
+            // ------------------------------------------------------------------
+            if (!await context.Lecturers.AnyAsync(l => l.LecturerId == 0))
+            {
+                // Bước 1: Tạo User ảo
+                await CreateUser("system", "Chưa phân công", UserRoles.Lecturer, "Lecturer");
+                var systemUser = await context.Users.FirstAsync(u => u.UserName == "system");
+
+                // Lấy tạm 1 khoa để gán (bắt buộc phải có khoa)
+                var tempFacultyId = listFaculties.First().FacultyId;
+
+                // Bước 2: Dùng SQL Raw để Hack ID = 0 (Bỏ qua cơ chế tự tăng)
+                // Lưu ý: [dbo].[Lecturers] là tên bảng trong SQL.
+                string sqlInsert0 = "SET IDENTITY_INSERT [dbo].[Lecturers] ON; " +
+                                    "INSERT INTO [dbo].[Lecturers] (LecturerId, UserId, FacultyId) VALUES (0, {0}, {1}); " +
+                                    "SET IDENTITY_INSERT [dbo].[Lecturers] OFF;";
+
+                await context.Database.ExecuteSqlRawAsync(sqlInsert0, systemUser.Id, tempFacultyId);
+            }
+            // ------------------------------------------------------------------
+
             // 2.1 Admin
             await CreateUser("admin", "Quản Trị Hệ Thống", UserRoles.Admin, "Admin");
             var adminUser = await context.Users.FirstAsync(u => u.UserName == "admin");
             context.Admins.Add(new Admin { UserId = adminUser.Id });
 
-            // 2.2 Giảng viên (3 người)
+            // 2.2 Giảng viên (3 người thật)
             await CreateUser("gv01", "Nguyễn Văn Giảng", UserRoles.Lecturer, "Lecturer");
             await CreateUser("gv02", "Trần Thị Lý", UserRoles.Lecturer, "Lecturer");
             await CreateUser("gv03", "Lê Hùng Cường", UserRoles.Lecturer, "Lecturer");
 
             var listLecturerUsers = await context.Users.Where(u => u.UserName.StartsWith("gv")).ToListAsync();
             // Gán Profile Lecturer
-            if (!context.Lecturers.Any())
+            if (context.Lecturers.Count() < 4) // < 4 vì đã có 1 ông ID=0 rồi
             {
                 context.Lecturers.Add(new Lecturer { UserId = listLecturerUsers.First(u => u.UserName == "gv01").Id, FacultyId = listFaculties.First(f => f.FacultyCode == "IT").FacultyId });
                 context.Lecturers.Add(new Lecturer { UserId = listLecturerUsers.First(u => u.UserName == "gv02").Id, FacultyId = listFaculties.First(f => f.FacultyCode == "ECO").FacultyId });
@@ -119,13 +140,12 @@ namespace StudentPortal.Data
             await CreateUser("sv05", "Đỗ Văn Em", UserRoles.Student, "Student");
 
             var listStudentUsers = await context.Users.Where(u => u.UserName.StartsWith("sv")).ToListAsync();
-            // Gán Profile Student (CHÚ Ý: StartStudyDate là DateOnly)
+
             if (!context.Students.Any())
             {
                 var seId = listDepartments.First(d => d.DepartmentCode == "SE").DepartmentId;
                 var baId = listDepartments.First(d => d.DepartmentCode == "BA").DepartmentId;
 
-                // Dùng DateOnly.FromDateTime hoặc new DateOnly(y, m, d)
                 var startDate = new DateTime(2023, 9, 1);
 
                 context.Students.Add(new Student { UserId = listStudentUsers.First(u => u.UserName == "sv01").Id, StudentCode = "SE1701", DepartmentId = seId, StartStudyDate = startDate, IsGraduate = false });
@@ -207,7 +227,6 @@ namespace StudentPortal.Data
             await context.SaveChangesAsync();
 
             // 3.3 Enrollment & Score
-            // Đăng ký cho sinh viên sv01 vào lớp PRN211 và CSD201
             var sv1 = await context.Students.FirstAsync(s => s.StudentCode == "SE1701");
             var secPrn = sections.First(s => s.CourseId == prn211.CourseId);
             var secCsd = sections.First(s => s.CourseId == csd201.CourseId);
@@ -219,7 +238,6 @@ namespace StudentPortal.Data
             };
             context.Enrollments.AddRange(enrollments);
 
-            // Tạo bảng điểm (Bắt buộc phải có để GV nhập điểm)
             var scores = new List<Score>
             {
                 new Score { StudentId = sv1.StudentId, CourseSectionId = secPrn.CourseSectionId, LecturerId = secPrn.LecturerId, Value = ScoreValues.F, ProcessScore=0, MiddleScore=0, ExamScore=0, FinalScore=0 },
@@ -228,7 +246,7 @@ namespace StudentPortal.Data
             context.Scores.AddRange(scores);
             await context.SaveChangesAsync();
 
-            // 3.4 Tạo ScheduleItem (Lịch học) - Logic cũ của bạn vẫn tốt, chỉ bỏ Note đi
+            // 3.4 Tạo ScheduleItem (Lịch học)
             var scheduleItems = new List<ScheduleItem>();
             foreach (var sec in sections)
             {
@@ -254,7 +272,6 @@ namespace StudentPortal.Data
                             CourseSectionId = sec.CourseSectionId,
                             ScheduleDate = date,
                             ScheduleWeek = weekNum
-                            // BỎ CỘT NOTE VÌ SCHEDULEITEM KHÔNG CÓ CỘT NOTE
                         });
                     }
                 }

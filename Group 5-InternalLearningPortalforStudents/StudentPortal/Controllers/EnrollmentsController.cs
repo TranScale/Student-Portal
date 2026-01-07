@@ -174,9 +174,128 @@ namespace StudentPortal.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> LecturerEnrollment()
         {
-            // TODO: Viết logic lấy danh sách các lớp chưa có giảng viên (LecturerId == null)
-            // Để giảng viên chọn và "Đăng ký dạy"
-            return Content("Chức năng đăng ký dạy cho Giảng viên đang phát triển...");
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null) return RedirectToAction("Login", "Account");
+
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
+            if (activeSemester == null)
+            {
+                ViewData["Message"] = "Hiện chưa có học kỳ nào mở.";
+                return View();
+            }
+
+            // Lớp CỦA MÌNH (Đã đăng ký) -> Tìm theo ID của mình
+            var myClasses = await _context.CoursesSections
+                .Include(cs => cs.Course)
+                .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
+                .ToListAsync();
+
+            // Lớp CÒN TRỐNG (Available) -> Thay vì tìm null, ta tìm bằng 0
+            var availableClasses = await _context.CoursesSections
+                .Include(cs => cs.Course)
+                // SỬA: So sánh với 0 thay vì null
+                .Where(cs => cs.SemesterId == activeSemester.SemesterId && cs.LecturerId == 0)
+                .ToListAsync();
+
+            ViewData["MyClasses"] = myClasses;
+            ViewData["AvailableClasses"] = availableClasses;
+            ViewData["SemesterName"] = activeSemester.SemesterName;
+
+            return View();
+        }
+
+        // 2. POST: Đăng ký dạy (Logic giống Student: Chọn -> Kiểm tra -> Lưu)
+        [HttpPost]
+        [Authorize(Roles = "Lecturer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitTeachingRegistration(List<int> selectedSections)
+        {
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null) return RedirectToAction("Login", "Account");
+
+            if (selectedSections == null || selectedSections.Count == 0)
+            {
+                TempData["Error"] = "Thầy/Cô chưa chọn lớp học phần nào!";
+                return RedirectToAction(nameof(LecturerEnrollment));
+            }
+
+            int successCount = 0;
+            int failCount = 0;
+
+            foreach (var sectionId in selectedSections)
+            {
+                var section = await _context.CoursesSections.FindAsync(sectionId);
+
+                // SỬA: Kiểm tra xem LecturerId có bằng 0 không (tức là lớp trống)
+                if (section != null && section.LecturerId == 0)
+                {
+                    // Gán lớp này cho giảng viên hiện tại
+                    section.LecturerId = lecturer.LecturerId;
+
+                    // Cập nhật các bảng điểm (Score) hiện có của sinh viên trong lớp đó
+                    var existingScores = await _context.Scores
+                        .Where(s => s.CourseSectionId == sectionId)
+                        .ToListAsync();
+
+                    foreach (var score in existingScores)
+                    {
+                        score.LecturerId = lecturer.LecturerId;
+                    }
+
+                    successCount++;
+                }
+                else
+                {
+                    failCount++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (successCount > 0) TempData["Success"] = $"Đăng ký dạy thành công {successCount} lớp.";
+            if (failCount > 0) TempData["Error"] = $"{failCount} lớp đã có giảng viên khác đăng ký trước.";
+
+            return RedirectToAction(nameof(LecturerEnrollment));
+        }
+
+        // 3. POST: Hủy dạy (Logic giống Student: Tìm -> Xóa liên kết)
+        [HttpPost]
+        [Authorize(Roles = "Lecturer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelTeaching(int id)
+        {
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null) return RedirectToAction("Login", "Account");
+
+            // Tìm lớp mà giảng viên này đang dạy
+            var section = await _context.CoursesSections
+                .FirstOrDefaultAsync(cs => cs.CourseSectionId == id && cs.LecturerId == lecturer.LecturerId);
+
+            if (section != null)
+            {
+                // SỬA: Thay vì gán null (gây lỗi), ta gán về 0 (trạng thái trống)
+                section.LecturerId = 0;
+
+                // Tìm các điểm số liên quan để gỡ giảng viên ra khỏi điểm số đó
+                var existingScores = await _context.Scores
+                        .Where(s => s.CourseSectionId == id)
+                        .ToListAsync();
+
+                foreach (var score in existingScores)
+                {
+                    // SỬA: Gán về 0 thay vì null
+                    score.LecturerId = 0;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã hủy lớp dạy thành công.";
+            }
+            else
+            {
+                TempData["Error"] = "Không tìm thấy lớp học phần hoặc lớp không thuộc về bạn.";
+            }
+
+            return RedirectToAction(nameof(LecturerEnrollment));
         }
 
         // Helper
@@ -185,6 +304,15 @@ namespace StudentPortal.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return null;
             return await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+        }
+
+        private async Task<Lecturer> GetCurrentLecturerAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return null;
+
+            // Tìm giảng viên có UserId trùng với user đang đăng nhập
+            return await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
         }
     }
 }

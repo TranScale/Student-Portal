@@ -1,39 +1,90 @@
 ﻿@using StudentPortal.Models
 @{
     ViewData["Title"] = "Lịch Học";
-    Layout = "_StudentLayout"; // Đảm bảo bạn đang dùng Layout của sinh viên
+    Layout = "_StudentLayout";
 
     // 1. NHẬN DỮ LIỆU TỪ CONTROLLER
     var scheduleList = ViewData["ScheduleList"] as List<ScheduleItem> ?? new List<ScheduleItem>();
     var weekRange = ViewData["WeekRange"] as string;
 
-    // Ép kiểu an toàn ngày bắt đầu tuần
-    var startOfWeek = ViewData["StartOfWeek"] != null
-                      ? (DateTime)ViewData["StartOfWeek"]
-                      : DateTime.Today;
-
-    // Các biến ngày để điều hướng
+    // Các biến phục vụ hiển thị ngày
+    var startOfWeek = ViewData["StartOfWeek"] != null ? (DateTime)ViewData["StartOfWeek"] : DateTime.Today;
     var prevDate = ViewData["PrevDate"] as string;
     var nextDate = ViewData["NextDate"] as string;
+
+    // Các biến phục vụ Filter Dropdown
+    var semesters = ViewData["Semesters"] as SelectList;
+    var weeks = ViewData["Weeks"] as SelectList;
+    var currentSemesterId = ViewData["CurrentSemesterId"];
+    var currentDate = ViewData["CurrentDate"];
 }
 
 @functions {
-    // Hàm chọn màu ngẫu nhiên dựa trên ID lớp
     string GetColorClass(int index)
     {
-        // Bộ màu lấy từ hình ảnh (Xanh Mint -> Xanh Ngọc -> Xanh Đậm)
-        string[] colors = {
-            "#09D1C7", // Xanh ngọc sáng (Đậm nhất trong nhóm sáng) - Ưu tiên số 1
-            "#46DFB1", // Xanh mint vừa
-            "#80EE98", // Xanh lá mạ nhạt
-            "#0C6478", // Xanh cổ vịt (để đổi gió nếu nhiều môn)
-            "#213A58"  // Xanh than (để tương phản tốt)
-        };
+        string[] colors = { "#09D1C7", "#46DFB1", "#80EE98", "#0C6478", "#213A58" };
         return colors[index % colors.Length];
     }
 }
 
 <div class="col-lg-12">
+    <div class="card glass-card mb-3">
+        <div class="card-body p-3">
+            <form method="get" action="@Url.Action("StudentSchedule")" id="filterForm" class="row align-items-center">
+
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent text-white border-0">
+                                <i class="zmdi zmdi-collection-bookmark"></i>
+                            </span>
+                        </div>
+                        @* Khi đổi Học kỳ -> Reset ngày về null để Controller tự tính ngày đầu tiên của kỳ đó *@
+                        <select name="semesterId" class="form-control custom-select-glass" onchange="document.getElementById('filterForm').submit();">
+                            @foreach (var item in semesters)
+                            {
+                                // Logic check selected thủ công để đảm bảo chính xác
+                                if (item.Value == currentSemesterId.ToString())
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent text-white border-0">
+                                <i class="zmdi zmdi-calendar-alt"></i>
+                            </span>
+                        </div>
+                        @* Giữ nguyên semesterId khi chọn tuần *@
+                        <select name="date" class="form-control custom-select-glass" onchange="document.getElementById('filterForm').submit();">
+                            @foreach (var item in weeks)
+                            {
+                                if (item.Value == (currentDate?.ToString() ?? ""))
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
     <div class="card glass-card">
         <div class="card-body p-2">
 
@@ -43,7 +94,8 @@
                 </h5>
 
                 <div class="d-flex align-items-center">
-                    <a href="@Url.Action("StudentSchedule", new { date = prevDate })" class="nav-btn" title="Tuần trước">
+                    @* Nút Prev/Next cần truyền cả SemesterId để không bị nhảy kỳ *@
+                    <a href="@Url.Action("StudentSchedule", new { semesterId = currentSemesterId, date = prevDate })" class="nav-btn" title="Tuần trước">
                         <i class="fa fa-chevron-left"></i>
                     </a>
 
@@ -51,11 +103,13 @@
                         <i class="fa fa-calendar-o mr-1"></i> @weekRange
                     </span>
 
-                    <a href="@Url.Action("StudentSchedule", new { date = nextDate })" class="nav-btn" title="Tuần sau">
+                    <a href="@Url.Action("StudentSchedule", new { semesterId = currentSemesterId, date = nextDate })" class="nav-btn" title="Tuần sau">
                         <i class="fa fa-chevron-right"></i>
                     </a>
 
-                    <a href="@Url.Action("StudentSchedule")" class="btn btn-sm btn-light ml-3" style="font-size: 0.75rem; font-weight: bold; color: #333;">
+                    <a href="@Url.Action("StudentSchedule", new { date = DateTime.Today.ToString("yyyy-MM-dd") })"
+                       class="btn btn-sm btn-light ml-3"
+                       style="font-size: 0.75rem; font-weight: bold; color: #333;">
                         Hôm nay
                     </a>
                 </div>
@@ -76,50 +130,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @* Vòng lặp 5 CA *@
                         @for (int session = 1; session <= 5; session++)
                         {
                             <tr>
                                 <td class="session-col">
                                     <span class="session-name">@session</span>
-                                    <span class="session-time">
-                                        @(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))
-                                    </span>
+                                    <span class="session-time">@(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))</span>
                                 </td>
-
-                                @* Vòng lặp 7 ngày *@
                                 @for (int i = 0; i < 7; i++)
                                 {
-                                    DateTime currentDate = startOfWeek.AddDays(i);
-
-                                    // Tìm lớp học trùng ngày và trùng ca
-                                    var item = scheduleList.FirstOrDefault(s =>
-                                    s.ScheduleDate.Date == currentDate.Date &&
-                                    (int)s.CourseSection.Sessions == session
-                                    );
-
+                                    DateTime loopD = startOfWeek.AddDays(i);
+                                    var item = scheduleList.FirstOrDefault(s => s.ScheduleDate.Date == loopD.Date && (int)s.CourseSection.Sessions == session);
                                     <td>
                                         @if (item != null)
                                         {
                                             <div class="event-block" style="background-color: @GetColorClass(item.CourseSectionId)"
                                                  title="GV: @(item.CourseSection?.Lecturer?.User?.FullName)">
-
-                                                @* 1. Tên Môn *@
-                                                <div class="subject-title">
-                                                    @(item.CourseSection?.Course?.CourseName ?? "Môn học")
-                                                </div>
-
-                                                @* 2. Phòng học *@
-                                                <div class="subject-info">
-                                                    <i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")
-                                                </div>
-
-                                                @* 3. Tên Giảng Viên (Thay vì sĩ số như bên GV) *@
+                                                <div class="subject-title">@(item.CourseSection?.Course?.CourseName ?? "Môn học")</div>
+                                                <div class="subject-info"><i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")</div>
                                                 <div class="subject-info mt-1" style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 2px;">
                                                     <i class="zmdi zmdi-account mr-1"></i>
-                                                    <span style="font-size: 0.75rem;">
-                                                        @(item.CourseSection?.Lecturer?.User?.FullName ?? "Đang cập nhật")
-                                                    </span>
+                                                    <span style="font-size: 0.75rem;">@(item.CourseSection?.Lecturer?.User?.FullName ?? "Đang cập nhật")</span>
                                                 </div>
                                             </div>
                                         }
@@ -135,15 +166,31 @@
 </div>
 
 <style>
-    /* --- CSS GIỮ NGUYÊN TỪ TRANG LECTURER --- */
+    /* Style cho Dropdown trong suốt (Glass Effect) */
+    .custom-select-glass {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        border-radius: 20px;
+    }
 
-    /* CSS Tùy chỉnh cho bảng */
+        .custom-select-glass option {
+            background-color: #333; /* Màu nền option khi xổ xuống */
+            color: white;
+        }
+
+        .custom-select-glass:focus {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+    /* Các Style cũ của bạn giữ nguyên */
     .table-transparent {
         table-layout: fixed;
         width: 100%;
     }
 
-    /* Ô lịch học */
     .event-block {
         color: #fff;
         padding: 8px;
@@ -179,7 +226,6 @@
         opacity: 0.95;
     }
 
-    /* Nút điều hướng tuần */
     .nav-btn {
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -208,7 +254,6 @@
         margin: 0 5px;
     }
 
-    /* Cột CA học */
     .session-col {
         vertical-align: middle !important;
         text-align: center;

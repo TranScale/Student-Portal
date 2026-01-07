@@ -1,53 +1,96 @@
 ﻿@using StudentPortal.Models
 @{
     ViewData["Title"] = "Lịch Giảng Dạy";
-    Layout = "_LecturerLayout"; // Đảm bảo dùng Layout chung
+    Layout = "_LecturerLayout";
 
     // 1. NHẬN DỮ LIỆU TỪ CONTROLLER
-    // Controller đã gán: ViewData["ScheduleList"] = scheduleItems;
     var scheduleList = ViewData["ScheduleList"] as List<ScheduleItem> ?? new List<ScheduleItem>();
-
     var weekRange = ViewData["WeekRange"] as string;
 
-    // Ép kiểu an toàn ngày bắt đầu tuần
-    var startOfWeek = ViewData["StartOfWeek"] != null
-                      ? (DateTime)ViewData["StartOfWeek"]
-                      : DateTime.Today;
-
-    // Các biến ngày để điều hướng
+    // Các biến phục vụ hiển thị ngày
+    var startOfWeek = ViewData["StartOfWeek"] != null ? (DateTime)ViewData["StartOfWeek"] : DateTime.Today;
     var prevDate = ViewData["PrevDate"] as string;
     var nextDate = ViewData["NextDate"] as string;
+
+    // Các biến phục vụ Filter Dropdown
+    var semesters = ViewData["Semesters"] as SelectList;
+    var weeks = ViewData["Weeks"] as SelectList;
+    var currentSemesterId = ViewData["CurrentSemesterId"];
+    var currentDate = ViewData["CurrentDate"];
 }
 
 @functions {
-    // Hàm chọn màu ngẫu nhiên dựa trên ID lớp để các môn khác nhau có màu khác nhau
     string GetColorClass(int index)
     {
-        // Bộ màu lấy từ hình ảnh (Xanh Mint -> Xanh Ngọc -> Xanh Đậm)
-        string[] colors = {
-            "#09D1C7", // Xanh ngọc sáng (Đậm nhất trong nhóm sáng) - Ưu tiên số 1
-            "#46DFB1", // Xanh mint vừa
-            "#80EE98", // Xanh lá mạ nhạt
-            "#0C6478", // Xanh cổ vịt (để đổi gió nếu nhiều môn)
-            "#213A58"  // Xanh than (để tương phản tốt)
-        };
+        string[] colors = { "#09D1C7", "#46DFB1", "#80EE98", "#0C6478", "#213A58" };
         return colors[index % colors.Length];
     }
-
 }
 
 <div class="col-lg-12">
+    <div class="card glass-card mb-3">
+        <div class="card-body p-3">
+            <form method="get" action="@Url.Action("LecturerSchedule")" id="filterForm" class="row align-items-center">
+
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent text-white border-0">
+                                <i class="zmdi zmdi-collection-bookmark"></i>
+                            </span>
+                        </div>
+                        <select name="semesterId" class="form-control custom-select-glass" onchange="document.getElementById('filterForm').submit();">
+                            @foreach (var item in semesters)
+                            {
+                                if (item.Value == currentSemesterId.ToString())
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent text-white border-0">
+                                <i class="zmdi zmdi-calendar-alt"></i>
+                            </span>
+                        </div>
+                        <select name="date" class="form-control custom-select-glass" onchange="document.getElementById('filterForm').submit();">
+                            @foreach (var item in weeks)
+                            {
+                                if (item.Value == (currentDate?.ToString() ?? ""))
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card glass-card">
         <div class="card-body p-2">
 
             <div class="d-flex justify-content-between align-items-center mb-3 mt-2 px-2">
-
                 <h5 class="card-title text-white mb-0" style="font-size: 1.2rem; font-weight: 700;">
                     <i class="zmdi zmdi-calendar-check mr-2"></i> LỊCH GIẢNG DẠY
                 </h5>
 
                 <div class="d-flex align-items-center">
-                    <a href="@Url.Action("LecturerSchedule", new { date = prevDate })" class="nav-btn" title="Tuần trước">
+                    <a href="@Url.Action("LecturerSchedule", new { semesterId = currentSemesterId, date = prevDate })" class="nav-btn" title="Tuần trước">
                         <i class="fa fa-chevron-left"></i>
                     </a>
 
@@ -55,11 +98,11 @@
                         <i class="fa fa-calendar-o mr-1"></i> @weekRange
                     </span>
 
-                    <a href="@Url.Action("LecturerSchedule", new { date = nextDate })" class="nav-btn" title="Tuần sau">
+                    <a href="@Url.Action("LecturerSchedule", new { semesterId = currentSemesterId, date = nextDate })" class="nav-btn" title="Tuần sau">
                         <i class="fa fa-chevron-right"></i>
                     </a>
 
-                    <a href="@Url.Action("LecturerSchedule")" class="btn btn-sm btn-light ml-3" style="font-size: 0.75rem; font-weight: bold; color: #333;">
+                    <a href="@Url.Action("LecturerSchedule", new { date = DateTime.Today.ToString("yyyy-MM-dd") })" class="btn btn-sm btn-light ml-3" style="font-size: 0.75rem; font-weight: bold; color: #333;">
                         Hôm nay
                     </a>
                 </div>
@@ -80,28 +123,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @* Vòng lặp 5 CA *@
                         @for (int session = 1; session <= 5; session++)
                         {
                             <tr>
                                 <td class="session-col">
                                     <span class="session-name">@session</span>
-                                    <span class="session-time">
-                                        @(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))
-                                    </span>
+                                    <span class="session-time">@(session == 5 ? "Tối" : (session > 2 ? "Chiều" : "Sáng"))</span>
                                 </td>
-
-                                @* Vòng lặp 7 ngày *@
                                 @for (int i = 0; i < 7; i++)
                                 {
-                                    DateTime currentDate = startOfWeek.AddDays(i);
-
-                                    // Tìm lớp dạy trùng ngày và trùng ca
-                                    var item = scheduleList.FirstOrDefault(s =>
-                                    s.ScheduleDate.Date == currentDate.Date &&
-                                    (int)s.CourseSection.Sessions == session
-                                    );
-
+                                    DateTime currentDateLoop = startOfWeek.AddDays(i);
+                                    var item = scheduleList.FirstOrDefault(s => s.ScheduleDate.Date == currentDateLoop.Date && (int)s.CourseSection.Sessions == session);
                                     <td>
                                         @if (item != null)
                                         {
@@ -112,23 +144,16 @@
                                                  data-schedule-id="@item.ScheduleItemId"
                                                  data-course-name="@(item.CourseSection?.Course?.CourseName ?? "Môn học")"
                                                  data-room="@(item.CourseSection?.Room ?? "Chưa xếp phòng")"
-                                                 data-time="Ca @session - @currentDate.ToString("dd/MM/yyyy")"
+                                                 data-time="Ca @session - @currentDateLoop.ToString("dd/MM/yyyy")"
                                                  data-capacity="@(item.CourseSection?.Capacity ?? 0)"
                                                  data-class-id="@item.CourseSectionId">
 
-                                                <div class="subject-title">
-                                                    @(item.CourseSection?.Course?.CourseName ?? "Môn học")
-                                                </div>
-
-                                                <div class="subject-info">
-                                                    <i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")
-                                                </div>
-
+                                                <div class="subject-title">@(item.CourseSection?.Course?.CourseName ?? "Môn học")</div>
+                                                <div class="subject-info"><i class="zmdi zmdi-pin mr-1"></i> @(item.CourseSection?.Room ?? "P.Học")</div>
                                                 <div class="d-flex justify-content-between mt-1 align-items-center">
                                                     <span class="badge badge-light text-dark" style="font-size: 0.7rem">
                                                         <i class="fa fa-users"></i> @(item.CourseSection?.Capacity ?? 0)
                                                     </span>
-
                                                     <span style="font-size: 0.7rem; opacity: 0.8">
                                                         <i class="fa fa-info-circle"></i> Chi tiết
                                                     </span>
@@ -150,31 +175,25 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content glass-modal">
             <div class="modal-header border-0">
-                <h5 class="modal-title text-white" id="modalCourseName" style="font-weight: bold; font-size: 1.5rem;">
-                </h5>
+                <h5 class="modal-title text-white" id="modalCourseName" style="font-weight: bold; font-size: 1.5rem;"></h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
             <div class="modal-body text-white">
                 <div class="info-row mb-2">
                     <i class="zmdi zmdi-time-interval mr-2 text-warning"></i>
                     <span id="modalTime" style="font-size: 1.1rem;"></span>
                 </div>
-
                 <div class="info-row mb-2">
                     <i class="zmdi zmdi-pin mr-2 text-warning"></i>
                     Phòng: <span id="modalRoom" style="font-weight: bold;"></span>
                 </div>
-
                 <div class="info-row mb-2">
                     <i class="fa fa-users mr-2 text-warning"></i>
                     Sĩ số lớp: <span id="modalCapacity"></span>
                 </div>
-
                 <hr style="background-color: rgba(255,255,255,0.2);">
-
                 <div class="text-center mt-4">
                     <a id="btnAttendance" href="#" class="btn btn-light btn-lg font-weight-bold shadow" style="color: #333; width: 100%; border-radius: 50px;">
                         <i class="zmdi zmdi-check-all mr-2"></i> TIẾN HÀNH ĐIỂM DANH
@@ -188,28 +207,44 @@
 <div id="modalContainer"></div>
 
 <style>
-    /* CSS Tùy chỉnh cho bảng */
+    /* Style cho Dropdown Glass (Thêm vào nếu chưa có trong Layout chung) */
+    .custom-select-glass {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        border-radius: 20px;
+    }
+
+        .custom-select-glass option {
+            background-color: #333;
+            color: white;
+        }
+
+        .custom-select-glass:focus {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    /* Các Style khác giữ nguyên từ code cũ của bạn */
     .table-transparent {
         table-layout: fixed;
         width: 100%;
     }
 
-    /* Ô lịch học */
     .event-block {
         color: #fff;
         padding: 8px;
         border-radius: 6px;
-        border-left: 4px solid rgba(0,0,0,0.1); 
+        border-left: 4px solid rgba(0,0,0,0.1);
         display: flex;
         flex-direction: column;
         gap: 2px;
         white-space: normal;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.08); 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.08);
         min-height: 85px;
         transition: transform 0.2s;
         cursor: pointer;
-
         text-shadow: 0 1px 3px rgba(0,0,0,0.4);
         font-weight: 500;
     }
@@ -231,7 +266,6 @@
         opacity: 0.95;
     }
 
-    /* Nút điều hướng tuần */
     .nav-btn {
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -260,7 +294,6 @@
         margin: 0 5px;
     }
 
-    /* Cột CA học */
     .session-col {
         vertical-align: middle !important;
         text-align: center;
@@ -296,7 +329,7 @@
     }
 
     .glass-modal {
-        background: rgba(20, 20, 20, 0.85); /* Màu nền đen mờ */
+        background: rgba(20, 20, 20, 0.85);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -304,18 +337,16 @@
         border-radius: 15px;
     }
 
-    /* Hiệu ứng hover cho nút điểm danh */
     #btnAttendance:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
         background-color: #fff !important;
-        color: #007bff !important; /* Đổi màu chữ khi hover */
+        color: #007bff !important;
     }
 </style>
 
 <script>
     function openClassModal(element) {
-        // ... (Lấy dữ liệu data- như cũ) ...
         var scheduleId = element.getAttribute('data-schedule-id');
         var courseName = element.getAttribute('data-course-name');
         var room = element.getAttribute('data-room');
@@ -323,47 +354,27 @@
         var capacity = element.getAttribute('data-capacity');
         var classId = element.getAttribute('data-class-id');
 
-        // Điền dữ liệu vào Modal thông tin (Giữ nguyên)
         if(document.getElementById('modalCourseName')) document.getElementById('modalCourseName').innerText = courseName;
         if(document.getElementById('modalRoom')) document.getElementById('modalRoom').innerText = room;
         if(document.getElementById('modalTime')) document.getElementById('modalTime').innerText = time;
         if(document.getElementById('modalCapacity')) document.getElementById('modalCapacity').innerText = capacity;
         if(document.getElementById('modalClassId')) document.getElementById('modalClassId').innerText = classId;
 
-        // --- SỬA ĐOẠN NÀY: XỬ LÝ NÚT ĐIỂM DANH ---
         var btn = document.getElementById('btnAttendance');
         if(btn) {
-            // Xóa href cũ để không chuyển trang
             btn.removeAttribute('href');
-
-            // Gán sự kiện onclick mới: Gọi hàm loadAttendanceModal
             btn.onclick = function() {
                 loadAttendanceModal(scheduleId);
             };
         }
-
-        // Mở Modal Thông tin
         $('#classInfoModal').modal('show');
     }
 
-    // --- HÀM MỚI: TẢI MODAL ĐIỂM DANH BẰNG AJAX ---
     function loadAttendanceModal(scheduleId) {
-        // 1. Ẩn modal thông tin lớp học đi
         $('#classInfoModal').modal('hide');
-
-        // 2. Hiện loading (Tùy chọn, để người dùng biết đang tải)
-        // $('body').css('cursor', 'wait');
-
-        // 3. Gọi Ajax về Server lấy HTML của Modal Điểm danh
         $.get('/Attendee/GetAttendanceForm', { scheduleId: scheduleId }, function(data) {
-
-            // 4. Nhét HTML nhận được vào cái div container
             $('#modalContainer').html(data);
-
-            // 5. Hiện Modal Điểm danh lên
             $('#attendanceModal').modal('show');
-
-            // $('body').css('cursor', 'default');
         }).fail(function() {
             alert("Lỗi tải form điểm danh!");
         });

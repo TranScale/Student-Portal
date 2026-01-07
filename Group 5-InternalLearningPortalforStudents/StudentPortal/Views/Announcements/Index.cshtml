@@ -1,0 +1,159 @@
+﻿@model IEnumerable<StudentPortal.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="col-lg-12">
+    <div class="card bg-transparent">
+        <div class="card-body">
+            <h5 class="card-title text-white mb-3">DANH SÁCH THÔNG BÁO</h5>
+
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tiêu đề</th>
+                            <th scope="col">Tóm tắt</th>
+                            <th scope="col">Ngày tạo</th>
+                            <th scope="col">Người đăng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="cursor-pointer"
+                                onclick="showAnnouncementModal(this)"
+                                data-title="@item.Title"
+                                data-summary="@item.Summary"
+                                data-content="@item.Content"
+                                data-date="@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")"
+                                @* --- THAY ĐỔI Ở ĐÂY: Dùng FullName --- *@
+                                data-user="@(item.User?.FullName ?? "Admin")"
+                                data-taker="@item.Taker">
+
+                                <td class="font-weight-bold">@item.Title</td>
+                                <td>@item.Summary</td>
+                                <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+
+                                @* --- THAY ĐỔI Ở ĐÂY: Hiển thị FullName --- *@
+                                <td>@(item.User?.FullName ?? "Admin")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+
+            <div class="modal-header bg-light">
+                <h5 class="modal-title font-weight-bold text-dark" id="modalTitle">
+                    <i class="fa fa-envelope-open-o mr-2 text-primary"></i> Chi tiết thông báo
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body bg-white text-dark">
+                <div class="form-group row border-bottom pb-2">
+                    <label class="col-sm-2 col-form-label text-muted font-weight-bold">Người gửi:</label>
+                    <div class="col-sm-10 d-flex align-items-center justify-content-between">
+                        <span id="popupUser" class="font-weight-bold text-primary">Admin</span>
+                        <small id="popupDate" class="text-muted">12/12/2025</small>
+                    </div>
+                </div>
+
+                <div class="form-group row border-bottom pb-2">
+                    <label class="col-sm-2 col-form-label text-muted font-weight-bold">Tiêu đề:</label>
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext font-weight-bold text-dark" id="popupTitle" value="Tiêu đề thông báo">
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="text-muted font-weight-bold mb-2">Nội dung chi tiết:</label>
+                    <div class="p-3 bg-light rounded border" style="min-height: 200px;">
+                        <div id="popupContent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                    <i class="fa fa-times"></i> Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS đã được dọn dẹp lại cho gọn */
+    .table-custom {
+        color: #fff !important;
+    }
+
+        .table-custom tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            /* Hover vào dòng thì chữ thành màu đỏ */
+            .table-custom tbody tr:hover td {
+                color: #ff4d4d !important;
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+        .table-custom thead th {
+            color: #fff;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px 20px;
+    }
+
+    .form-control-plaintext {
+        outline: none;
+        font-size: 1.1rem;
+    }
+
+    #popupContent {
+        line-height: 1.6;
+        color: #333;
+    }
+</style>
+
+<script>
+    function showAnnouncementModal(element) {
+        // Lấy dữ liệu
+        var title = element.getAttribute('data-title');
+        var content = element.getAttribute('data-content');
+        var date = element.getAttribute('data-date');
+        var user = element.getAttribute('data-user'); // Lúc này đã là Full Name
+
+        // Gán dữ liệu vào Popup
+        document.getElementById('popupTitle').value = title;
+        document.getElementById('popupUser').innerText = user;
+        document.getElementById('popupDate').innerText = date;
+        document.getElementById('popupContent').innerHTML = content;
+
+        // Hiển thị Modal
+        $('#detailModal').modal('show');
+    }
+</script>
