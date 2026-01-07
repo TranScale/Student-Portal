@@ -1,0 +1,62 @@
+﻿@model StudentPortal.Models.ViewModels.LecturerViewModel
+
+@{
+    ViewData["Title"] = "Sửa Giảng viên";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="text-white mb-4">Cập nhật hồ sơ Giảng viên</h2>
+
+<div class="card shadow" style="background-color: #1e2130; border: none;">
+    <div class="card-body p-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="LecturerId" />
+            <input type="hidden" asp-for="UserId" />
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="LecturerCode" class="text-white control-label"></label>
+                    <input asp-for="LecturerCode" class="form-control bg-secondary text-white border-0" readonly />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="FacultyId" class="text-white control-label"></label>
+                    <select asp-for="FacultyId" class="form-control bg-dark text-white border-secondary" asp-items="ViewBag.FacultyId"></select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="FullName" class="text-white control-label"></label>
+                    <input asp-for="FullName" class="form-control bg-dark text-white border-secondary" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="Email" class="text-white control-label"></label>
+                    <input asp-for="Email" class="form-control bg-dark text-white border-secondary" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="DateOfBirth" class="text-white control-label"></label>
+                    <input asp-for="DateOfBirth" class="form-control bg-dark text-white border-secondary" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="PhoneNumber" class="text-white control-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control bg-dark text-white border-secondary" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="Address" class="text-white control-label"></label>
+                    <input asp-for="Address" class="form-control bg-dark text-white border-secondary" />
+                </div>
+            </div>
+
+            <div class="form-group mt-4 text-right">
+                <a asp-action="Index" class="btn btn-secondary mr-2">Quay lại</a>
+                <button type="submit" class="btn btn-warning px-5"><i class="fas fa-sync-alt mr-2"></i>Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>

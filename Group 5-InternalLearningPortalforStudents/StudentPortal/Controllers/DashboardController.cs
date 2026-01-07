@@ -210,7 +210,11 @@ namespace StudentPortal.Controllers
             // 1. THỐNG KÊ SỐ LIỆU (Stats Cards)
             ViewData["TotalStudents"] = await _context.Students.CountAsync();
 
-            ViewData["TotalLecturers"] = await _context.Lecturers.CountAsync();
+            // Đã sửa: Lọc bỏ user system khi đếm giảng viên
+            ViewData["TotalLecturers"] = await _context.Lecturers
+                .Include(l => l.User)
+                .Where(l => l.User.UserName != "system")
+                .CountAsync();
 
             ViewData["TotalCourses"] = await _context.CoursesSections.CountAsync();
 

@@ -2,59 +2,67 @@
 
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý Học kỳ";
 }
 
-<h1>Index</h1>
+<style>
+    .table-hover tbody tr:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+</style>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SemesterName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AcademicYear)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.SemesterName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.SemesterId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.SemesterId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.SemesterId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white">Quản lý Học kỳ</h2>
+    <a asp-action="Create" class="btn btn-primary shadow-sm">
+        <i class="fas fa-plus mr-2"></i>Thêm học kỳ mới
+    </a>
+</div>
+
+<div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover text-light mb-0">
+                <thead style="background-color: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <tr>
+                        <th class="border-top-0">Tên học kỳ</th>
+                        <th class="border-top-0">Năm học</th>
+                        <th class="border-top-0">Ngày bắt đầu</th>
+                        <th class="border-top-0">Ngày kết thúc</th>
+                        <th class="border-top-0 text-center">Trạng thái</th>
+                        <th class="border-top-0 text-right">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td class="align-middle font-weight-bold">@Html.DisplayFor(modelItem => item.SemesterName)</td>
+                            <td class="align-middle">@Html.DisplayFor(modelItem => item.AcademicYear)</td>
+                            <td class="align-middle">@item.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle">@item.EndDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle text-center">
+                                @if (item.IsActive == true)
+                                {
+                                    <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary px-2 py-1">Đã đóng</span>
+                                }
+                            </td>
+                            <td class="align-middle text-right">
+                                <a asp-action="Edit" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-warning rounded-circle mr-1" title="Chi tiết">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

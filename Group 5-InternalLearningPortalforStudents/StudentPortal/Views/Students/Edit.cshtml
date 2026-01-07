@@ -1,0 +1,78 @@
+﻿@model StudentPortal.Models.ViewModels.StudentViewModel
+
+@{
+    ViewData["Title"] = "Sửa Thông Tin Sinh viên";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="text-white mb-4">Cập nhật hồ sơ sinh viên</h2>
+
+<div class="card shadow" style="background-color: #1e2130; border: none;">
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="StudentId" />
+            <input type="hidden" asp-for="UserId" />
+
+            <h5 class="text-primary mb-3">1. Thông tin Cá nhân</h5>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="FullName" class="text-white control-label"></label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="Email" class="text-white control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="DateOfBirth" class="text-white control-label"></label>
+                    <input asp-for="DateOfBirth" class="form-control" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="PhoneNumber" class="text-white control-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="Address" class="text-white control-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+            </div>
+
+            <hr style="background-color: rgba(255,255,255,0.1);" />
+
+            <h5 class="text-primary mb-3">2. Thông tin Học tập</h5>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="StudentCode" class="text-white control-label"></label>
+                    <input asp-for="StudentCode" class="form-control" />
+                    <span asp-validation-for="StudentCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="DepartmentId" class="text-white control-label"></label>
+                    <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-md-6 form-group">
+                    <label asp-for="StartStudyDate" class="text-white control-label"></label>
+                    <input asp-for="StartStudyDate" class="form-control" />
+                </div>
+                <div class="col-md-6 form-group pt-4">
+                    <div class="custom-control custom-checkbox">
+                        <input asp-for="IsGraduate" class="custom-control-input" id="gradCheck">
+                        <label class="custom-control-label text-white" for="gradCheck">Xác nhận đã Tốt nghiệp</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-warning px-4"><i class="fas fa-save mr-2"></i>Cập nhật</button>
+                <a asp-action="Index" class="btn btn-secondary ml-2">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>

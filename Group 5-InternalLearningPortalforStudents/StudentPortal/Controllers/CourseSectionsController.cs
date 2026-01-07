@@ -51,7 +51,8 @@ namespace StudentPortal.Controllers
         public IActionResult Create()
         {
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName");
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName");
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName");
             return View();
@@ -88,7 +89,8 @@ namespace StudentPortal.Controllers
             }
 
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
             return View(courseSection);
@@ -103,7 +105,8 @@ namespace StudentPortal.Controllers
             if (courseSection == null) return NotFound();
 
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName", courseSection.SemesterId);
 
@@ -151,7 +154,8 @@ namespace StudentPortal.Controllers
             }
 
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
             return View(courseSection);

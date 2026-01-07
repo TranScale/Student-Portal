@@ -1,0 +1,112 @@
+﻿@model StudentPortal.Models.Lecturer
+
+@{
+    ViewData["Title"] = "Hồ sơ Giảng viên";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white">Hồ sơ Giảng viên</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.LecturerId" class="btn btn-warning shadow-sm px-4">
+            <i class="fas fa-pen mr-2"></i>Cập nhật
+        </a>
+        <a asp-action="Index" class="btn btn-secondary ml-2 shadow-sm px-4">Quay lại</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
+            <div class="card-body text-center pt-5">
+                <div class="rounded-circle bg-info d-flex align-items-center justify-content-center mx-auto mb-3 shadow"
+                     style="width: 120px; height: 120px; font-size: 48px; color: white;">
+                    @Model.User.FullName?.Substring(0, 1)
+                </div>
+
+                <h4 class="text-white font-weight-bold">@Model.User.FullName</h4>
+                <div class="badge badge-light px-3 py-2 mt-1">@Model.User.UserName</div>
+
+                <hr style="border-color: rgba(255,255,255,0.1);" class="my-4">
+
+                <div class="text-left">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Khoa / Bộ môn:</small>
+                        <span class="text-primary font-weight-bold">@Model.Faculty?.FacultyName</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email:</small>
+                        <span class="text-white">@Model.User.Email</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Số điện thoại:</small>
+                        <span class="text-white">@(Model.User.PhoneNumber ?? "Chưa cập nhật")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow h-100" style="background-color: #1e2130; border: none;">
+            <div class="card-header border-bottom-0 pt-4 bg-transparent">
+                <h5 class="text-warning mb-0"><i class="fas fa-chalkboard-teacher mr-2"></i>Các học phần đang giảng dạy</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table text-white mb-0">
+                        <thead style="background-color: rgba(255,255,255,0.05);">
+                            <tr>
+                                <th class="border-top-0 pl-4">Mã môn</th>
+                                <th class="border-top-0">Tên môn học</th>
+                                <th class="border-top-0">Phòng</th>
+                                <th class="border-top-0">Học kỳ</th>
+                                <th class="border-top-0 text-center">Tín chỉ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.CoursesSection != null && Model.CoursesSection.Count > 0)
+                            {
+                                @foreach (var item in Model.CoursesSection)
+                                {
+                                    <tr>
+                                        <td class="pl-4 font-weight-bold text-info border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                            @item.Course.CourseCode
+                                        </td>
+                                        <td class="border-top-0" style="border-color: rgba(255,255,255,0.05);">@item.Course.CourseName</td>
+
+                                        <td class="border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                            <span class="badge badge-secondary">@item.Room</span>
+                                        </td>
+
+                                        <td class="border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                            @if (item.Semester != null)
+                                            {
+                                                @item.Semester.SemesterName
+                                            }
+                                            else
+                                            {
+                                                @item.SemesterId
+                                            }
+                                        </td>
+
+                                        <td class="text-center border-top-0" style="border-color: rgba(255,255,255,0.05);">@item.Course.CourseCredit</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-5 border-top-0">
+                                        <i class="fas fa-folder-open fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                        Giảng viên này chưa được phân công giảng dạy lớp nào.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

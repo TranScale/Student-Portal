@@ -74,28 +74,45 @@ namespace StudentPortal.Controllers
             }
             return View(semester);
         }
-
-        // GET: Semesters/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Semesters/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
-            var semester = await _context.Semesters.FirstOrDefaultAsync(m => m.SemesterId == id);
-            if (semester == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var semester = await _context.Semesters
+                .FirstOrDefaultAsync(m => m.SemesterId == id);
+
+            if (semester == null)
+            {
+                return NotFound();
+            }
+
             return View(semester);
         }
 
-        // POST: Semesters/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var semester = await _context.Semesters.FindAsync(id);
-            if (semester != null)
-            {
-                _context.Semesters.Remove(semester);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
-        }
+        //// GET: Semesters/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null) return NotFound();
+        //    var semester = await _context.Semesters.FirstOrDefaultAsync(m => m.SemesterId == id);
+        //    if (semester == null) return NotFound();
+        //    return View(semester);
+        //}
+
+        //// POST: Semesters/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var semester = await _context.Semesters.FindAsync(id);
+        //    if (semester != null)
+        //    {
+        //        _context.Semesters.Remove(semester);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    return RedirectToAction(nameof(Index));
+        //}
     }
 }
