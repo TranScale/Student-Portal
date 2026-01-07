@@ -1,66 +1,159 @@
 ﻿@model StudentPortal.Models.CourseSection
+@using StudentPortal.Models
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>CourseSection</h4>
+<h1>Mở Lớp Học Phần</h1>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Room" class="control-label"></label>
-                <input asp-for="Room" class="form-control" />
-                <span asp-validation-for="Room" class="text-danger"></span>
+                <label asp-for="SemesterId" class="control-label font-weight-bold">Học kỳ áp dụng</label>
+                <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
+                <small class="text-muted">Ngày bắt đầu và kết thúc sẽ tự động lấy theo học kỳ.</small>
             </div>
+
             <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
+                <label asp-for="CourseId" class="control-label font-weight-bold">Môn học</label>
+                <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
             </div>
+
             <div class="form-group">
-                <label asp-for="Days" class="control-label"></label>
-                <input asp-for="Days" class="form-control" />
+                <label asp-for="LecturerId" class="control-label font-weight-bold">Giảng viên phụ trách</label>
+                <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId"></select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Room" class="control-label font-weight-bold">Tên phòng</label>
+                        <input asp-for="Room" class="form-control" placeholder="Ví dụ: A201" />
+                        <span asp-validation-for="Room" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Capacity" class="control-label font-weight-bold">Sĩ số</label>
+                        <input asp-for="Capacity" class="form-control" value="40" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label font-weight-bold">Buổi học</label>
+                <div class="card p-2" style="background-color: transparent; border: 1px solid #ced4da;">
+                    <div class="d-flex flex-wrap">
+                        @foreach (ClassDays day in Enum.GetValues(typeof(ClassDays)))
+                        {
+                            if (day == ClassDays.None) continue;
+
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="day_@day" name="Days" value="@day">
+                                <label class="custom-control-label" for="day_@day">
+                                    @switch (day)
+                                    {
+                                        case ClassDays.Monday:
+                                            <text>Thứ 2</text>
+                                            ; break;
+                                        case ClassDays.Tuesday:
+
+                                            <text>Thứ 3</text>
+                                            ; break;
+                                        case ClassDays.Wednesday:
+
+                                            <text>Thứ 4</text>
+                                            ; break;
+                                        case ClassDays.Thursday:
+
+                                            <text>Thứ 5</text>
+                                            ; break;
+                                        case ClassDays.Friday:
+
+                                            <text>Thứ 6</text>
+                                            ; break;
+                                        case ClassDays.Saturday:
+
+                                            <text>Thứ 7</text>
+                                            ; break;
+                                        case ClassDays.Sunday:
+
+                                            <text>CN</text>
+                                            ; break;
+                                        default:
+
+                                            @day
+                                            ; break;
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
                 <span asp-validation-for="Days" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="DayStart" class="control-label"></label>
-                <input asp-for="DayStart" class="form-control" />
-                <span asp-validation-for="DayStart" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DayEnd" class="control-label"></label>
-                <input asp-for="DayEnd" class="form-control" />
-                <span asp-validation-for="DayEnd" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Sessions" class="control-label"></label>
-                <input asp-for="Sessions" class="form-control" />
+                <label class="control-label font-weight-bold">Số ca (Chọn nhiều)</label>
+                <div class="card p-2" style="background-color: transparent; border: 1px solid #ced4da;">
+                    <div class="d-flex flex-wrap">
+                        @foreach (StudySessions session in Enum.GetValues(typeof(StudySessions)))
+                        {
+                            if (session == StudySessions.None) continue;
+
+                            <div class="custom-control custom-checkbox mr-3 mb-2" style="min-width: 150px;">
+                                <input type="checkbox" class="custom-control-input" id="session_@session" name="Sessions" value="@session">
+                                <label class="custom-control-label" for="session_@session">
+                                    @switch (session)
+                                    {
+                                        case StudySessions.Ca1:
+                                            <text>Ca 1 (07:00-09:30)</text>
+                                            ; break;
+                                        case StudySessions.Ca2:
+
+                                            <text>Ca 2 (09:30-12:00)</text>
+                                            ; break;
+                                        case StudySessions.Ca3:
+
+                                            <text>Ca 3 (12:30-15:00)</text>
+                                            ; break;
+                                        case StudySessions.Ca4:
+
+                                            <text>Ca 4 (15:00-17:30)</text>
+                                            ; break;
+                                        case StudySessions.Ca5:
+
+                                            <text>Ca 5 (17:30-20:00)</text>
+                                            ; break;
+                                        default:
+
+                                            @session
+                                            ; break;
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
                 <span asp-validation-for="Sessions" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CourseId" class="control-label"></label>
-                <select asp-for="CourseId" class ="form-control" asp-items="ViewBag.CourseId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="LecturerId" class="control-label"></label>
-                <select asp-for="LecturerId" class ="form-control" asp-items="ViewBag.LecturerId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Tạo lớp học phần" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary ml-2">Quay lại</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

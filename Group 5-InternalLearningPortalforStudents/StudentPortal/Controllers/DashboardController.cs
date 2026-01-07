@@ -111,26 +111,16 @@ namespace StudentPortal.Controllers
             ViewData["ListSchedule"] = schedule;
 
             var teachingList = _context.CoursesSections
-                .Include(cs => cs.Course) 
+                .Include(cs => cs.Course)
                 .Include(cs => cs.Lecturer)
                 .Include(cs => cs.Semester)
                 .Where(cs => cs.LecturerId == lecturer.LecturerId
-                       && cs.Semester.StartDate <= DateTime.Now
-                       && cs.Semester.EndDate >= DateTime.Now)
+                        && cs.Semester.StartDate <= DateTime.Now
+                        && cs.Semester.EndDate >= DateTime.Now)
                 .ToList();
 
             ViewData["teachingList"] = teachingList;
 
-            return View();
-        }
-
-        public async Task<ActionResult> AdminIndex(DateTime? date)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
             return View();
         }
 
@@ -200,13 +190,52 @@ namespace StudentPortal.Controllers
 
                 int totalClass = listTeaching.Count();
 
-                ViewData["TotalClass"] = totalClass; 
-                ViewData["CourseList"] = listTeaching;   
+                ViewData["TotalClass"] = totalClass;
+                ViewData["CourseList"] = listTeaching;
 
                 return View();
             }
             catch (Exception)
             { return View("Error"); }
+        }
+
+        public async Task<ActionResult> AdminIndex(DateTime? date)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // 1. THỐNG KÊ SỐ LIỆU (Stats Cards)
+            ViewData["TotalStudents"] = await _context.Students.CountAsync();
+
+            ViewData["TotalLecturers"] = await _context.Lecturers.CountAsync();
+
+            ViewData["TotalCourses"] = await _context.CoursesSections.CountAsync();
+
+            // 2. HỌC KỲ HIỆN TẠI
+            var today = DateTime.Now;
+            var currentSemester = await _context.Semesters
+                .Where(s => s.StartDate <= today && s.EndDate >= today)
+                .FirstOrDefaultAsync();
+
+            ViewData["CurrentSemester"] = currentSemester; // Dùng cho object
+            ViewData["CurrentSemesterName"] = currentSemester?.SemesterName ?? "Chưa có HK"; // Dùng cho hiển thị text
+
+            // 3. THÔNG BÁO MỚI NHẤT
+            var recentAnnouncements = await _context.Announcements
+                .Include(a => a.User)
+                .OrderByDescending(a => a.CreatedDate)
+                .Take(5)
+                .ToListAsync();
+
+            ViewData["RecentAnnouncements"] = recentAnnouncements;
+
+            // 4. (Tùy chọn) ĐƠN ĐĂNG KÝ/ENROLLMENT MỚI NHẤT (Nếu muốn hiển thị bảng Dynamic sau này)
+            // var recentEnrollments = await _context.Enrollments
+
+            return View(); // Trả về Views/Dashboard/AdminIndex.cshtml
         }
 
         [HttpPost]

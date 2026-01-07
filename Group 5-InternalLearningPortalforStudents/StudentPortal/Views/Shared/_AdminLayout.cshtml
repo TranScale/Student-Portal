@@ -8,53 +8,66 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="~/assets/css/adminStyle.css" rel="stylesheet" />
-    
+
+    <style>
+        .user-profile:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fas fa-university mr-2"></i> UNI<span style="color:var(--accent-purple)">ADMIN</span>
-        </div>
-
         <div class="sidebar-menu">
             <div class="menu-title">Tổng quan</div>
             <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
                 <i class="fas fa-th-large"></i> <span>Dashboard</span>
             </a>
-            <a href="#" class="nav-link">
-                <i class="fas fa-chart-pie"></i> <span>Thống kê</span>
-            </a>
 
             <div class="menu-title mt-3">Quản lý Đào tạo</div>
-            <a href="#" class="nav-link">
+
+            <a asp-controller="Courses" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Courses" ? "active" : "")">
                 <i class="fas fa-book"></i> <span>Môn học</span>
             </a>
-            <a href="#" class="nav-link">
+
+            <a asp-controller="CourseSections" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CourseSections" ? "active" : "")">
                 <i class="fas fa-layer-group"></i> <span>Lớp học phần</span>
             </a>
-            <a href="#" class="nav-link">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                    <span><i class="fas fa-file-signature"></i> Đăng ký tín chỉ</span>
-                    <span class="badge badge-warning text-dark">3</span>
-                </div>
+
+            <a asp-controller="Semesters" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Semesters" ? "active" : "")">
+                <i class="fas fa-calendar-alt"></i> <span>Quản lý Học kỳ</span>
             </a>
 
             <div class="menu-title mt-3">Người dùng</div>
-            <a href="#" class="nav-link">
+
+            <a asp-controller="Students" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Students" ? "active" : "")">
                 <i class="fas fa-user-graduate"></i> <span>Sinh viên</span>
             </a>
-            <a href="#" class="nav-link">
+
+            <a asp-controller="Lecturers" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Lecturers" ? "active" : "")">
                 <i class="fas fa-chalkboard-teacher"></i> <span>Giảng viên</span>
             </a>
 
             <div class="menu-title mt-3">Hệ thống</div>
-            <a href="#" class="nav-link">
-                <i class="fas fa-cog"></i> <span>Cài đặt</span>
+
+            <a asp-controller="Announcements" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Announcements" ? "active" : "")">
+                <i class="fas fa-bullhorn"></i> <span>Thông báo</span>
             </a>
-            <a href="#" class="nav-link text-danger">
-                <i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span>
-            </a>
+
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                <button type="submit" class="nav-link text-danger"
+                        style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;"
+                        onclick="localStorage.removeItem('selectedTheme');">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="ml-2">Đăng xuất</span>
+                </button>
+            </form>
         </div>
     </nav>
 
@@ -71,12 +84,38 @@
                     <span class="position-absolute" style="top: -5px; right: -5px; width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%;"></span>
                 </div>
 
-                <div class="user-profile">
-                    <div class="text-right d-none d-md-block">
-                        <div class="font-weight-bold" style="font-size: 0.9rem;">Administrator</div>
-                        <div class="text-white-50" style="font-size: 0.75rem;">Phòng Đào tạo</div>
+                <div class="dropdown">
+                    <div class="user-profile d-flex align-items-center p-2" data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        <div class="text-right d-none d-md-block mr-2">
+                            <div class="font-weight-bold" style="font-size: 0.9rem;">
+                                @(User.Identity?.Name ?? "Admin User")
+                            </div>
+                            <div class="text-white-50" style="font-size: 0.75rem;">Phòng Đào tạo</div>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=@(User.Identity?.Name ?? "Admin")&background=7b2cbf&color=fff" class="user-avatar rounded-circle" style="width: 40px; height: 40px;">
                     </div>
-                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=7b2cbf&color=fff" class="user-avatar">
+
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+
+                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                            <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Hồ sơ cá nhân
+                        </a>
+
+                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                            <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Đổi mật khẩu
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                            <button type="submit" class="dropdown-item text-danger font-weight-bold" onclick="localStorage.removeItem('selectedTheme');">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>
+                                Đăng xuất
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </header>
