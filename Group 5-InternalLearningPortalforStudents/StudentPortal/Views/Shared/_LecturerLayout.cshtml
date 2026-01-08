@@ -59,7 +59,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/Student/Notifications">
+                    <a asp-controller="Announcements" asp-action="Index">
                         <i class="zmdi zmdi-notifications-active"></i> <span>Thông báo</span>
                     </a>
                 </li>
@@ -129,11 +129,13 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-envelope mr-2"></i> Inbox</li>
+                            <a class="dropdown-item" asp-controller="Announcements" " asp-action="Index">
+                                <i class="icon-envelope mr-2"></i> Thông báo
+                            </a>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-wallet mr-2"></i> Account</li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Setting</li>
+                            <a class="dropdown-item" asp-controller="Dashboard" asp-action="LecturerProfile">
+                                <i class="icon-wallet mr-2"></i> Thông tin tài khoản
+                            </a>
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">

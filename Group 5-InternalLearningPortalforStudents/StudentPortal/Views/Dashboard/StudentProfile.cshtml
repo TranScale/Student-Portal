@@ -39,9 +39,12 @@
                         <a href="javascript:void();" class="nav-link active"><i class="icon-user"></i> Hồ sơ cá nhân</a>
                     </li>
                     <li class="nav-item">
-                        <a href="javascript:void();" class="nav-link"><i class="icon- "></i> Thông tin cá nhân </a>
+                        <a href="javascript:void(0);" onclick="openProfileModal()" class="nav-link">
+                            <i class="fa fa-pencil-square-o"></i> Cập nhật thông tin
+                        </a>
                     </li>
                 </ul>
+                <div id="modal-placeholder"></div>
             </div>
         </div>
     </div>
@@ -84,8 +87,8 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div>
-                                <p class="mb-0 text-white">Điểm TB Tích lũy</p>
-                                <h4 class="mb-0 text-white mt-2">3.42</h4>
+                                <p class="mb-0 text-white">Điểm TB Tích lũy (Hệ 10)</p>
+                                <h4 class="mb-0 text-white mt-2">@ViewData["TotalScore"]</h4>
                             </div>
                             <div class="ml-auto font-35 text-white"><i class="fa fa-graduation-cap"></i></div>
                         </div>
@@ -139,7 +142,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center">Sinh viên chưa đăng ký môn học nào.</td>
+                                    <td colspan="4" class="text-center">Sinh viên chưa học xong môn học nào.</td>
                                 </tr>
                             }
                         </tbody>
@@ -150,89 +153,34 @@
     </div>
 </div>
 
-@* <style>
-    1. ĐỊNH HÌNH KHUNG BANNER */
-    /* Mình bỏ background color đi, để nó ăn theo màu của Card hoặc Theme */
-    .profile-header-banner {
-        height: 200px; /* Bắt buộc phải có chiều cao để tạo khoảng trống */
-        position: relative;
-        /* Nếu theme của bạn nền đen, banner sẽ đen. Nếu muốn banner khác màu body, thêm class bg- màu vào div HTML */
+<script>
+    function openProfileModal() {
+        // 1. Gọi GET để lấy form
+        $.get('/Dashboard/EditProfile', function (data) {
+            $('#modal-placeholder').html(data);
+            $('#profileModal').modal('show');
+
+            // 2. Xử lý khi bấm nút Save (POST)
+            $('#editProfileForm').submit(function (e) {
+                e.preventDefault(); // Chặn load lại trang
+
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Tắt modal và reload trang để thấy thông tin mới
+                            $('#profileModal').modal('hide');
+                            location.reload();
+                        } else {
+                            // Nếu lỗi (validate), nó sẽ trả về lại form html kèm lỗi
+                            $('#modal-placeholder').html(response);
+                        }
+                    }
+                });
+            });
+        });
     }
-
-    /* 2. ĐỊNH VỊ AVATAR (QUAN TRỌNG NHẤT) */
-    /* Code này giúp Avatar trồi lên trên Banner */
-    .profile-user-avatar {
-        position: relative;
-        margin-top: -70px; /* Kéo lên 70px so với vị trí gốc */
-        padding-left: 20px;
-        z-index: 1; /* Đảm bảo nằm đè lên trên */
-    }
-
-        .profile-user-avatar img {
-            width: 140px;
-            height: 140px;
-            object-fit: cover;
-            /* Giữ lại border để tách biệt avatar với nền, nhưng dùng màu trong suốt hoặc theo theme */
-            border: 4px solid rgba(255, 255, 255, 0.2);
-        }
-
-    /* 3. RESPONSIVE MOBILE */
-    @@media (max-width: 768px) {
-        .profile-user-avatar {
-            text-align: center;
-            margin-top: -50px; /* Mobile kéo lên ít hơn chút */
-            padding-left: 0;
-        }
-
-        .profile-user-info {
-            text-align: center;
-            margin-top: 10px;
-        }
-    }
-
-    /* Icon box chỉnh lại size cho đều, bỏ màu nền cứng */
-    .icon-box {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 40px;
-        font-size: 18px;
-        background: rgba(255,255,255,0.1); /* Giữ độ mờ nhẹ để thấy icon */
-    }
-
-    .custom-table-scroll {
-        max-height: 250px; /* Chiều cao tối đa, quá mức này sẽ hiện scroll */
-        overflow-y: auto; /* Cho phép cuộn dọc */
-        /* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari/Edge) */
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-    }
-
-        /* Chỉnh giao diện thanh cuộn (Webkit) */
-        .custom-table-scroll::-webkit-scrollbar {
-            width: 6px; /* Độ rộng thanh cuộn */
-        }
-
-        .custom-table-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-table-scroll::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.3); /* Màu thanh cuộn mờ */
-            border-radius: 20px;
-        }
-
-        /* --- GHIM TIÊU ĐỀ (STICKY HEADER) --- */
-        /* Giúp dòng tiêu đề đứng yên khi cuộn */
-        .custom-table-scroll thead th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            /* Phải có màu nền, nếu không chữ sẽ bị trôi xuyên qua header */
-            /* Mình lấy màu gần giống background thẻ Card của bạn */
-            background-color: rgba(69, 88, 115, 0.95);
-            color: #fff; /* Chữ màu trắng cho nổi */
-            border-top: none; /* Bỏ viền trên cho đỡ thô
-        }
-</style> *@
+</script>

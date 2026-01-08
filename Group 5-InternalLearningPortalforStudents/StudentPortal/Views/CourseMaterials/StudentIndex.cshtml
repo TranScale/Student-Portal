@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Tài liệu môn học";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+
+    var enrollments = ViewData["Courses"] as List<StudentPortal.Models.Enrollment>;
+
+    string[] patterns = { "pattern-purple", "pattern-orange", "pattern-yellow", "pattern-green", "pattern-blue" };
+    int index = 0;
+}
+
+<style>
+    /* --- CÁC PHẦN CSS CŨ GIỮ NGUYÊN --- */
+    .search-bar-custom {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 5px;
+    }
+
+        .search-bar-custom::placeholder {
+            color: #ccc;
+        }
+
+        .search-bar-custom:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: none;
+            border-color: #fff;
+        }
+
+    .course-card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+    .course-pattern {
+        height: 90px;
+        position: relative;
+        width: 100%;
+        display: block;
+    }
+
+    .pattern-purple {
+        background: repeating-linear-gradient(45deg, #6a5acd, #6a5acd 10px, #7b68ee 10px, #7b68ee 20px);
+    }
+
+    .pattern-orange {
+        background: radial-gradient(circle, #f4a460 10%, transparent 11%), radial-gradient(circle at 45px 45px, #f4a460 10%, transparent 11%);
+        background-color: #ffdead;
+        background-size: 50px 50px;
+    }
+
+    .pattern-yellow {
+        background-color: #ffd700;
+        background-image: linear-gradient(30deg, #f0e68c 12%, transparent 12.5%, transparent 87%, #f0e68c 87.5%, #f0e68c), linear-gradient(150deg, #f0e68c 12%, transparent 12.5%, transparent 87%, #f0e68c 87.5%, #f0e68c), linear-gradient(30deg, #f0e68c 12%, transparent 12.5%, transparent 87%, #f0e68c 87.5%, #f0e68c), linear-gradient(150deg, #f0e68c 12%, transparent 12.5%, transparent 87%, #f0e68c 87.5%, #f0e68c), linear-gradient(60deg, #f0e68c77 25%, transparent 25.5%, transparent 75%, #f0e68c77 75%, #f0e68c77), linear-gradient(60deg, #f0e68c77 25%, transparent 25.5%, transparent 75%, #f0e68c77 75%, #f0e68c77);
+        background-size: 40px 70px;
+    }
+
+    .pattern-green {
+        background: linear-gradient(135deg, #2e8b57 25%, transparent 25%) -50px 0, linear-gradient(225deg, #2e8b57 25%, transparent 25%) -50px 0, linear-gradient(315deg, #2e8b57 25%, transparent 25%), linear-gradient(45deg, #2e8b57 25%, transparent 25%);
+        background-size: 40px 40px;
+        background-color: #3cb371;
+    }
+
+    .pattern-blue {
+        background-color: #1e90ff;
+        opacity: 0.8;
+        background-image: linear-gradient(#4682b4 2px, transparent 2px), linear-gradient(90deg, #4682b4 2px, transparent 2px), linear-gradient(#4682b4 1px, transparent 1px), linear-gradient(90deg, #4682b4 1px, transparent 1px);
+        background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+        background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+    }
+
+    .course-body {
+        padding: 15px;
+        color: white;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-title {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .course-badge {
+        background: rgba(255,255,255,0.15);
+        color: #ddd;
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+
+    @@media (min-width: 1200px) {
+        .col-xl-20
+
+    {
+        -ms-flex: 0 0 20%;
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+
+    }
+</style>
+
+<div class="container-fluid mt-3">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-4">
+            <h3 class="text-white font-weight-bold">Khóa học của tôi</h3>
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex justify-content-md-end">
+                <form asp-action="StudentIndex" method="get" class="mr-2" style="max-width: 300px; width: 100%;">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0 text-white">
+                                <button type="submit" style="background:none; border:none; color:white; padding:0;">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                               class="form-control search-bar-custom" placeholder="Tìm tên hoặc mã môn...">
+                    </div>
+                </form>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-sort-alpha-asc"></i> Sắp xếp
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="@Url.Action("StudentIndex", new { sortOrder = "", searchString = ViewData["CurrentFilter"] })">Tên (A-Z)</a>
+                        <a class="dropdown-item" href="@Url.Action("StudentIndex", new { sortOrder = "name_desc", searchString = ViewData["CurrentFilter"] })">Tên (Z-A)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (enrollments != null && enrollments.Any())
+        {
+            @foreach (var item in enrollments)
+            {
+                string currentPattern = patterns[index % patterns.Length];
+                index++;
+
+                <div class="col-12 col-md-6 col-lg-4 col-xl-20 mb-4">
+                    <div class="card card-transparent course-card h-100">
+                        <div class="course-pattern @currentPattern"></div>
+                        <div class="card-body course-body">
+                            <div>
+                                <span class="course-badge mb-2 d-inline-block">
+                                    @(item.CourseSection.Course.CourseCredit) Tín chỉ
+                                </span>
+                                <h5 class="course-title mt-1">
+                                    <a href="@Url.Action("Details", "CourseMaterials", new { id = item.CourseSectionId })" class="text-white" style="text-decoration:none;">
+                                        [@item.CourseSection.Course.CourseCode] @item.CourseSection.Course.CourseName
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-white mt-5">
+                <i class="fa fa-search-minus fa-3x mb-3 text-muted"></i>
+                <h5>Không tìm thấy môn học nào phù hợp.</h5>
+                <a href="@Url.Action("StudentIndex")" class="btn btn-outline-light btn-sm mt-2">Xóa bộ lọc</a>
+            </div>
+        }
+    </div>
+</div>

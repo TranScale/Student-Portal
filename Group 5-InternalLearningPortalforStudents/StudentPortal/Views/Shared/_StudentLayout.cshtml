@@ -67,7 +67,7 @@
                 </li>
 
                 <li>
-                    <a href="/Student/Notifications">
+                    <a asp-controller="Announcements" asp-action="Index">
                         <i class="zmdi zmdi-notifications-active"></i> <span>Thông báo</span>
                     </a>
                 </li>
@@ -79,16 +79,14 @@
                 </li>
 
                 <li>
-                    <a href="/Home/Report">
-                        <i class="zmdi zmdi-file-text"></i> <span>Gửi báo cáo</span>
+                    <a asp-controller="CourseMaterials" asp-action="Index">
+                        <i class="zmdi zmdi-check-square"></i> <span>Tài liệu môn học</span>
                     </a>
                 </li>
 
             </ul>
 
         </div>
-        <!--End sidebar-wrapper-->
-        <!--Start topbar header-->
         <header class="topbar-nav">
             <nav class="navbar navbar-expand fixed-top">
                 <ul class="navbar-nav mr-auto align-items-center">
@@ -142,11 +140,13 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-envelope mr-2"></i> Inbox</li>
+                            <a class="dropdown-item" asp-controller="Announcements"" asp-action="Index">
+                                <i class="icon-envelope mr-2"></i> Thông báo
+                            </a>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-wallet mr-2"></i> Account</li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Setting</li>
+                            <a class="dropdown-item" asp-controller="Dashboard" asp-action="StudentProfile">
+                                <i class="icon-wallet mr-2"></i> Thông tin tài khoản
+                            </a>
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
@@ -160,25 +160,19 @@
                 </ul>
             </nav>
         </header>
-        <!--End topbar header-->
 
         <div class="clearfix"></div>
 
         <div class="content-wrapper">
             <div class="container-fluid">
                 @RenderBody()
-                <!--start overlay-->
                 <div class="overlay toggle-menu"></div>
-                <!--end overlay-->
 
             </div>
-            <!-- End container-fluid-->
 
-        </div><!--End content-wrapper-->
-        <!--Start Back To Top Button-->
+        </div>
         <a href="~/javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
-        <!--End Back To Top Button-->
-        <!--Start footer-->
+
         <footer class="footer">
             <div class="container">
                 <div class="text-center">

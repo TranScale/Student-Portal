@@ -1,0 +1,83 @@
+﻿@model StudentPortal.Models.PaginatedList<StudentPortal.Models.Announcement>
+
+@{
+    int pageSize = 5;
+    int counter = (Model.PageIndex - 1) * pageSize + 1;
+}
+
+<div class="table-responsive">
+    <table class="table custom-table" id="announcementTable">
+        <thead>
+            <tr style="background-color: rgba(0,0,0,0.2);">
+                <th scope="col">TIÊU ĐỀ</th>
+                <th scope="col">TÓM TẮT</th>
+                <th scope="col">NGÀY ĐĂNG</th>
+                <th scope="col">NGƯỜI GỬI</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-white-50">
+                        Hiện không có thông báo nào phù hợp.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr class="cursor-pointer"
+                        onclick="showAnnouncementModal(this)"
+                        data-title="@item.Title"
+                        data-summary="@item.Summary"
+                        data-content="@item.Content"
+                        data-date="@item.CreatedDate.ToString("dd/MM/yyyy")"
+                        data-user="@(item.User?.FullName ?? "Admin")"
+                        data-taker="@item.Taker">
+
+                        <td class="border-light text-white bg-transparent">@item.Title</td>
+                        <td class="text-white-50">
+                            @if (!string.IsNullOrEmpty(item.Summary) && item.Summary.Length > 50)
+                            {
+                                @item.Summary.Substring(0, 50) <text>...</text>
+                            }
+                            else
+                            {
+                                @item.Summary
+                            }
+                        </td>
+                        <td class="text-white">@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge border border-light text-white bg-transparent">
+                                @(item.User?.FullName ?? "Admin")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-end mt-3">
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a href="@Url.Action("StudentAnnouncement", new { pageNumber = Model.PageIndex - 1, searchString = ViewData["CurrentFilter"] })"
+       class="btn btn-outline-light btn-sm mr-2 @prevDisabled">
+        <i class="fa fa-angle-left"></i> Trang trước
+    </a>
+
+    <span class="text-white align-self-center mx-2">
+        Trang @Model.PageIndex / @Model.TotalPages
+    </span>
+
+    <a href="@Url.Action("StudentAnnouncement", new { pageNumber = Model.PageIndex + 1, searchString = ViewData["CurrentFilter"] })"
+       class="btn btn-outline-light btn-sm @nextDisabled">
+        Trang sau <i class="fa fa-angle-right"></i>
+    </a>
+</div>

@@ -73,6 +73,37 @@ namespace StudentPortal.Controllers
                 .OrderBy(s => s.CourseSection.Sessions)
                 .ToListAsync();
 
+            var listEnrollment = await _context.Enrollments
+                .Include(e => e.CourseSection)
+                .ThenInclude(cs => cs.Course)
+                .Where(e => e.StudentId == student.StudentId && e.Status == EnrollmentStatus.Finished)
+                .ToListAsync();
+
+            int totalCredits = listEnrollment.Sum(e => e.CourseSection?.Course?.CourseCredit ?? 0);
+
+            var listScores = await _context.Scores
+                .Where(s => s.StudentId == student.StudentId)
+                .ToListAsync();
+
+            double TotalWeightScore = 0;
+
+            foreach (var enrollment in listEnrollment)
+            {
+                var score = listScores.FirstOrDefault(s => s.CourseSectionId == enrollment.CourseSectionId);
+                TotalWeightScore += score.FinalScore * enrollment.CourseSection.Course.CourseCredit;
+            }
+
+            double totalGPA = 0;
+
+            if (totalCredits > 0)
+            {
+                totalGPA = TotalWeightScore / totalCredits;
+                totalGPA = Math.Round(totalGPA, 2);
+            }
+
+            ViewData["TotalScore"] = totalGPA;
+            ViewData["TotalCredits"] = totalCredits;
+
             ViewData["ListSchedule"] = studentSchedule;
 
             return View();
@@ -147,6 +178,7 @@ namespace StudentPortal.Controllers
                     .ThenInclude(d => d.Faculty)
                     .Include(s => s.User)
                     .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+
                 if (currentStudent == null) return View("Error");
 
                 ViewData["Name"] = currentStudent.User.FullName;
@@ -155,15 +187,37 @@ namespace StudentPortal.Controllers
                 ViewData["Email"] = currentStudent.User.Email;
                 ViewData["Code"] = currentStudent.StudentCode;
                 ViewData["PhoneNumber"] = currentStudent.User.PhoneNumber ?? "Chưa có thông tin";
-                ViewData["Facuty"] = currentStudent.Department.Faculty.FacultyName;
+                ViewData["Faculty"] = currentStudent.Department.Faculty.FacultyName;
 
                 var listEnrollment = await _context.Enrollments
                     .Include(e => e.CourseSection)
                     .ThenInclude(cs => cs.Course)
-                    .Where(e => e.StudentId == currentStudent.StudentId)
+                    .Where(e => e.StudentId == currentStudent.StudentId && e.Status == EnrollmentStatus.Finished)
                     .ToListAsync();
 
                 int totalCredits = listEnrollment.Sum(e => e.CourseSection?.Course?.CourseCredit ?? 0);
+
+                var listScores = await _context.Scores
+                    .Where(s => s.StudentId == currentStudent.StudentId)
+                    .ToListAsync();
+
+                double TotalWeightScore = 0;
+
+                foreach (var enrollment in listEnrollment)
+                {
+                    var score = listScores.FirstOrDefault(s => s.CourseSectionId == enrollment.CourseSectionId);
+                    TotalWeightScore += score.FinalScore * enrollment.CourseSection.Course.CourseCredit;
+                }
+
+                double totalGPA = 0;
+
+                if(totalCredits > 0)
+                {
+                    totalGPA = TotalWeightScore / totalCredits;
+                    totalGPA = Math.Round(totalGPA, 2);
+                }
+
+                ViewData["TotalScore"] = totalGPA;
                 ViewData["TotalCredits"] = totalCredits;
                 ViewData["CourseList"] = listEnrollment;
                 return View();
@@ -209,58 +263,65 @@ namespace StudentPortal.Controllers
             { return View("Error"); }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateProfile(string? FullName, string? PhoneNumber, string? Email)
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
         {
-            try
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            // Tìm Student dựa trên UserId
+            var currentStudent = await _context.Students
+                .Include(s => s.User) // Bắt buộc Include User để lấy Address, FullName...
+                .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+
+            if (currentStudent == null) return NotFound();
+
+            // Trả về PartialView với Model là Student
+            return PartialView("_EditProfileModal", currentStudent);
+        }
+
+        // 2. POST: Cập nhật thông tin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(Student modelInput)
+        {
+            // Lấy User đang đăng nhập (để bảo mật, tránh sửa hồ sơ người khác qua F12)
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Lấy dữ liệu gốc từ DB
+            var studentInDb = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+
+            if (studentInDb != null)
             {
-                var currentUser = await _userManager.GetUserAsync(User);
+                // --- CẬP NHẬT DỮ LIỆU ---
+                // Dữ liệu mới nằm trong modelInput.User...
 
-                if (currentUser == null)
+                studentInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
+                studentInDb.User.City = modelInput.User.City;
+
+                // [QUAN TRỌNG] Address giờ nằm trong User, không phải Student
+                studentInDb.User.Address = modelInput.User.Address;
+
+                // Các trường mới bạn vừa thêm
+                studentInDb.User.Country = modelInput.User.Country;
+
+                // Chỉ cập nhật ngày sinh nếu hợp lệ (không phải ngày mặc định MinValue)
+                if (modelInput.User.DateOfBirth > DateTime.MinValue)
                 {
-                    await _signInManager.SignOutAsync();
-                    return Redirect("/Account/Login");
+                    studentInDb.User.DateOfBirth = modelInput.User.DateOfBirth;
                 }
 
-                bool hasChanges = false;
+                // Lưu thay đổi vào DB
+                _context.Update(studentInDb);
+                await _context.SaveChangesAsync();
 
-                if (!string.IsNullOrEmpty(FullName) && currentUser.FullName != FullName)
-                {
-                    currentUser.FullName = FullName;
-                    hasChanges = true;
-                }
-
-                if (!string.IsNullOrEmpty(PhoneNumber) && currentUser.PhoneNumber != PhoneNumber)
-                {
-                    currentUser.PhoneNumber = PhoneNumber;
-                    hasChanges = true;
-                }
-
-                if (!string.IsNullOrEmpty(Email) && currentUser.Email != Email)
-                {
-                    currentUser.Email = Email;
-                    hasChanges = true;
-                }
-
-                if (hasChanges)
-                {
-                    var result = await _userManager.UpdateAsync(currentUser);
-                    if (result.Succeeded)
-                    {
-                        TempData["Success"] = "Cập nhật thông tin thành công!";
-                    }
-                    else
-                    {
-                        TempData["Error"] = "Có lỗi xảy ra khi lưu dữ liệu.";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return View("Error");
+                return Json(new { success = true });
             }
 
-            return RedirectToAction("Index");
+            // Nếu có lỗi, trả về form cũ
+            return PartialView("_EditProfileModal", modelInput);
         }
     }
 }

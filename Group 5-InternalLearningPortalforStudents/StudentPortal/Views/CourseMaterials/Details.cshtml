@@ -1,0 +1,184 @@
+﻿@model IEnumerable<StudentPortal.Models.CourseMaterial>
+
+@{
+    ViewData["Title"] = ViewData["CourseName"];
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<style>
+    .custom-table {
+        color: white !important;
+    }
+
+        .custom-table thead th {
+            color: #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .custom-table tbody td {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            vertical-align: middle;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            cursor: pointer;
+        }
+
+    /* Input Search */
+    #ajaxSearchInput::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    #ajaxSearchInput:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .btn-action {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container-fluid mt-3">
+    <a href="@Url.Action("Index", "CourseMaterials")" class="text-white-50 mb-3 d-inline-block" style="text-decoration: none;">
+        <i class="fa fa-arrow-left"></i> Quay lại danh sách môn
+    </a>
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card bg-transparent border-0">
+                    <div class="card-body p-0">
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="text-white font-weight-bold m-0">@ViewData["CourseName"]</h4>
+                                <span class="text-white-50 small">Kho tài liệu học tập</span>
+                            </div>
+
+                            <div class="search-wrapper" style="width: 300px;">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-transparent border-light text-white">
+                                            <i class="fa fa-search"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text"
+                                           id="ajaxSearchInput"
+                                           value="@ViewData["CurrentFilter"]"
+                                           class="form-control bg-transparent border-light text-white"
+                                           placeholder="Tìm tên file..."
+                                           autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tableContainer">
+                            <partial name="_MaterialTable" model="Model" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title font-weight-bold text-dark">
+                    <i class="fa fa-file-text-o mr-2"></i>Chi tiết tài liệu
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-white text-dark">
+                <div class="text-center mb-4 mt-2">
+                    <i class="fa fa-cloud-download fa-4x text-primary mb-3"></i>
+                    <h5 id="popupTitle" class="font-weight-bold text-dark px-3"></h5>
+                </div>
+
+                <div class="px-4">
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span class="text-muted font-weight-bold">Ngày đăng:</span>
+                        <span id="popupDate" class="text-dark"></span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span class="text-muted font-weight-bold">Dung lượng:</span>
+                        <span id="popupSize" class="text-dark"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <a id="popupDownloadBtn" href="#" class="btn btn-primary btn-block mx-4" download target="_blank">
+                    <i class="fa fa-download mr-1"></i> Tải xuống ngay
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // 1. Hàm hiển thị Modal
+    function showMaterialModal(element) {
+        // Lấy dữ liệu từ data attributes
+        var title = element.getAttribute('data-title');
+        var date = element.getAttribute('data-date');
+        var url = element.getAttribute('data-url');
+        var size = element.getAttribute('data-size');
+
+        // Gán vào Modal
+        $('#popupTitle').text(title);
+        $('#popupDate').text(date);
+        $('#popupSize').text(size + " MB");
+        $('#popupDownloadBtn').attr('href', url);
+
+        $('#detailModal').modal('show');
+    }
+
+    // 2. Xử lý tìm kiếm AJAX (Debounce)
+    $(document).ready(function () {
+        let typingTimer;
+        const doneTypingInterval = 500;
+        const $input = $('#ajaxSearchInput');
+        const $container = $('#tableContainer');
+        const sectionId = '@ViewData["SectionId"]';
+
+        $input.on('keyup', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        $input.on('keydown', function () {
+            clearTimeout(typingTimer);
+        });
+
+        function doneTyping() {
+            var searchText = $input.val();
+            $.ajax({
+                url: '@Url.Action("Details", "CourseMaterials")',
+                type: 'GET',
+                data: { id: sectionId, searchString: searchText },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                    $container.css("opacity", "0.5");
+                },
+                success: function (result) {
+                    $container.html(result);
+                    $container.css("opacity", "1");
+                },
+                error: function () {
+                    console.log("Error searching files");
+                    $container.css("opacity", "1");
+                }
+            });
+        }
+    });
+</script>

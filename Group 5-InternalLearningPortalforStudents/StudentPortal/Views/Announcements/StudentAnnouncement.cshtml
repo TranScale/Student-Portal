@@ -1,0 +1,175 @@
+﻿@model StudentPortal.Models.PaginatedList<StudentPortal.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Bảng tin thông báo";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-transparent border-0">
+                <div class="card-body p-0">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title text-white m-0">
+                            <i class="zmdi zmdi-notifications-active"></i> Bảng tin Sinh viên
+                        </h5>
+
+                        <div class="search-wrapper" style="width: 300px;">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-light text-white">
+                                    <i class="fa fa-search"></i>
+                                </span>
+                                <input type="text"
+                                       id="ajaxSearchInput"
+                                       value="@ViewData["CurrentFilter"]"
+                                       class="form-control bg-transparent border-light text-white"
+                                       placeholder="Tìm kiếm thông báo..."
+                                       autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tableContainer">
+                        <partial name="_AnnouncementTable" model="Model" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title font-weight-bold text-dark">Chi tiết thông báo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-white text-dark">
+                <div class="form-group row border-bottom pb-2">
+                    <label class="col-sm-2 col-form-label text-muted font-weight-bold">Người gửi:</label>
+                    <div class="col-sm-10 d-flex align-items-center justify-content-between">
+                        <span id="popupUser" class="font-weight-bold text-primary">Admin</span>
+                        <small id="popupDate" class="text-muted">--/--/----</small>
+                    </div>
+                </div>
+                <div class="form-group row border-bottom pb-2">
+                    <label class="col-sm-2 col-form-label text-muted font-weight-bold">Tiêu đề:</label>
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext font-weight-bold text-dark" id="popupTitle">
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label class="text-muted font-weight-bold mb-2">Nội dung chi tiết:</label>
+                    <div class="p-3 bg-light rounded border" style="min-height: 200px;">
+                        <div id="popupContent"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ... Code CSS cũ của bạn ... */
+    .custom-table {
+        color: white !important;
+    }
+
+        .custom-table thead th {
+            color: #e0e0e0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .custom-table tbody td {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            cursor: pointer;
+        }
+
+    #ajaxSearchInput::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    #ajaxSearchInput:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .text-white-50 {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Hàm show modal
+    function showAnnouncementModal(element) {
+        var title = element.getAttribute('data-title');
+        var content = element.getAttribute('data-content');
+        var date = element.getAttribute('data-date');
+        var user = element.getAttribute('data-user');
+
+        document.getElementById('popupTitle').value = title;
+        document.getElementById('popupUser').innerText = user;
+        document.getElementById('popupDate').innerText = date;
+        document.getElementById('popupContent').innerHTML = content;
+
+        $('#detailModal').modal('show');
+    }
+
+    // Xử lý tìm kiếm AJAX với Debounce
+    $(document).ready(function () {
+        let typingTimer;
+        const doneTypingInterval = 500; // Thời gian chờ (0.5 giây)
+        const $input = $('#ajaxSearchInput');
+        const $container = $('#tableContainer');
+
+        // Khi người dùng nhấn phím
+        $input.on('keyup', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        // Khi người dùng nhấn xuống (xóa timer cũ)
+        $input.on('keydown', function () {
+            clearTimeout(typingTimer);
+        });
+
+        // Hàm thực hiện tìm kiếm
+        function doneTyping() {
+            var searchText = $input.val();
+
+            $.ajax({
+                url: '@Url.Action("StudentAnnouncement", "Announcements")',
+                type: 'GET',
+                data: { searchString: searchText },
+                beforeSend: function(xhr) {
+                    // Thêm header để Controller nhận biết đây là AJAX
+                    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                    // Có thể thêm icon loading ở đây nếu muốn
+                    $container.css("opacity", "0.5");
+                },
+                success: function (result) {
+                    $container.html(result);
+                    $container.css("opacity", "1");
+                },
+                error: function () {
+                    console.log("Lỗi khi tìm kiếm");
+                    $container.css("opacity", "1");
+                }
+            });
+        }
+    });
+</script>

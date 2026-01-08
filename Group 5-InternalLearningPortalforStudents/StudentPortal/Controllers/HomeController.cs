@@ -18,20 +18,7 @@ namespace StudentPortal.Controllers
         [Authorize]
         public IActionResult Index()
         {
-            if (User.IsInRole("Admin"))
-            {
-                return View();
-            }
-            if (User.IsInRole("Lecturer"))
-            {
-                return View();
-            }
-
-            if (User.IsInRole("Student"))
-            {
-                return RedirectToAction("StudentIndex", "Dashboard");
-            }
-            return View();
+            return RedirectToAction("Index", "Dashboard");
         }
 
         public IActionResult Privacy()

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentPortal.Data;
 using StudentPortal.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace StudentPortal.Controllers
 {
@@ -19,12 +20,86 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
-        // GET: Announcements
         public async Task<IActionResult> Index()
         {
-            var studentPortalContext = _context.Announcements.Include(a => a.User);
-            return View(await studentPortalContext.ToListAsync());
+            var announcementsQuery = _context.Announcements.Include(a => a.User);
+            var listAnnouncements = await announcementsQuery.ToListAsync();
+
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction(nameof(StudentAnnouncement));
+            }
+            else if (User.IsInRole("Lecturer"))
+            {
+                return RedirectToAction(nameof(LecturerAnnouncement));
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                return View("AdminIndex", listAnnouncements);
+            }
+            return View(listAnnouncements);
         }
+
+        // Đừng quên using StudentPortal.Models;
+
+        public async Task<IActionResult> StudentAnnouncement(string searchString, int? pageNumber)
+        {
+            ViewData["CurrentFilter"] = searchString;
+
+            var announcementsQuery = _context.Announcements
+                                             .Include(a => a.User)
+                                             .Where(a => a.Taker == RecipientType.Student || a.Taker == RecipientType.All)
+                                             .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                announcementsQuery = announcementsQuery.Where(s => s.Title.Contains(searchString)
+                                                                || s.Summary.Contains(searchString));
+            }
+
+            announcementsQuery = announcementsQuery.OrderByDescending(a => a.CreatedDate);
+
+            int pageSize = 20;
+            var pagedData = await PaginatedList<Announcement>.CreateAsync(announcementsQuery, pageNumber ?? 1, pageSize);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_AnnouncementTable", pagedData);
+            }
+
+            return View(pagedData);
+        }
+
+        public async Task<IActionResult> LecturerAnnouncement(string searchString, int? pageNumber)
+        {
+            ViewData["CurrentFilter"] = searchString;
+
+
+            var announcementsQuery = _context.Announcements
+                                             .Include(a => a.User)
+                                             .Where(a => a.Taker == RecipientType.Lecturer || a.Taker == RecipientType.All)
+                                             .AsNoTracking(); 
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                announcementsQuery = announcementsQuery.Where(s => s.Title.Contains(searchString)
+                                                                || s.Summary.Contains(searchString));
+            }
+
+            announcementsQuery = announcementsQuery.OrderByDescending(a => a.CreatedDate);
+
+
+            int pageSize = 20; 
+            var pagedData = await PaginatedList<Announcement>.CreateAsync(announcementsQuery, pageNumber ?? 1, pageSize);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_AnnouncementTable", pagedData);
+            }
+
+            return View(pagedData);
+        }
+
 
         // GET: Announcements/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -48,24 +123,55 @@ namespace StudentPortal.Controllers
         // GET: Announcements/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id"); 
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("Create");
+            }
+
             return View();
         }
 
         // POST: Announcements/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AnnouncementId,Title,Summary,Content,CreatedDate,ExpiredDate,Taker,UserId")] Announcement announcement)
+        public async Task<IActionResult> Create(Announcement announcement)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (currentUserId != null)
+            {
+                announcement.UserId = int.Parse(currentUserId);
+            }
+            else
+            {
+                announcement.UserId = 1;
+            }
+
+            if (announcement.CreatedDate == default) announcement.CreatedDate = DateTime.Now;
+
+            ModelState.Remove("UserId");
+            ModelState.Remove("User");
+
             if (ModelState.IsValid)
             {
                 _context.Add(announcement);
                 await _context.SaveChangesAsync();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true });
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", announcement.UserId);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("Create", announcement);
+            }
+
             return View(announcement);
         }
 
