@@ -6,99 +6,111 @@
 }
 
 <style>
-    .table-hover tbody tr:hover {
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
+    .badge-status-studying {
+        background-color: rgba(23, 162, 184, 0.2);
+        color: #17a2b8;
+        border: 1px solid rgba(23, 162, 184, 0.3);
     }
 
-    .avatar-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
+    .badge-status-graduated {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.3);
     }
 </style>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #fff;">
         <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-white">Danh sách Sinh viên</h2>
-    <a asp-action="Create" class="btn btn-primary shadow-sm">
+    <h2 class="font-weight-bold text-white mb-0">Danh sách Sinh viên</h2>
+    <a asp-action="Create" class="btn btn-light text-primary font-weight-bold shadow-sm">
         <i class="fas fa-user-plus mr-2"></i>Tiếp nhận SV
     </a>
 </div>
 
-<div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover text-light mb-0">
-                <thead style="background-color: rgba(255,255,255,0.1);">
+<div class="glass-panel">
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Mã SV</th>
+                    <th>Họ và Tên</th>
+                    <th>Ngành học</th>
+                    <th>Email</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-right">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
                     <tr>
-                        <th class="border-top-0">Mã SV</th>
-                        <th class="border-top-0">Họ và Tên</th>
-                        <th class="border-top-0">Ngành học</th>
-                        <th class="border-top-0">Email</th>
-                        <th class="border-top-0">Trạng thái</th>
-                        <th class="border-top-0 text-right">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td class="align-middle font-weight-bold">@item.StudentCode</td>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <div class="ml-2">
-                                        <div class="font-weight-bold">@item.User.FullName</div>
-                                        <small class="text-muted">@item.User.PhoneNumber</small>
-                                    </div>
+                        <td>
+                            <span class="badge badge-info p-2">@item.StudentCode</span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="mini-avatar mr-2 bg-primary">
+                                    @(item.User.FullName?.Substring(0, 1) ?? "S")
                                 </div>
-                            </td>
-                            <td class="align-middle">@item.Department.DepartmentName</td>
-                            <td class="align-middle">@item.User.Email</td>
-                            <td class="align-middle">
-                                @if (item.IsGraduate)
-                                {
-                                    <span class="badge badge-success">Đã tốt nghiệp</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-info">Đang theo học</span>
-                                }
-                            </td>
-                            <td class="align-middle text-right">
-                                <a asp-action="Details" asp-route-id="@item.StudentId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Xem hồ sơ">
-                                    <i class="fas fa-eye"></i>
-                                </a>
+                                <div>
+                                    <div class="font-weight-bold text-white">@item.User.FullName</div>
+                                    <div class="small text-white-50">@item.User.PhoneNumber</div>
+                                </div>
+                            </div>
+                        </td>
 
-                                <a asp-action="Edit" asp-route-id="@item.StudentId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
-                                    <i class="fas fa-pen"></i>
-                                </a>
+                        <td>
+                            <div class="font-weight-bold">@item.Department.DepartmentName</div>
+                        </td>
 
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle"
-                                        data-toggle="modal" data-target="#deleteModal"
-                                        onclick="setDeleteId('@item.StudentId', '@item.User.FullName')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                        <td>
+                            <span class="text-white-50">@item.User.Email</span>
+                        </td>
+
+                        <td class="text-center">
+                            @if (item.IsGraduate)
+                            {
+                                <span class="badge badge-status-graduated p-2">Đã tốt nghiệp</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-status-studying p-2">Đang theo học</span>
+                            }
+                        </td>
+
+                        <td class="text-right">
+                            <a asp-action="Details" asp-route-id="@item.StudentId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Xem hồ sơ">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            <a asp-action="Edit" asp-route-id="@item.StudentId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
+                                <i class="fas fa-pen"></i>
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle"
+                                    data-toggle="modal" data-target="#deleteModal"
+                                    onclick="setDeleteId('@item.StudentId', '@item.User.FullName')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content" style="background-color: #1e2130; color: white;">
+        <div class="modal-content" style="background-color: #1e2130; color: white; border: 1px solid rgba(255,255,255,0.1);">
             <div class="modal-header border-bottom-0">
                 <h5 class="modal-title">Xác nhận xóa</h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
