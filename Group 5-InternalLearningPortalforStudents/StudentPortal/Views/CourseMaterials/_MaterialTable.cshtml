@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<StudentPortal.Models.CourseMaterial>
+@using StudentPortal.Helpers @* Quan trọng: Thêm dòng này để dùng được FileHelper *@
 
 @if (Model != null && Model.Any())
 {
@@ -19,9 +20,9 @@
                 }
                 @foreach (var item in Model)
                 {
-                    // Logic xác định icon dựa trên đuôi file trong FileUrl
+                    // Thống nhất logic lấy Icon giống bên Lecturer
                     var extension = System.IO.Path.GetExtension(item.FileUrl)?.ToLower() ?? "";
-                    var iconClass = "fa-file-o"; // Mặc định
+                    var iconClass = "fa-file-o";
 
                     if (extension.Contains("pdf")) { iconClass = "fa-file-pdf-o text-danger"; }
                     else if (extension.Contains("doc")) { iconClass = "fa-file-word-o text-primary"; }
@@ -34,23 +35,29 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <i class="fa @iconClass fa-lg mr-3"></i>
-                                <span class="font-weight-bold">@item.Title</span>
+                                <div>
+                                    <span class="font-weight-bold d-block">@item.Title</span>
+                                    @* Hiện tên file nhỏ ở dưới cho giống Lecturer *@
+                                    <small class="text-white-50">@System.IO.Path.GetFileName(item.FileUrl)</small>
+                                </div>
                             </div>
                         </td>
                         <td>@item.CreationDate.ToString("dd/MM/yyyy")</td>
-                        <td>@item.FileSize MB</td>
+                        @* Dùng Helper để tính dung lượng đồng nhất *@
+                        <td>@FileHelper.FormatFileSize(item.FileSize)</td>
                         <td class="text-center">
                             <button type="button"
                                     class="btn btn-sm btn-outline-light btn-action mr-1"
                                     data-title="@item.Title"
                                     data-date="@item.CreationDate.ToString("dd/MM/yyyy HH:mm")"
                                     data-url="@item.FileUrl"
-                                    data-size="@item.FileSize"
+                                    data-size="@FileHelper.FormatFileSize(item.FileSize)"
                                     onclick="showMaterialModal(this)">
                                 <i class="fa fa-info-circle"></i> Chi tiết
                             </button>
 
-                            <a href="@item.FileUrl" download target="_blank" class="btn btn-sm btn-light btn-action text-dark">
+                            <a asp-action="DownloadFile" asp-route-id="@item.CourseMaterialId"
+                               class="btn btn-sm btn-light btn-action text-dark">
                                 <i class="fa fa-download"></i>
                             </a>
                         </td>

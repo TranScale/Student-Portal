@@ -264,6 +264,63 @@ namespace StudentPortal.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> EditLecturerProfile()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            // Tìm Lecturer dựa trên UserId, kèm theo thông tin User
+            var currentLecturer = await _context.Lecturers
+                .Include(l => l.User)
+                .Include(l => l.Faculty)
+                .FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
+
+            if (currentLecturer == null) return NotFound();
+
+            // Trả về PartialView riêng cho Giảng viên
+            return PartialView("_EditLecturerProfileModal", currentLecturer);
+        }
+
+        // 2. POST: Cập nhật thông tin Giảng viên
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> UpdateLecturerProfile(Lecturer modelInput)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // Lấy dữ liệu gốc từ DB
+            var lecturerInDb = await _context.Lecturers
+                .Include(l => l.User)
+                .FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
+
+            if (lecturerInDb != null)
+            {
+
+                lecturerInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
+                lecturerInDb.User.City = modelInput.User.City;
+                lecturerInDb.User.Address = modelInput.User.Address;
+                lecturerInDb.User.Country = modelInput.User.Country;
+
+                // Validate ngày sinh
+                if (modelInput.User.DateOfBirth > DateTime.MinValue)
+                {
+                    lecturerInDb.User.DateOfBirth = modelInput.User.DateOfBirth;
+                }
+
+                // Lưu thay đổi
+                _context.Update(lecturerInDb);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+
+            // Nếu lỗi, trả về lại form
+            return PartialView("_EditLecturerProfileModal", modelInput);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> EditProfile()
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -271,12 +328,11 @@ namespace StudentPortal.Controllers
 
             // Tìm Student dựa trên UserId
             var currentStudent = await _context.Students
-                .Include(s => s.User) // Bắt buộc Include User để lấy Address, FullName...
+                .Include(s => s.User) 
                 .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
 
             if (currentStudent == null) return NotFound();
 
-            // Trả về PartialView với Model là Student
             return PartialView("_EditProfileModal", currentStudent);
         }
 

@@ -5,6 +5,12 @@
     var listCourses = ViewData["CourseList"] as List<StudentPortal.Models.CourseSection>;
 }
 
+<style>
+    .nav-link {
+        cursor: pointer;
+    }
+</style>
+
 <div class="row mt-3">
     <div class="col-lg-12">
         <div class="card">
@@ -36,12 +42,15 @@
             <div class="card-body border-top">
                 <ul class="nav nav-pills nav-pills-primary">
                     <li class="nav-item">
-                        <a href="javascript:void();" class="nav-link active"><i class="icon-user"></i> Hồ sơ cá nhân</a>
+                        <a href="javascript:void(0);" class="nav-link active"><i class="icon-user"></i> Hồ sơ cá nhân</a>
                     </li>
                     <li class="nav-item">
-                        <a href="javascript:void();" class="nav-link"><i class="icon- "></i> Thông tin cá nhân </a>
+                        <a href="javascript:void(0);" onclick="openProfileModal()" class="nav-link">
+                            <i class="fa fa-pencil-square-o"></i> Cập nhật thông tin
+                        </a>
                     </li>
                 </ul>
+                <div id="modal-placeholder"></div>
             </div>
         </div>
     </div>
@@ -78,20 +87,6 @@
 
     <div class="col-lg-8">
         <div class="row mt-3">
-            @* <div class="col-12 col-lg-6">
-                <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-white">Điểm TB Tích lũy</p>
-                                <h4 class="mb-0 text-white mt-2">3.42</h4>
-                            </div>
-                            <div class="ml-auto font-35 text-white"><i class="fa fa-graduation-cap"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div> *@
-
             <div class="col-12 col-lg-6">
                 <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
                     <div class="card-body">
@@ -109,7 +104,7 @@
 
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Danh sách các môn học</h5>
+                <h5 class="card-title">Danh sách các môn học (Giảng dạy)</h5>
 
                 <div class="table-responsive custom-table-scroll">
                     <table class="table table-hover">
@@ -136,7 +131,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center">Giảng viên chưa đăng ký môn học nào.</td>
+                                    <td colspan="3" class="text-center">Giảng viên chưa đăng ký môn học nào.</td>
                                 </tr>
                             }
                         </tbody>
@@ -146,3 +141,43 @@
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function openProfileModal() {
+        // LƯU Ý: Đại ca nhớ tạo Action "EditLecturerProfile" trong DashboardController
+        // hoặc trỏ đúng đường dẫn form sửa của giảng viên nhé.
+        $.get('/Dashboard/EditLecturerProfile', function (data) {
+            $('#modal-placeholder').html(data);
+
+            // Vì ID modal có thể nằm trong Partial View trả về,
+            // đảm bảo Partial View có <div id="profileModal" ...>
+            $('#profileModal').modal('show');
+
+            // Xử lý khi bấm nút Save (POST)
+            $('#editProfileForm').submit(function (e) {
+                e.preventDefault(); // Chặn load lại trang
+
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Tắt modal và reload trang để thấy thông tin mới
+                            $('#profileModal').modal('hide');
+                            location.reload();
+                        } else {
+                            // Nếu lỗi (validate), nó sẽ trả về lại form html kèm lỗi
+                            $('#modal-placeholder').html(response);
+                        }
+                    },
+                    error: function() {
+                        alert("Lỗi hệ thống, vui lòng thử lại sau!");
+                    }
+                });
+            });
+        });
+    }
+</script>

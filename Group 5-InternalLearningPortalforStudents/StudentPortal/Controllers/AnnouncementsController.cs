@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentPortal.Data;
@@ -14,10 +15,12 @@ namespace StudentPortal.Controllers
     public class AnnouncementsController : Controller
     {
         private readonly StudentPortalContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public AnnouncementsController(StudentPortalContext context)
+        public AnnouncementsController(StudentPortalContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -70,15 +73,23 @@ namespace StudentPortal.Controllers
             return View(pagedData);
         }
 
-        public async Task<IActionResult> LecturerAnnouncement(string searchString, int? pageNumber)
+        public async Task<IActionResult> LecturerAnnouncement(string searchString, int? pageNumber, bool showMyOnly = false)
         {
             ViewData["CurrentFilter"] = searchString;
-
+            ViewData["ShowMyOnly"] = showMyOnly; // Lưu trạng thái để View biết
 
             var announcementsQuery = _context.Announcements
                                              .Include(a => a.User)
                                              .Where(a => a.Taker == RecipientType.Lecturer || a.Taker == RecipientType.All)
-                                             .AsNoTracking(); 
+                                             .AsNoTracking();
+
+            // --- LOGIC MỚI: Lọc thông báo của tôi ---
+            if (showMyOnly)
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                announcementsQuery = announcementsQuery.Where(a => a.UserId == currentUser.Id);
+            }
+            // ----------------------------------------
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -88,8 +99,7 @@ namespace StudentPortal.Controllers
 
             announcementsQuery = announcementsQuery.OrderByDescending(a => a.CreatedDate);
 
-
-            int pageSize = 20; 
+            int pageSize = 20;
             var pagedData = await PaginatedList<Announcement>.CreateAsync(announcementsQuery, pageNumber ?? 1, pageSize);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -261,6 +271,38 @@ namespace StudentPortal.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        // --- THÊM ĐOẠN NÀY VÀO CUỐI CONTROLLER ---
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAjax(int id)
+        {
+            // 1. Tìm bài viết
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy thông báo này!" });
+            }
+
+            // 2. Kiểm tra quyền (Chính chủ hoặc Admin mới được xóa)
+            // Lấy ID người đang đăng nhập
+            var currentUserId = _userManager.GetUserId(User);
+
+            // So sánh: Nếu ID người tạo bài KHÁC ID người đang nhập VÀ không phải Admin -> Chặn
+            // Lưu ý: announcement.UserId là int, currentUserId là string nên phải chuyển đổi để so sánh
+            if (announcement.UserId.ToString() != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Json(new { success = false, message = "Bạn không có quyền xóa bài viết của người khác!" });
+            }
+
+            // 3. Xóa và Lưu
+            _context.Announcements.Remove(announcement);
+            await _context.SaveChangesAsync();
+
+            // 4. Trả về thành công
+            return Json(new { success = true, message = "Đã xóa thành công!" });
+        }
+
 
         private bool AnnouncementExists(int id)
         {

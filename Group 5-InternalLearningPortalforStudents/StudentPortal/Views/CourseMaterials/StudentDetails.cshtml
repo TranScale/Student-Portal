@@ -163,7 +163,7 @@
         function doneTyping() {
             var searchText = $input.val();
             $.ajax({
-                url: '@Url.Action("Details", "CourseMaterials")',
+                url: '@Url.Action("StudentDetails", "CourseMaterials")',
                 type: 'GET',
                 data: { id: sectionId, searchString: searchText },
                 beforeSend: function(xhr) {

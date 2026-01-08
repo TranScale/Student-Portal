@@ -1,0 +1,315 @@
+﻿@{
+    ViewData["Title"] = "Quản lý lớp học phần";
+    Layout = "~/Views/Shared/_LecturerLayout.cshtml";
+
+    // Ép kiểu dữ liệu nhận về là List<CourseSection>
+    var myClasses = ViewData["MyClasses"] as List<StudentPortal.Models.CourseSection>;
+
+    string[] patterns = { "pattern-blue", "pattern-purple", "pattern-orange", "pattern-green", "pattern-yellow" };
+    int index = 0;
+}
+
+<style>
+    /* --- CSS CŨ GIỮ NGUYÊN --- */
+    .section-badge {
+        background: rgba(255, 255, 255, 0.95);
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .course-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+    .course-pattern {
+        height: 100px;
+        width: 100%;
+        display: block;
+        position: relative;
+    }
+
+    .pattern-purple {
+        background: repeating-linear-gradient(45deg, #6a5acd, #6a5acd 10px, #7b68ee 10px, #7b68ee 20px);
+    }
+
+    .pattern-orange {
+        background-color: #ffdead;
+        background-image: radial-gradient(circle, #f4a460 10%, transparent 11%);
+        background-size: 50px 50px;
+    }
+
+    .pattern-yellow {
+        background-color: #ffd700;
+        background-image: linear-gradient(30deg, #f0e68c 12%, transparent 12.5%, transparent 87%, #f0e68c 87.5%, #f0e68c);
+        background-size: 40px 70px;
+    }
+
+    .pattern-green {
+        background-color: #3cb371;
+        background-image: linear-gradient(135deg, #2e8b57 25%, transparent 25%);
+        background-size: 40px 40px;
+    }
+
+    .pattern-blue {
+        background-color: #1e90ff;
+        opacity: 0.8;
+        background-image: linear-gradient(#4682b4 2px, transparent 2px), linear-gradient(90deg, #4682b4 2px, transparent 2px);
+        background-size: 50px 50px;
+    }
+
+    .course-body {
+        padding: 15px;
+        color: white;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* --- CSS MỚI CHO THANH TOOLBAR (MÔ PHỎNG LỊCH GIẢNG DẠY) --- */
+
+    /* Khung bao ngoài của thanh lọc */
+    .filter-toolbar {
+        background: rgba(0, 0, 0, 0.25); /* Nền tối mờ */
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px; /* Khoảng cách giữa các ô */
+    }
+
+    /* Style chung cho Input và Select trong suốt */
+    .form-control-glass {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 6px;
+        height: 40px;
+        padding-left: 40px; /* Chừa chỗ bên trái cho icon */
+    }
+
+        .form-control-glass:focus {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: none;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .form-control-glass::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Select option màu đen để dễ đọc */
+        .form-control-glass option {
+            color: #333;
+            background: white;
+        }
+
+    /* Wrapper để đặt icon nằm đè lên input */
+    .input-icon-wrapper {
+        position: relative;
+        flex-grow: 1;
+        min-width: 200px;
+    }
+
+        /* Icon bên trong input */
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+    /* Nút Sắp xếp style kính */
+    .btn-glass {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        height: 40px;
+        display: flex;
+        align-items: center;
+        border-radius: 6px;
+    }
+
+        .btn-glass:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            text-decoration: none;
+        }
+</style>
+
+<div class="container-fluid mt-3">
+
+    <div class="row mb-2">
+        <div class="col-12">
+            <h3 class="text-white font-weight-bold">
+                <i class="fas fa-chalkboard-teacher mr-2"></i> Lớp giảng dạy
+            </h3>
+        </div>
+    </div>
+
+    <form asp-action="LecturerIndex" method="get">
+        <div class="filter-toolbar">
+
+            <div class="input-icon-wrapper" style="flex: 2;">
+                <i class="fas fa-calendar-alt"></i>
+                <select name="semesterId"
+                        class="form-control form-control-glass"
+                        asp-items="@(ViewData["SemesterList"] as SelectList)"
+                        onchange="this.form.submit()">
+                    <option value="">-- Tất cả học kỳ --</option>
+                </select>
+            </div>
+
+            <div class="input-icon-wrapper" style="flex: 3;">
+                <i class="fas fa-search"></i>
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                       class="form-control form-control-glass"
+                       placeholder="Tìm môn học, phòng học...">
+                <button type="submit" style="display: none;"></button>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-glass dropdown-toggle px-3" data-toggle="dropdown">
+                    <i class="fas fa-sort-alpha-down mr-2"></i> Sắp xếp
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow">
+                    <a class="dropdown-item" href="@Url.Action("LecturerIndex", new { sortOrder = "", searchString = ViewData["CurrentFilter"], semesterId = ViewData["CurrentSemester"] })">
+                        <i class="fas fa-sort-alpha-down mr-2 text-primary"></i> Tên môn (A-Z)
+                    </a>
+                    <a class="dropdown-item" href="@Url.Action("LecturerIndex", new { sortOrder = "name_desc", searchString = ViewData["CurrentFilter"], semesterId = ViewData["CurrentSemester"] })">
+                        <i class="fas fa-sort-alpha-up mr-2 text-danger"></i> Tên môn (Z-A)
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row">
+        @if (myClasses != null && myClasses.Any())
+        {
+            @foreach (var item in myClasses)
+            {
+                string currentPattern = patterns[index % patterns.Length];
+                index++;
+
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+                    <div class="card card-transparent course-card h-100">
+                        <div class="course-pattern @currentPattern">
+                            <div style="position:absolute; top:10px; right:10px;">
+                                <span class="badge badge-dark opacity-75 shadow-sm">@item.Course.CourseCredit TC</span>
+                            </div>
+
+                            <div style="position:absolute; bottom:10px; left:15px;">
+                                <span class="section-badge">
+                                    <i class="fas fa-door-open mr-2 text-primary"></i>
+                                    Phòng @item.Room
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body course-body">
+                            <div>
+                                <h5 class="course-title">
+                                    <a href="@Url.Action("LecturerDetails", "CourseMaterials", new { id = item.CourseSectionId })" class="text-white" style="text-decoration:none;">
+                                        [@item.Course.CourseCode] @item.Course.CourseName
+                                    </a>
+                                </h5>
+
+                                <div class="schedule-info mt-2">
+                                    @{
+                                        // 1. Lấy số Ca (bỏ chữ "Ca" đi)
+                                        var sessionNo = item.Sessions.ToString().Replace("Ca", "");
+
+                                        // 2. Xử lý danh sách Thứ
+                                        var rawDays = item.Days.ToString().Split(',');
+                                        var vnDays = new List<string>();
+
+                                        foreach (var day in rawDays)
+                                        {
+                                            var d = day.Trim();
+                                            switch (d)
+                                            {
+                                                case "Monday": vnDays.Add("Thứ 2"); break;
+                                                case "Tuesday": vnDays.Add("Thứ 3"); break;
+                                                case "Wednesday": vnDays.Add("Thứ 4"); break;
+                                                case "Thursday": vnDays.Add("Thứ 5"); break;
+                                                case "Friday": vnDays.Add("Thứ 6"); break;
+                                                case "Saturday": vnDays.Add("Thứ 7"); break;
+                                                case "Sunday": vnDays.Add("CN"); break;
+                                                default: vnDays.Add(d); break;
+                                            }
+                                        }
+                                        string displayDays = string.Join(", ", vnDays);
+                                    }
+
+                                    <div class="d-flex align-items-center text-truncate" title="@displayDays - Ca @sessionNo">
+                                        <i class="far fa-clock mr-2 text-white-50"></i>
+                                        <span class="text-nowrap" style="font-size: 0.95rem;">
+                                            @displayDays - Ca @sessionNo
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 pt-3 border-top border-white-50 d-flex justify-content-between align-items-center">
+                                <small class="text-white-50 font-weight-bold">
+                                    <i class="fas fa-calendar-alt"></i> HK: @(item.Semester?.SemesterName ?? "N/A")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-white mt-5">
+                <div class="mb-3">
+                    <span class="fa-stack fa-2x">
+                        <i class="fas fa-circle fa-stack-2x text-white-50"></i>
+                        <i class="fas fa-chalkboard fa-stack-1x text-dark"></i>
+                    </span>
+                </div>
+                <h5>Hiện chưa có lớp học phần nào được phân công.</h5>
+                <p class="text-white-50">Danh sách lớp bạn giảng dạy sẽ hiển thị tại đây.</p>
+                <a href="@Url.Action("LecturerIndex")" class="btn btn-outline-light btn-sm mt-2">Làm mới trang</a>
+            </div>
+        }
+    </div>
+</div>

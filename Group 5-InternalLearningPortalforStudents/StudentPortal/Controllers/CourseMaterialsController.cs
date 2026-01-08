@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting; // Cần thiết để xử lý file
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,102 +9,85 @@ using StudentPortal.Data;
 using StudentPortal.Models;
 using System;
 using System.Collections.Generic;
+using System.IO; // Cần thiết để xử lý đường dẫn
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace StudentPortal.Controllers
 {
+    [Authorize]
     public class CourseMaterialsController : Controller
     {
         private readonly StudentPortalContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment; // Inject môi trường để lấy đường dẫn wwwroot
 
-        public CourseMaterialsController(StudentPortalContext context, UserManager<User> userManager)
+        public CourseMaterialsController(StudentPortalContext context, UserManager<User> userManager, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index ()
+        // ================= ĐIỀU HƯỚNG CHUNG =================
+        public IActionResult Index()
         {
-            if(User.IsInRole("Student"))
-            {
-                return RedirectToAction(nameof(StudentIndex));
-            }
+            if (User.IsInRole("Student")) return RedirectToAction(nameof(StudentIndex));
+            if (User.IsInRole("Lecturer")) return RedirectToAction("LecturerIndex"); // Chuyển đến LecturerIndex trong controller này
             return View();
         }
 
-        // GET: CourseMaterials
-        // Thêm 2 tham số: searchString (từ khóa tìm kiếm) và sortOrder (kiểu sắp xếp)
+        // ================= KHU VỰC SINH VIÊN =================
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> StudentIndex(string searchString, string sortOrder)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return RedirectToAction("Login", "Account");
 
-            var currentStudent = await _context.Students
-                .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
-
+            var currentStudent = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
             if (currentStudent == null) return NotFound();
 
-            // 1. Tạo câu truy vấn (chưa chạy xuống DB ngay, để còn filter tiếp)
             var enrollmentsQuery = _context.Enrollments
-                .Include(e => e.CourseSection)
-                .ThenInclude(cs => cs.Course)
+                .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
                 .Where(e => e.StudentId == currentStudent.StudentId)
-                .AsQueryable(); // Chuyển sang Queryable để nối thêm điều kiện
+                .AsQueryable();
 
-            // 2. Xử lý TÌM KIẾM (Nếu có từ khóa)
             if (!string.IsNullOrEmpty(searchString))
             {
-                // Tìm theo Tên môn học HOẶC Mã môn học
                 enrollmentsQuery = enrollmentsQuery.Where(e =>
                     e.CourseSection.Course.CourseName.Contains(searchString) ||
                     e.CourseSection.Course.CourseCode.Contains(searchString));
             }
 
-            // 3. Xử lý SẮP XẾP
-            // Lưu trạng thái sắp xếp để View biết đang sort kiểu gì
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-
             switch (sortOrder)
             {
-                case "name_desc": // Z-A
-                    enrollmentsQuery = enrollmentsQuery.OrderByDescending(e => e.CourseSection.Course.CourseName);
-                    break;
-                default: // Mặc định là A-Z
-                    enrollmentsQuery = enrollmentsQuery.OrderBy(e => e.CourseSection.Course.CourseName);
-                    break;
+                case "name_desc": enrollmentsQuery = enrollmentsQuery.OrderByDescending(e => e.CourseSection.Course.CourseName); break;
+                default: enrollmentsQuery = enrollmentsQuery.OrderBy(e => e.CourseSection.Course.CourseName); break;
             }
 
-            // 4. Thực thi truy vấn và lấy dữ liệu
-            var enrollments = await enrollmentsQuery.ToListAsync();
-
-            // Lưu lại từ khóa tìm kiếm để hiển thị lại trên ô input
             ViewData["CurrentFilter"] = searchString;
-            ViewData["Courses"] = enrollments;
-
+            ViewData["Courses"] = await enrollmentsQuery.ToListAsync();
             return View();
         }
-        // Trong CourseMaterialsController
-        public async Task<IActionResult> Details(int? id, string searchString)
+
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> StudentDetails(int? id, string searchString)
         {
             if (id == null) return NotFound();
 
-            // 1. Lấy thông tin Lớp học phần (để hiện tên trên header)
             var courseSection = await _context.CoursesSections
                 .Include(cs => cs.Course)
                 .FirstOrDefaultAsync(m => m.CourseSectionId == id);
 
             if (courseSection == null) return NotFound();
 
-            // 2. Query lấy danh sách FILE (CourseMaterial)
-            // Chỉ lấy file IsPublic = true
+            // Sinh viên chỉ thấy file Public
             var materialsQuery = _context.CoursesMaterials
                 .Where(m => m.CourseSectionId == id && m.IsPublic == true)
-                .OrderByDescending(m => m.CreationDate) // Mới nhất lên đầu
+                .OrderByDescending(m => m.CreationDate)
                 .AsQueryable();
 
-            // 3. Xử lý tìm kiếm (Theo Title)
             if (!string.IsNullOrEmpty(searchString))
             {
                 materialsQuery = materialsQuery.Where(s => s.Title.Contains(searchString));
@@ -109,134 +95,212 @@ namespace StudentPortal.Controllers
 
             var materials = await materialsQuery.ToListAsync();
 
-            // 4. Nếu là AJAX (gõ tìm kiếm) -> Trả về PartialView bảng
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
+                // Trả về PartialView nếu dùng AJAX search
                 return PartialView("_MaterialTable", materials);
             }
 
-            // 5. Trả về View chính
             ViewData["CourseName"] = $"[{courseSection.Course.CourseCode}] {courseSection.Course.CourseName}";
-            ViewData["SectionId"] = id; // Lưu ID để giữ context khi search
+            ViewData["SectionId"] = id;
             ViewData["CurrentFilter"] = searchString;
 
             return View(materials);
         }
 
-        // GET: CourseMaterials/Create
-        public IActionResult Create()
+        // ================= KHU VỰC GIẢNG VIÊN =================
+
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> LecturerIndex(string searchString, string sortOrder, int? semesterId)
         {
-            ViewData["CourseSectionId"] = new SelectList(_context.CoursesSections, "CourseSectionId", "Room");
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            var currentLecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
+            if (currentLecturer == null) return NotFound();
+
+            var sectionsQuery = _context.CoursesSections
+                .Include(cs => cs.Course)
+                .Include(cs => cs.Semester)
+                .Where(cs => cs.LecturerId == currentLecturer.LecturerId)
+                .AsQueryable();
+
+            var semesters = await _context.Semesters.OrderByDescending(s => s.SemesterId).ToListAsync();
+            ViewData["SemesterList"] = new SelectList(semesters, "SemesterId", "SemesterName", semesterId);
+            ViewData["CurrentSemester"] = semesterId;
+
+            if (semesterId.HasValue && semesterId.Value > 0)
+            {
+                sectionsQuery = sectionsQuery.Where(cs => cs.SemesterId == semesterId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                sectionsQuery = sectionsQuery.Where(cs =>
+                    cs.Course.CourseName.Contains(searchString) ||
+                    cs.Course.CourseCode.Contains(searchString));
+            }
+
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["CurrentFilter"] = searchString;
+
+            switch (sortOrder)
+            {
+                case "name_desc": sectionsQuery = sectionsQuery.OrderByDescending(cs => cs.Course.CourseName); break;
+                default: sectionsQuery = sectionsQuery.OrderBy(cs => cs.Course.CourseName); break;
+            }
+
+            ViewData["MyClasses"] = await sectionsQuery.ToListAsync();
             return View();
         }
 
-        // POST: CourseMaterials/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseMaterialId,Title,FileUrl,FileSize,CreationDate,IsPublic,CourseSectionId")] CourseMaterial courseMaterial)
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> LecturerDetails(int? id, string searchString)
         {
-            if (ModelState.IsValid)
+            if (id == null) return NotFound();
+
+            var courseSection = await _context.CoursesSections
+                .Include(cs => cs.Course)
+                .FirstOrDefaultAsync(m => m.CourseSectionId == id);
+
+            if (courseSection == null) return NotFound();
+
+            // Giảng viên thấy tất cả tài liệu (cả Public và Private)
+            var materialsQuery = _context.CoursesMaterials
+                .Where(m => m.CourseSectionId == id)
+                .OrderByDescending(m => m.CreationDate)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
             {
-                _context.Add(courseMaterial);
+                materialsQuery = materialsQuery.Where(s => s.Title.Contains(searchString));
+            }
+
+            var materials = await materialsQuery.ToListAsync();
+
+            ViewData["CourseName"] = $"[{courseSection.Course.CourseCode}] {courseSection.Course.CourseName}";
+            ViewData["SectionId"] = id;
+            ViewData["CurrentFilter"] = searchString;
+
+            // Bạn cần tạo View LecturerDetails.cshtml (tương tự StudentDetails nhưng có nút Upload/Delete)
+            return View(materials);
+        }
+
+        // Action xử lý Upload File (Thay thế cho Create cũ)
+        [HttpPost]
+        [Authorize(Roles = "Lecturer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadMaterial(int sectionId, IFormFile file, string displayTitle)
+        {
+            if (file != null && file.Length > 0)
+            {
+                // 1. Tạo tên file duy nhất để tránh trùng lặp trên server
+                var originalFileName = Path.GetFileName(file.FileName);
+                var fileExtension = Path.GetExtension(originalFileName);
+                var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}"; // Tên mã hóa
+
+                // 2. Xác định đường dẫn lưu
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "materials");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // 3. Lưu file vật lý
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // 4. Lưu vào DB (Map vào Model hiện có của bạn)
+                var material = new CourseMaterial
+                {
+                    Title = string.IsNullOrEmpty(displayTitle) ? originalFileName : displayTitle,
+                    FileUrl = uniqueFileName, // Lưu tên file mã hóa vào cột FileUrl
+
+                    // Lưu Bytes. View của bạn đang chia cho 1024*1024 nên ở đây phải lưu Bytes gốc.
+                    FileSize = (float)file.Length,
+
+                    CreationDate = DateTime.Now,
+                    IsPublic = true,
+                    CourseSectionId = sectionId
+                };
+
+                _context.Add(material);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseSectionId"] = new SelectList(_context.CoursesSections, "CourseSectionId", "Room", courseMaterial.CourseSectionId);
-            return View(courseMaterial);
+
+            return RedirectToAction(nameof(LecturerDetails), new { id = sectionId });
         }
 
-        // GET: CourseMaterials/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var courseMaterial = await _context.CoursesMaterials.FindAsync(id);
-            if (courseMaterial == null)
-            {
-                return NotFound();
-            }
-            ViewData["CourseSectionId"] = new SelectList(_context.CoursesSections, "CourseSectionId", "Room", courseMaterial.CourseSectionId);
-            return View(courseMaterial);
-        }
-
-        // POST: CourseMaterials/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Action xử lý Xóa File (Thay thế cho Delete cũ)
         [HttpPost]
+        [Authorize(Roles = "Lecturer")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseMaterialId,Title,FileUrl,FileSize,CreationDate,IsPublic,CourseSectionId")] CourseMaterial courseMaterial)
+        public async Task<IActionResult> DeleteMaterial(int id, int sectionId)
         {
-            if (id != courseMaterial.CourseMaterialId)
+            var material = await _context.CoursesMaterials.FindAsync(id);
+            if (material != null)
             {
-                return NotFound();
-            }
+                // 1. Xóa file vật lý
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "materials");
+                var filePath = Path.Combine(uploadsFolder, material.FileUrl);
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (System.IO.File.Exists(filePath))
                 {
-                    _context.Update(courseMaterial);
-                    await _context.SaveChangesAsync();
+                    System.IO.File.Delete(filePath);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CourseMaterialExists(courseMaterial.CourseMaterialId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+
+                // 2. Xóa dữ liệu DB
+                _context.CoursesMaterials.Remove(material);
+                await _context.SaveChangesAsync();
             }
-            ViewData["CourseSectionId"] = new SelectList(_context.CoursesSections, "CourseSectionId", "Room", courseMaterial.CourseSectionId);
-            return View(courseMaterial);
+
+            return RedirectToAction(nameof(LecturerDetails), new { id = sectionId });
         }
 
-        // GET: CourseMaterials/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // Action tải file (Dùng chung)
+        [Authorize]
+        public async Task<IActionResult> DownloadFile(int id)
         {
-            if (id == null)
+            var material = await _context.CoursesMaterials.FindAsync(id);
+            if (material == null) return NotFound();
+
+            // Đảm bảo đường dẫn này khớp 100% với thư mục bạn lưu file khi Upload
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "materials", material.FileUrl);
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("File không tồn tại trên hệ thống. Kiểm tra thư mục: " + filePath);
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+            // Lấy phần mở rộng từ FileUrl (ví dụ: .docx)
+            var extension = Path.GetExtension(material.FileUrl);
+
+            // Kiểm tra nếu Title của bạn đã chứa đuôi file chưa để tránh: Hehehe.docx.docx
+            var downloadName = material.Title;
+            if (!downloadName.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
             {
-                return NotFound();
+                downloadName += extension;
             }
 
-            var courseMaterial = await _context.CoursesMaterials
-                .Include(c => c.CourseSection)
-                .FirstOrDefaultAsync(m => m.CourseMaterialId == id);
-            if (courseMaterial == null)
-            {
-                return NotFound();
-            }
-
-            return View(courseMaterial);
+            // Xác định MIME type (nếu không biết rõ dùng application/octet-stream)
+            return File(fileBytes, "application/octet-stream", downloadName);
         }
 
-        // POST: CourseMaterials/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        // Action hỗ trợ AJAX Search cho Giảng viên (nếu cần)
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> GetMaterialsTable(int sectionId, string searchString)
         {
-            var courseMaterial = await _context.CoursesMaterials.FindAsync(id);
-            if (courseMaterial != null)
+            var query = _context.CoursesMaterials.Where(m => m.CourseSectionId == sectionId);
+            if (!string.IsNullOrEmpty(searchString))
             {
-                _context.CoursesMaterials.Remove(courseMaterial);
+                query = query.Where(m => m.Title.Contains(searchString));
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var materials = await query.OrderByDescending(m => m.CreationDate).ToListAsync();
+            if(User.IsInRole("Student")) return PartialView("_MaterialTable", materials);
+            if (User.IsInRole("Lecturer")) return PartialView("_LecturerMaterialTable", materials);
 
-        private bool CourseMaterialExists(int id)
-        {
-            return _context.CoursesMaterials.Any(e => e.CourseMaterialId == id);
+            return View();
         }
     }
 }

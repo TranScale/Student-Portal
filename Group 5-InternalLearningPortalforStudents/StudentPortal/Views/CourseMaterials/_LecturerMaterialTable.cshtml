@@ -1,0 +1,96 @@
+﻿@model IEnumerable<StudentPortal.Models.CourseMaterial>
+
+<div class="table-responsive">
+    <table class="table table-glass">
+        <thead>
+            <tr>
+                <th style="width: 40%;">Tên tài liệu</th>
+                <th style="width: 15%;">Ngày đăng</th>
+                <th style="width: 15%;">Dung lượng</th>
+                <th style="width: 15%;">Loại file</th>
+                <th style="width: 15%; text-align: right;">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @* 1. Dùng FileUrl để check đuôi file *@
+                                @if (item.FileUrl.EndsWith(".pdf"))
+                                {
+                                    <i class="fa fa-file-pdf-o text-danger mr-3 fa-lg"></i>
+                                }
+                                else if (item.FileUrl.EndsWith(".doc") || item.FileUrl.EndsWith(".docx"))
+                                {
+                                    <i class="fa fa-file-word-o text-primary mr-3 fa-lg"></i>
+                                }
+                                else if (item.FileUrl.EndsWith(".xls") || item.FileUrl.EndsWith(".xlsx"))
+                                {
+                                    <i class="fa fa-file-excel-o text-success mr-3 fa-lg"></i>
+                                }
+                                else if (item.FileUrl.EndsWith(".ppt") || item.FileUrl.EndsWith(".pptx"))
+                                {
+                                    <i class="fa fa-file-powerpoint-o text-warning mr-3 fa-lg"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-file-o text-info mr-3 fa-lg"></i>
+                                }
+
+                                <div>
+                                    <span class="font-weight-bold d-block">@item.Title</span>
+
+                                    @* 2. Lấy tên file từ đường dẫn FileUrl *@
+                                    <small class="text-white-50">
+                                        @System.IO.Path.GetFileName(item.FileUrl)
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+
+                        @* 3. Sửa UploadDate thành CreationDate *@
+                        <td>@item.CreationDate.ToString("dd/MM/yyyy")</td>
+
+                        <td>
+                            @{
+                                // Giả định FileSize trong DB lưu là Bytes (như code Controller trước đó)
+                                var size = (item.FileSize / 1024f / 1024f).ToString("0.00");
+                            }
+                            @size MB
+                        </td>
+
+                        @* Lấy đuôi file từ FileUrl *@
+                        <td>@System.IO.Path.GetExtension(item.FileUrl).ToUpper()</td>
+
+                        <td class="text-right">
+                            @* 4. Sửa MaterialId thành CourseMaterialId *@
+                            <a href="@Url.Action("DownloadFile", "CourseMaterials", new { id = item.CourseMaterialId })"
+                               class="btn btn-icon btn-light text-dark" title="Tải xuống" target="_blank">
+                                <i class="fa fa-download"></i>
+                            </a>
+
+                            @* 4. Sửa MaterialId thành CourseMaterialId *@
+                            <button type="button" class="btn btn-icon btn-danger text-white"
+                                    onclick="confirmDelete(@item.CourseMaterialId, '@item.Title')" title="Xóa tài liệu">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <i class="fa fa-folder-open-o fa-3x text-white-50 mb-3"></i>
+                        <h5 class="text-white-50">Chưa có tài liệu nào trong lớp này.</h5>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

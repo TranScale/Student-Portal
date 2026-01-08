@@ -1,8 +1,11 @@
 ﻿@model StudentPortal.Models.PaginatedList<StudentPortal.Models.Announcement>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<StudentPortal.Models.User> UserManager
 
 @{
     int pageSize = 5;
     int counter = (Model.PageIndex - 1) * pageSize + 1;
+    var currentUserId = UserManager.GetUserId(User);
 }
 
 <div class="table-responsive">
@@ -30,6 +33,8 @@
                 {
                     <tr class="cursor-pointer"
                         onclick="showAnnouncementModal(this)"
+                        data-id="@item.AnnouncementId"
+                        data-userid="@item.UserId"
                         data-title="@item.Title"
                         data-summary="@item.Summary"
                         data-content="@item.Content"

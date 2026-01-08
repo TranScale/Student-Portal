@@ -169,7 +169,7 @@
                                     @(item.CourseSection.Course.CourseCredit) Tín chỉ
                                 </span>
                                 <h5 class="course-title mt-1">
-                                    <a href="@Url.Action("Details", "CourseMaterials", new { id = item.CourseSectionId })" class="text-white" style="text-decoration:none;">
+                                    <a href="@Url.Action("StudentDetails", "CourseMaterials", new { id = item.CourseSectionId })" class="text-white" style="text-decoration:none;">
                                         [@item.CourseSection.Course.CourseCode] @item.CourseSection.Course.CourseName
                                     </a>
                                 </h5>
