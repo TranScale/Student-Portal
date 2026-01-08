@@ -5,97 +5,109 @@
     Layout = "_AdminLayout";
 }
 
-<style>
-    .table-hover tbody tr:hover {
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
-    }
-</style>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
-
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #fff;">
         <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; color: #fff;">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-white">Quản lý Môn học</h2>
-    <a asp-action="Create" class="btn btn-primary shadow-sm">
-        <i class="fas fa-plus mr-2"></i>Thêm môn mới
+    <h2 class="font-weight-bold text-white mb-0">Quản lý Môn học</h2>
+    <a asp-action="Create" class="btn btn-light text-primary font-weight-bold shadow-sm">
+        <i class="fas fa-plus mr-2"></i>Thêm Môn Mới
     </a>
 </div>
 
-<div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover text-light mb-0">
-                <thead style="background-color: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <tr>
-                        <th class="border-top-0">@Html.DisplayNameFor(model => model.CourseName)</th>
-                        <th class="border-top-0">@Html.DisplayNameFor(model => model.CourseCode)</th>
-                        <th class="border-top-0">@Html.DisplayNameFor(model => model.CourseCredit)</th>
-                        <th class="border-top-0">Khoa / Bộ môn</th>
-                        <th class="border-top-0 text-right">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+<div class="glass-panel">
+    <div class="table-responsive">
+        <table class="table-admin">
+            <thead>
+                <tr>
+                    <th>Mã môn</th>
+                    <th>Tên môn học</th>
+                    <th class="text-center">Tín chỉ</th>
+                    <th>Khoa / Bộ môn</th>
+                    <th class="text-right">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
                     {
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td class="align-middle font-weight-bold">@Html.DisplayFor(modelItem => item.CourseName)</td>
-                            <td class="align-middle">@Html.DisplayFor(modelItem => item.CourseCode)</td>
-                            <td class="align-middle">@Html.DisplayFor(modelItem => item.CourseCredit)</td>
-                            <td class="align-middle">@Html.DisplayFor(modelItem => item.Department.DepartmentName)</td>
-                            <td class="align-middle text-right">
+                        <tr>
+                            <td>
+                                <span class="badge badge-info p-2 text-white">@item.CourseCode</span>
+                            </td>
+
+                            <td>
+                                <div class="font-weight-bold text-white">@item.CourseName</div>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge badge-warning text-dark" style="font-size: 0.9rem; width: 30px;">@item.CourseCredit</span>
+                            </td>
+
+                            <td>
+                                <div class="text-white small">
+                                    <i class="fas fa-university mr-2 text-muted"></i>
+                                    @(item.Department?.DepartmentName ?? "Chung")
+                                </div>
+                            </td>
+
+                            <td class="text-right">
+                                <a asp-action="Details" asp-route-id="@item.CourseId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
                                 <a asp-action="Edit" asp-route-id="@item.CourseId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
                                     <i class="fas fa-pen"></i>
                                 </a>
-                                <a asp-action="Details" asp-route-id="@item.CourseId" class="btn btn-sm btn-outline-warning rounded-circle mr-1" title="Chi tiết">
-                                    <i class="fas fa-info"></i>
-                                </a>
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger rounded-circle"
-                                        data-toggle="modal"
-                                        data-target="#deleteModal"
+
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle"
+                                        data-toggle="modal" data-target="#deleteModal"
                                         onclick="setDeleteId('@item.CourseId', '@item.CourseName')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-white-50">
+                                <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
+                                <p>Chưa có dữ liệu môn học nào.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content" style="background-color: #1e2130; color: white;">
+        <div class="modal-content" style="background-color: #1e2130; color: white; border: 1px solid rgba(255,255,255,0.1);">
             <div class="modal-header border-bottom-0">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc chắn muốn xóa môn học <strong id="courseNameDisplay" class="text-warning"></strong> không?
-                <br />
-                <small class="text-muted">Hành động này không thể hoàn tác nếu chưa có lớp học phần.</small>
+                Bạn có chắc chắn muốn xóa môn học <strong id="courseNameDisplay" class="text-warning"></strong>?<br>
+                <small class="text-muted">Cảnh báo: Không thể xóa nếu môn học này đã được mở lớp hoặc có điểm số.</small>
             </div>
             <div class="modal-footer border-top-0">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
