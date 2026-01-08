@@ -199,23 +199,20 @@ namespace StudentPortal.Controllers
             { return View("Error"); }
         }
 
-        public async Task<ActionResult> AdminIndex(DateTime? date)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminIndex()
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            if (currentUser == null) return RedirectToAction("Login", "Account");
 
-            // 1. THỐNG KÊ SỐ LIỆU (Stats Cards)
+            // 1. THỐNG KÊ TỔNG QUAN (Stats Cards)
             ViewData["TotalStudents"] = await _context.Students.CountAsync();
 
-            // Đã sửa: Lọc bỏ user system khi đếm giảng viên
-            ViewData["TotalLecturers"] = await _context.Lecturers
-                .Include(l => l.User)
-                .Where(l => l.User.UserName != "system")
-                .CountAsync();
+            // Đếm giảng viên (trừ user system nếu có)
+            ViewData["TotalLecturers"] = await _context.Lecturers.CountAsync();
 
+            // Đếm số lớp học phần đang mở (Kiểm tra lại tên bảng trong DBContext của bạn là CourseSections hay CoursesSections nhé)
+            // Ở đây tôi dùng theo code cũ của bạn là CoursesSections
             ViewData["TotalCourses"] = await _context.CoursesSections.CountAsync();
 
             // 2. HỌC KỲ HIỆN TẠI
@@ -224,20 +221,15 @@ namespace StudentPortal.Controllers
                 .Where(s => s.StartDate <= today && s.EndDate >= today)
                 .FirstOrDefaultAsync();
 
-            ViewData["CurrentSemester"] = currentSemester; // Dùng cho object
-            ViewData["CurrentSemesterName"] = currentSemester?.SemesterName ?? "Chưa có HK"; // Dùng cho hiển thị text
+            ViewData["CurrentSemesterName"] = currentSemester != null ? currentSemester.SemesterName : "Chưa thiết lập";
 
-            // 3. THÔNG BÁO MỚI NHẤT
+            // 3. (Tùy chọn) Lấy 5 thông báo mới nhất để hiển thị 
             var recentAnnouncements = await _context.Announcements
                 .Include(a => a.User)
                 .OrderByDescending(a => a.CreatedDate)
                 .Take(5)
                 .ToListAsync();
-
             ViewData["RecentAnnouncements"] = recentAnnouncements;
-
-            // 4. (Tùy chọn) ĐƠN ĐĂNG KÝ/ENROLLMENT MỚI NHẤT (Nếu muốn hiển thị bảng Dynamic sau này)
-            // var recentEnrollments = await _context.Enrollments
 
             return View(); // Trả về Views/Dashboard/AdminIndex.cshtml
         }

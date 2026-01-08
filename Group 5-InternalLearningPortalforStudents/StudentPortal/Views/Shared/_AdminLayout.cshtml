@@ -30,21 +30,29 @@
                 <i class="fas fa-th-large"></i> <span>Dashboard</span>
             </a>
 
-            <div class="menu-title mt-3">Quản lý Đào tạo</div>
+            <div class="menu-title mt-3">Cấu trúc Đào tạo</div>
+
+            <a asp-controller="Semesters" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Semesters" ? "active" : "")">
+                <i class="fas fa-calendar-alt"></i> <span>Học kỳ & Niên khóa</span>
+            </a>
+
+            <a asp-controller="Departments" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Departments" ? "active" : "")">
+                <i class="fas fa-sitemap"></i> <span>Khoa & Bộ môn</span>
+            </a>
+
+            @* <a asp-controller="ClassMajors" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ClassMajors" ? "active" : "")">
+                <i class="fas fa-users-cog"></i> <span>Lớp Sinh hoạt (Lớp HC)</span>
+            </a> *@
+
+            <a asp-controller="Rooms" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Rooms" ? "active" : "")">
+                <i class="fas fa-door-open"></i> <span>Danh sách Phòng học</span>
+            </a>
 
             <a asp-controller="Courses" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Courses" ? "active" : "")">
                 <i class="fas fa-book"></i> <span>Môn học</span>
             </a>
 
-            <a asp-controller="CourseSections" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CourseSections" ? "active" : "")">
-                <i class="fas fa-layer-group"></i> <span>Lớp học phần</span>
-            </a>
-
-            <a asp-controller="Semesters" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Semesters" ? "active" : "")">
-                <i class="fas fa-calendar-alt"></i> <span>Quản lý Học kỳ</span>
-            </a>
-
-            <div class="menu-title mt-3">Người dùng</div>
+            <div class="menu-title mt-3">Nhân sự & Người học</div>
 
             <a asp-controller="Students" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Students" ? "active" : "")">
                 <i class="fas fa-user-graduate"></i> <span>Sinh viên</span>
@@ -54,13 +62,27 @@
                 <i class="fas fa-chalkboard-teacher"></i> <span>Giảng viên</span>
             </a>
 
+            <div class="menu-title mt-3">Vận hành Đào tạo</div>
+
+            <a asp-controller="CourseSections" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CourseSections" ? "active" : "")">
+                <i class="fas fa-layer-group"></i> <span>Lớp Học phần</span>
+            </a>
+
+            <a asp-controller="Grades" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Grades" ? "active" : "")">
+                <i class="fas fa-marker"></i> <span>Quản lý Điểm số</span>
+            </a>
+
             <div class="menu-title mt-3">Hệ thống</div>
 
             <a asp-controller="Announcements" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Announcements" ? "active" : "")">
-                <i class="fas fa-bullhorn"></i> <span>Thông báo</span>
+                <i class="fas fa-bullhorn"></i> <span>Thông báo chung</span>
             </a>
 
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+            <a asp-controller="ImportData" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ImportData" ? "active" : "")">
+                <i class="fas fa-file-import"></i> <span>Import Dữ liệu (Excel)</span>
+            </a>
+
+            <form class="form-inline mt-4 mb-4" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
                 <button type="submit" class="nav-link text-danger"
                         style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;"
                         onclick="localStorage.removeItem('selectedTheme');">

@@ -19,7 +19,38 @@ namespace StudentPortal.Controllers
         // GET: Semesters
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Semesters.OrderByDescending(s => s.StartDate).ToListAsync());
+            // Sắp xếp: Học kỳ đang Active lên đầu, sau đó đến ngày bắt đầu giảm dần
+            return View(await _context.Semesters
+                .OrderByDescending(s => s.IsActive)
+                .ThenByDescending(s => s.StartDate)
+                .ToListAsync());
+        }
+
+        // KÍCH HOẠT HỌC KỲ
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCurrent(int id)
+        {
+            // 1. Tìm học kỳ được chọn
+            var semesterToActivate = await _context.Semesters.FindAsync(id);
+            if (semesterToActivate == null) return NotFound();
+
+            // 2. Reset tất cả học kỳ khác về False (Inactive)
+            var allSemesters = await _context.Semesters.ToListAsync();
+            foreach (var sem in allSemesters)
+            {
+                sem.IsActive = false;
+            }
+
+            // 3. Kích hoạt học kỳ được chọn
+            semesterToActivate.IsActive = true;
+
+            await _context.SaveChangesAsync();
+
+            // Gửi thông báo nhỏ ra giao diện (nếu bạn dùng TempData trong _Layout)
+            TempData["SuccessMessage"] = $"Đã kích hoạt {semesterToActivate.SemesterName} là học kỳ hiện tại.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Semesters/Create
@@ -35,6 +66,14 @@ namespace StudentPortal.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Nếu người dùng tích chọn Active ngay lúc tạo
+                if (semester.IsActive)
+                {
+                    // Tắt hết cái cũ đi
+                    var activeSems = await _context.Semesters.Where(s => s.IsActive).ToListAsync();
+                    foreach (var s in activeSems) s.IsActive = false;
+                }
+
                 _context.Add(semester);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -62,6 +101,13 @@ namespace StudentPortal.Controllers
             {
                 try
                 {
+                    // Nếu người dùng tích chọn Active lúc sửa
+                    if (semester.IsActive)
+                    {
+                        var activeSems = await _context.Semesters.Where(s => s.SemesterId != id && s.IsActive).ToListAsync();
+                        foreach (var s in activeSems) s.IsActive = false;
+                    }
+
                     _context.Update(semester);
                     await _context.SaveChangesAsync();
                 }
@@ -74,45 +120,14 @@ namespace StudentPortal.Controllers
             }
             return View(semester);
         }
+
         // GET: Semesters/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var semester = await _context.Semesters
-                .FirstOrDefaultAsync(m => m.SemesterId == id);
-
-            if (semester == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var semester = await _context.Semesters.FirstOrDefaultAsync(m => m.SemesterId == id);
+            if (semester == null) return NotFound();
             return View(semester);
         }
-
-        //// GET: Semesters/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null) return NotFound();
-        //    var semester = await _context.Semesters.FirstOrDefaultAsync(m => m.SemesterId == id);
-        //    if (semester == null) return NotFound();
-        //    return View(semester);
-        //}
-
-        //// POST: Semesters/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var semester = await _context.Semesters.FindAsync(id);
-        //    if (semester != null)
-        //    {
-        //        _context.Semesters.Remove(semester);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    return RedirectToAction(nameof(Index));
-        //}
     }
 }

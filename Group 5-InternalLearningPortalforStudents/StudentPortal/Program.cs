@@ -70,6 +70,8 @@ builder.Services.AddScoped<ICourseMaterialService, CourseMaterialService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
 
 var app = builder.Build();
+// Đặt context license cho EPPlus (Bắt buộc)
+OfficeOpenXml.ExcelPackage.License.SetNonCommercialPersonal("StudentPortal");
 
 // --- 4. SEED DATA (KHỞI TẠO DỮ LIỆU MẪU) ---
 using (var scope = app.Services.CreateScope())

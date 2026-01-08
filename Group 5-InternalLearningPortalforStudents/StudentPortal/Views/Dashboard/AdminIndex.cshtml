@@ -86,7 +86,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="https://i.pravatar.cc/150?img=5" class="mini-avatar">
+                                    <div class="mini-avatar" style="background-color: #f72585;">B</div>
                                     <div>
                                         <div class="font-weight-bold">Trần Thị Bích</div>
                                         <div class="small text-white-50">SV21005</div>
@@ -114,11 +114,27 @@
         <div class="glass-panel">
             <div class="panel-title">Tác vụ nhanh</div>
 
-            <a asp-controller="Students" asp-action="Create" class="quick-btn">
-                <div class="qb-icon" style="color:#4cc9f0"><i class="fas fa-user-plus"></i></div>
+            <a asp-controller="ImportData" asp-action="Index" class="quick-btn">
+                <div class="qb-icon" style="color:#00b894"><i class="fas fa-file-excel"></i></div>
                 <div>
-                    <div class="font-weight-bold">Thêm Sinh viên</div>
-                    <div class="small text-white-50">Tạo tài khoản mới</div>
+                    <div class="font-weight-bold">Import Dữ liệu</div>
+                    <div class="small text-white-50">Nhập SV từ Excel</div>
+                </div>
+            </a>
+
+            <a asp-controller="Semesters" asp-action="Index" class="quick-btn">
+                <div class="qb-icon" style="color:#4cc9f0"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                    <div class="font-weight-bold">Quản lý Học kỳ</div>
+                    <div class="small text-white-50">Kích hoạt kỳ mới</div>
+                </div>
+            </a>
+
+            <a asp-controller="Announcements" asp-action="Index" class="quick-btn">
+                <div class="qb-icon" style="color:#ff9f1c"><i class="fas fa-bullhorn"></i></div>
+                <div>
+                    <div class="font-weight-bold">Quản lý Thông báo</div>
+                    <div class="small text-white-50">Gửi tin toàn trường</div>
                 </div>
             </a>
 
@@ -127,14 +143,6 @@
                 <div>
                     <div class="font-weight-bold">Mở Lớp học phần</div>
                     <div class="small text-white-50">Xếp lịch & phòng</div>
-                </div>
-            </a>
-
-            <a asp-controller="Announcements" asp-action="Create" class="quick-btn">
-                <div class="qb-icon" style="color:#ff9f1c"><i class="fas fa-bullhorn"></i></div>
-                <div>
-                    <div class="font-weight-bold">Tạo Thông báo</div>
-                    <div class="small text-white-50">Gửi tin toàn trường</div>
                 </div>
             </a>
         </div>

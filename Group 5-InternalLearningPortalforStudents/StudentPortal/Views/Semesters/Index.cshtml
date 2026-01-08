@@ -1,16 +1,9 @@
 ﻿@model IEnumerable<StudentPortal.Models.Semester>
 
 @{
-    Layout = "_AdminLayout";
     ViewData["Title"] = "Quản lý Học kỳ";
+    Layout = "_AdminLayout";
 }
-
-<style>
-    .table-hover tbody tr:hover {
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
-    }
-</style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-white">Quản lý Học kỳ</h2>
@@ -19,44 +12,60 @@
     </a>
 </div>
 
-<div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
+<div class="card shadow" style="background-color: #1e2130; border: none;">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover text-light mb-0">
-                <thead style="background-color: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <table class="table text-white mb-0">
+                <thead style="background-color: rgba(255,255,255,0.05);">
                     <tr>
-                        <th class="border-top-0">Tên học kỳ</th>
+                        <th class="pl-4 border-top-0">Tên học kỳ</th>
                         <th class="border-top-0">Năm học</th>
-                        <th class="border-top-0">Ngày bắt đầu</th>
-                        <th class="border-top-0">Ngày kết thúc</th>
+                        <th class="border-top-0">Thời gian</th>
                         <th class="border-top-0 text-center">Trạng thái</th>
-                        <th class="border-top-0 text-right">Hành động</th>
+                        <th class="border-top-0 text-right pr-4">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td class="align-middle font-weight-bold">@Html.DisplayFor(modelItem => item.SemesterName)</td>
-                            <td class="align-middle">@Html.DisplayFor(modelItem => item.AcademicYear)</td>
-                            <td class="align-middle">@item.StartDate.ToString("dd/MM/yyyy")</td>
-                            <td class="align-middle">@item.EndDate.ToString("dd/MM/yyyy")</td>
-                            <td class="align-middle text-center">
-                                @if (item.IsActive == true)
+                        var rowClass = item.IsActive ? "bg-primary-soft" : "";
+                        var rowStyle = item.IsActive ? "background-color: rgba(78, 115, 223, 0.1);" : "";
+
+                        <tr style="@rowStyle">
+                            <td class="pl-4 align-middle border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                <span class="font-weight-bold">@item.SemesterName</span>
+                                @if (item.IsActive)
                                 {
-                                    <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
+                                    <span class="badge badge-success ml-2">Đang diễn ra</span>
+                                }
+                            </td>
+                            <td class="align-middle border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                @item.AcademicYear
+                            </td>
+                            <td class="align-middle border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                <small class="d-block text-muted">Bắt đầu: @item.StartDate.ToString("dd/MM/yyyy")</small>
+                                <small class="d-block text-muted">Kết thúc: @item.EndDate.ToString("dd/MM/yyyy")</small>
+                            </td>
+                            <td class="align-middle text-center border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                @if (!item.IsActive)
+                                {
+                                    <form asp-action="SetCurrent" asp-route-id="@item.SemesterId" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-light" onclick="return confirm('Bạn có chắc muốn kích hoạt học kỳ này làm học kỳ hiện tại? Các học kỳ khác sẽ bị tắt.');">
+                                            <i class="far fa-check-circle mr-1"></i> Thiết lập
+                                        </button>
+                                    </form>
                                 }
                                 else
                                 {
-                                    <span class="badge badge-secondary px-2 py-1">Đã đóng</span>
+                                    <span class="text-success"><i class="fas fa-check-circle fa-lg"></i></span>
                                 }
                             </td>
-                            <td class="align-middle text-right">
-                                <a asp-action="Edit" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
+                            <td class="align-middle text-right pr-4 border-top-0" style="border-color: rgba(255,255,255,0.05);">
+                                <a asp-action="Edit" asp-route-id="@item.SemesterId" class="btn btn-sm btn-warning">
                                     <i class="fas fa-pen"></i>
                                 </a>
-                                <a asp-action="Details" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-warning rounded-circle mr-1" title="Chi tiết">
-                                    <i class="fas fa-info"></i>
+                                <a asp-action="Details" asp-route-id="@item.SemesterId" class="btn btn-sm btn-info ml-1">
+                                    <i class="fas fa-info-circle"></i>
                                 </a>
                             </td>
                         </tr>

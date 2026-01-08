@@ -51,8 +51,7 @@ namespace StudentPortal.Controllers
         public IActionResult Create()
         {
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName");
-            // Đã sửa: Lọc bỏ system
-            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
+            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName");
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName");
             return View();
