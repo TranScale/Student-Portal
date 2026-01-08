@@ -1,53 +1,113 @@
 ﻿@model IEnumerable<StudentPortal.Models.Department>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý Ngành";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DepartmentName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DepartmentDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DepartmentCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Faculty)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepartmentName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepartmentDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepartmentCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Faculty.FacultyCode)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.DepartmentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.DepartmentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.DepartmentId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="glass-panel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="panel-title mb-1"><i class="fas fa-sitemap mr-2"></i>Danh sách Ngành Đào tạo</h2>
+                <p class="text-white-50 mb-0" style="font-size: 0.9rem;">Quản lý các ngành/bộ môn trực thuộc Khoa</p>
+            </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus"></i> Thêm Ngành mới
+                </a>
+            }
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-admin table-hover w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Mã Ngành</th>
+                        <th style="width: 30%">Tên Ngành</th>
+                        <th style="width: 25%">Thuộc Khoa</th>
+                        <th style="width: 15%">Mô tả</th>
+                        <th class="text-right" style="width: 15%">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge badge-info px-2 py-1">@item.DepartmentCode</span>
+                                </td>
+                                <td class="font-weight-bold text-white">
+                                    @item.DepartmentName
+                                </td>
+                                <td>
+                                    @if (item.Faculty != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge badge-secondary mr-2">@item.Faculty.FacultyCode</span>
+                                            <small>@item.Faculty.FacultyName</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Mất dữ liệu Khoa</span>
+                                    }
+                                </td>
+                                <td class="text-white-50">
+                                    @(item.DepartmentDescription?.Length > 30 ? item.DepartmentDescription.Substring(0, 30) + "..." : item.DepartmentDescription)
+                                </td>
+                                <td class="text-right">
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@item.DepartmentId" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.DepartmentId" class="btn btn-sm btn-outline-warning" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.DepartmentId" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-white-50">
+                                <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                                Chưa có dữ liệu ngành nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
