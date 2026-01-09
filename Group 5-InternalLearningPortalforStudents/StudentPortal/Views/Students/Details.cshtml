@@ -5,100 +5,202 @@
     Layout = "_AdminLayout";
 }
 
+<style>
+    .profile-header-banner {
+        height: 150px;
+        background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+        border-radius: 15px 15px 0 0;
+        position: relative;
+    }
+
+    .profile-user-avatar {
+        position: relative;
+        margin-top: -75px;
+        margin-left: 20px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background-color: #1e2130; /* Trùng màu nền để tạo viền */
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #0d6efd;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        font-weight: bold;
+    }
+
+    .profile-user-info h4 {
+        color: white;
+        font-weight: bold;
+    }
+
+    .profile-user-info p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-white">Hồ sơ chi tiết</h2>
+    <h2 class="font-weight-bold text-white mb-0">Hồ sơ chi tiết</h2>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.StudentId" class="btn btn-warning"><i class="fas fa-pen mr-2"></i>Sửa hồ sơ</a>
-        <a asp-action="Index" class="btn btn-secondary ml-2">Quay lại</a>
+        <a asp-action="Edit" asp-route-id="@Model.StudentId" class="btn btn-warning shadow-sm">
+            <i class="fas fa-pen mr-2"></i>Sửa hồ sơ
+        </a>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm ml-2">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="glass-panel p-0 mb-4">
+            <div class="profile-header-banner">
+                <div class="text-right p-4 text-white">
+                    <h3 class="mt-2" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">UEF STUDENT</h3>
+                    <p style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Hệ thống quản lý đào tạo</p>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-2 col-md-3">
+                        <div class="profile-user-avatar">
+                            <div class="avatar-circle">
+                                @(Model.User.FullName?.Substring(0, 1) ?? "S")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="profile-user-info mt-3 mt-md-0 ml-md-3">
+                            <h4 class="mb-1">@Model.User.FullName</h4>
+                            <p class="mb-2">
+                                <span class="badge badge-light text-dark mr-2">@Model.StudentCode</span>
+                                @if (Model.IsGraduate)
+                                {
+                                    <span class="badge badge-success">Đã tốt nghiệp</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-info">Đang theo học</span>
+                                }
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-university mr-1"></i> @(Model.Department?.DepartmentName ?? "Chưa phân khoa")
+                                &nbsp;|&nbsp;
+                                <i class="fas fa-map-marker-alt mr-1"></i> @(Model.User.Address ?? "Chưa cập nhật địa chỉ")
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-3 text-md-right mt-3 mt-md-0">
+                        <div class="d-inline-block text-center mr-4">
+                            <h4 class="text-white font-weight-bold mb-0">@Model.Enrollments?.Count</h4>
+                            <small class="text-white-50">Lớp đã đăng ký</small>
+                        </div>
+                        <div class="d-inline-block text-center">
+                            <h4 class="text-white font-weight-bold mb-0">@(Model.Enrollments?.Sum(e => e.CourseSection.Course.CourseCredit) ?? 0)</h4>
+                            <small class="text-white-50">Tín chỉ tích lũy</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-        <div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
-            <div class="card-body text-center">
-                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 40px; color: white;">
-                    @Model.User.FullName?.Substring(0, 1)
-                </div>
-                <h4 class="text-white">@Model.User.FullName</h4>
-                <p class="text-muted">@Model.StudentCode</p>
-                
-                @if (Model.IsGraduate)
-                {
-                    <span class="badge badge-success px-3 py-2">Đã tốt nghiệp</span>
-                }
-                else
-                {
-                    <span class="badge badge-info px-3 py-2">Đang theo học</span>
-                }
-            </div>
-            <ul class="list-group list-group-flush" style="background-color: transparent;">
-                <li class="list-group-item d-flex justify-content-between align-items-center text-white" style="background-color: rgba(255,255,255,0.05);">
-                    <span><i class="fas fa-envelope mr-2 text-warning"></i>Email</span>
-                    <span class="text-muted">@Model.User.Email</span>
+    <div class="col-lg-4">
+        <div class="glass-panel h-100">
+            <h5 class="text-uppercase border-bottom pb-2 mb-3 text-white" style="border-color: rgba(255,255,255,0.1) !important;">
+                Thông tin liên hệ
+            </h5>
+            <ul class="list-unstyled text-white">
+                <li class="mb-3">
+                    <i class="fas fa-envelope mr-2 text-warning"></i>
+                    <strong>Email:</strong>
+                    <div class="ml-4 text-white-50">@Model.User.Email</div>
                 </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center text-white" style="background-color: rgba(255,255,255,0.05);">
-                    <span><i class="fas fa-phone mr-2 text-success"></i>SĐT</span>
-                    <span class="text-muted">@(Model.User.PhoneNumber ?? "Chưa cập nhật")</span>
+                <li class="mb-3">
+                    <i class="fas fa-phone mr-2 text-success"></i>
+                    <strong>Số điện thoại:</strong>
+                    <div class="ml-4 text-white-50">@(Model.User.PhoneNumber ?? "Chưa cập nhật")</div>
                 </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center text-white" style="background-color: rgba(255,255,255,0.05);">
-                    <span><i class="fas fa-birthday-cake mr-2 text-danger"></i>Ngày sinh</span>
-                    <span class="text-muted">@Model.User.DateOfBirth.ToString("dd/MM/yyyy")</span>
+                <li class="mb-3">
+                    <i class="fas fa-birthday-cake mr-2 text-danger"></i>
+                    <strong>Ngày sinh:</strong>
+                    <div class="ml-4 text-white-50">@Model.User.DateOfBirth.ToString("dd/MM/yyyy")</div>
                 </li>
-                 <li class="list-group-item text-white" style="background-color: rgba(255,255,255,0.05);">
-                    <span><i class="fas fa-map-marker-alt mr-2 text-primary"></i>Địa chỉ</span>
-                    <div class="text-muted mt-1">@(Model.User.Address ?? "Chưa cập nhật")</div>
+                <li class="mb-3">
+                    <i class="fas fa-calendar-check mr-2 text-primary"></i>
+                    <strong>Ngày nhập học:</strong>
+                    <div class="ml-4 text-white-50">@Model.StartStudyDate.ToString("dd/MM/yyyy")</div>
                 </li>
             </ul>
         </div>
     </div>
 
-    <div class="col-md-8">
-        <div class="card shadow mb-4" style="background-color: #1e2130; border: none;">
-            <div class="card-header border-bottom-0 pt-4 pb-0">
-                <h5 class="text-primary border-bottom pb-2" style="border-color: rgba(255,255,255,0.1) !important;">Thông tin Đào tạo</h5>
+    <div class="col-lg-8">
+        <div class="glass-panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-white mb-0">Danh sách lớp học phần</h5>
+                <span class="badge badge-primary">HK Hiện tại</span>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-sm-4 text-muted">Ngành học:</div>
-                    <div class="col-sm-8 text-white font-weight-bold">@Model.Department?.DepartmentName</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-4 text-muted">Ngày nhập học:</div>
-                    <div class="col-sm-8 text-white">@Model.StartStudyDate.ToString("dd/MM/yyyy")</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="card shadow" style="background-color: #1e2130; border: none;">
-            <div class="card-header border-bottom-0 pt-4">
-                <h5 class="text-warning">Các lớp học phần đã đăng ký</h5>
-            </div>
-            <div class="card-body p-0">
-                <table class="table text-white mb-0">
-                    <thead style="background-color: rgba(255,255,255,0.1);">
+            <div class="table-responsive">
+                <table class="table-admin">
+                    <thead>
                         <tr>
                             <th>Mã môn</th>
                             <th>Tên môn học</th>
-                            <th>Số tín chỉ</th>
+                            <th>Giảng viên</th>
+                            <th class="text-center">Tín chỉ</th>
+                            <th>Lịch học</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model.Enrollments != null && Model.Enrollments.Count > 0)
+                        @if (Model.Enrollments != null && Model.Enrollments.Any())
                         {
-                            @foreach (var item in Model.Enrollments)
+                            foreach (var item in Model.Enrollments)
                             {
                                 <tr>
-                                    <td>@item.CourseSection.Course.CourseCode</td>
-                                    <td>@item.CourseSection.Course.CourseName</td>
-                                    <td>@item.CourseSection.Course.CourseCredit</td>
+                                    <td>
+                                        <span class="badge badge-info p-2">@item.CourseSection.Course.CourseCode</span>
+                                    </td>
+                                    <td>
+                                        <div class="font-weight-bold text-white">@item.CourseSection.Course.CourseName</div>
+                                    </td>
+                                    <td>
+                                        <span class="text-white-50">@(item.CourseSection.Lecturer?.User?.FullName ?? "Chưa có GV")</span>
+                                    </td>
+                                    <td class="text-center font-weight-bold text-white">
+                                        @item.CourseSection.Course.CourseCredit
+                                    </td>
+                                    <td>
+                                        <small class="text-white">@item.CourseSection.Days</small>
+                                        <div class="badge badge-secondary">@item.CourseSection.Sessions</div>
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">Sinh viên chưa đăng ký môn học nào.</td>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-folder-open fa-2x text-white-50 mb-2"></i>
+                                    <p class="text-white-50">Sinh viên chưa đăng ký lớp học phần nào.</p>
+                                </td>
                             </tr>
                         }
                     </tbody>
