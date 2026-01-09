@@ -1,0 +1,65 @@
+﻿@model StudentPortal.Models.Announcement
+
+@{
+    ViewData["Title"] = "Đăng thông báo mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-panel">
+                <h3 class="panel-title mb-4">Soạn thảo Thông báo</h3>
+
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Title" class="text-white"></label>
+                        <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Nhập tiêu đề..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Summary" class="text-white"></label>
+                        <textarea asp-for="Summary" class="form-control bg-dark text-white border-secondary" rows="2" placeholder="Tóm tắt ngắn gọn hiển thị ở dashboard..."></textarea>
+                        <span asp-validation-for="Summary" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Taker" class="text-white"></label>
+                                <select asp-for="Taker" class="form-control bg-dark text-white border-secondary"
+                                        asp-items="Html.GetEnumSelectList<StudentPortal.Models.RecipientType>()">
+                                </select>
+                                <span asp-validation-for="Taker" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ExpiredDate" class="text-white"></label>
+                                <input asp-for="ExpiredDate" class="form-control bg-dark text-white border-secondary" />
+                                <span asp-validation-for="ExpiredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Content" class="text-white"></label>
+                        <textarea asp-for="Content" class="form-control bg-dark text-white border-secondary" rows="10" placeholder="Nội dung chi tiết..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="text-right mt-4">
+                        <a asp-action="Index" class="btn btn-secondary mr-2">Hủy</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-paper-plane mr-2"></i> Đăng ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

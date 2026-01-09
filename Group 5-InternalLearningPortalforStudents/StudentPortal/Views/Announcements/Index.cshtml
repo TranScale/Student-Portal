@@ -1,0 +1,98 @@
+﻿@model IEnumerable<StudentPortal.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Quản lý Thông báo";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    }
+
+    <div class="glass-panel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="panel-title mb-0">Quản lý Thông báo</h2>
+            <a asp-action="Create" class="btn btn-light text-primary font-weight-bold shadow-sm">
+                <i class="fas fa-plus mr-2"></i>Thêm Tin Mới
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-admin table-hover w-100">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Tóm tắt</th>
+                        <th>Người nhận</th>
+                        <th>Ngày tạo</th>
+                        <th>Hết hạn</th>
+                        <th>Người đăng</th>
+                        <th class="text-right">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="font-weight-bold text-white">@item.Title</td>
+                            <td>@(item.Summary.Length > 30 ? item.Summary.Substring(0, 30) + "..." : item.Summary)</td>
+                            <td>
+                                @if (item.Taker == StudentPortal.Models.RecipientType.All)
+                                {
+                                    <span class="badge badge-info">Tất cả</span>
+                                }
+                                else if (item.Taker == StudentPortal.Models.RecipientType.Student)
+                                {
+
+                                    <span class="badge badge-success">Sinh viên</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge badge-warning">Giảng viên</span>
+                                }
+                            </td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (item.ExpiredDate.HasValue)
+                                {
+                                    if (item.ExpiredDate.Value < DateTime.Now)
+                                    {
+                                        <span class="text-danger">@item.ExpiredDate.Value.ToString("dd/MM/yyyy") (Hết hạn)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.ExpiredDate.Value.ToString("dd/MM/yyyy")</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>@(item.User?.FullName ?? "Admin")</td>
+                            <td class="text-right">
+                                <a asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Chỉnh sửa">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.AnnouncementId" method="post" class="d-inline" onsubmit="return confirm('Bạn chắc chắn muốn xóa tin này?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
