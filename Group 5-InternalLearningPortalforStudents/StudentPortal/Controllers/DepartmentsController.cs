@@ -36,6 +36,7 @@ namespace StudentPortal.Controllers
 
             var department = await _context.Departments
                 .Include(d => d.Faculty)
+                .Include(d => d.Courses)
                 .FirstOrDefaultAsync(m => m.DepartmentId == id);
 
             if (department == null) return NotFound();

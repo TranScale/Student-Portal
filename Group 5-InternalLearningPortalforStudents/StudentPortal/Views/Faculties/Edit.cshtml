@@ -1,44 +1,120 @@
 ﻿@model StudentPortal.Models.Faculty
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Cập nhật Khoa";
+    Layout = "_AdminLayout";
 }
 
-<h1>Edit</h1>
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
 
-<h4>Faculty</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="FacultyId" />
-            <div class="form-group">
-                <label asp-for="FacultyName" class="control-label"></label>
-                <input asp-for="FacultyName" class="form-control" />
-                <span asp-validation-for="FacultyName" class="text-danger"></span>
+    .form-control-dark {
+        background-color: #1e2130;
+        border: 1px solid #444;
+        color: #fff;
+    }
+
+        .form-control-dark:focus {
+            background-color: #252839;
+            color: #fff;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 0.2rem rgba(106, 17, 203, 0.25);
+        }
+
+    .form-label {
+        color: #ddd;
+        font-weight: 500;
+    }
+
+    .input-group-text-dark {
+        background-color: #2c3044;
+        border: 1px solid #444;
+        color: #aaa;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-white mb-0">Cập nhật Khoa</h2>
+            <p class="text-white-50">Chỉnh sửa thông tin đơn vị đào tạo</p>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-panel p-4 p-md-5">
+
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="FacultyId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Mã Khoa <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left">
+                                            <i class="fas fa-barcode"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="FacultyCode" class="form-control form-control-dark border-left-0" placeholder="VD: CNTT" />
+                                </div>
+                                <span asp-validation-for="FacultyCode" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Tên Khoa <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left">
+                                            <i class="fas fa-university"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="FacultyName" class="form-control form-control-dark border-left-0" placeholder="VD: Công nghệ thông tin" />
+                                </div>
+                                <span asp-validation-for="FacultyName" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Mô tả / Giới thiệu</label>
+                                <textarea asp-for="FacultyDescription" class="form-control form-control-dark" rows="5" placeholder="Nhập mô tả về khoa..."></textarea>
+                                <span asp-validation-for="FacultyDescription" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <a asp-action="Details" asp-route-id="@Model.FacultyId" class="btn btn-outline-light mr-2">
+                            Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-warning px-4 font-weight-bold shadow">
+                            <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+
             </div>
-            <div class="form-group">
-                <label asp-for="FacultyDescription" class="control-label"></label>
-                <input asp-for="FacultyDescription" class="form-control" />
-                <span asp-validation-for="FacultyDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FacultyCode" class="control-label"></label>
-                <input asp-for="FacultyCode" class="form-control" />
-                <span asp-validation-for="FacultyCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

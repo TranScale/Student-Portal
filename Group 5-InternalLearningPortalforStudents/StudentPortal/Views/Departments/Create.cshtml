@@ -1,47 +1,157 @@
 ﻿@model StudentPortal.Models.Department
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Ngành";
+    Layout = "_AdminLayout";
 }
 
-<h1>Create</h1>
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
 
-<h4>Department</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="DepartmentName" class="control-label"></label>
-                <input asp-for="DepartmentName" class="form-control" />
-                <span asp-validation-for="DepartmentName" class="text-danger"></span>
+    .form-control-dark {
+        background-color: #1e2130;
+        border: 1px solid #444;
+        color: #fff;
+    }
+
+        .form-control-dark:focus {
+            background-color: #252839;
+            color: #fff;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-control-dark::placeholder {
+            color: #6c757d;
+        }
+
+    select.form-control-dark {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    .form-label {
+        color: #ddd;
+        font-weight: 500;
+    }
+
+    .input-group-text-dark {
+        background-color: #2c3044;
+        border: 1px solid #444;
+        color: #aaa;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-white mb-0">Thêm mới Ngành</h2>
+            <p class="text-white-50">Tạo bộ môn/chuyên ngành đào tạo mới</p>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-panel p-4 p-md-5">
+
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Khoa trực thuộc <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left">
+                                            <i class="fas fa-university"></i>
+                                        </span>
+                                    </div>
+                                    <select asp-for="FacultyId" class="form-control form-control-dark border-left-0" asp-items="ViewBag.FacultyId">
+                                        <option value="" disabled selected>-- Chọn Khoa --</option>
+                                    </select>
+                                </div>
+                                <small class="text-white-50 font-italic">Ngành này thuộc về Khoa nào?</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Mã Ngành <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left">
+                                            <i class="fas fa-barcode"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="DepartmentCode" class="form-control form-control-dark border-left-0" placeholder="VD: SE (Software Engineering)" />
+                                </div>
+                                <span asp-validation-for="DepartmentCode" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Tên Ngành / Bộ môn <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left">
+                                            <i class="fas fa-layer-group"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="DepartmentName" class="form-control form-control-dark border-left-0" placeholder="VD: Kỹ thuật phần mềm" />
+                                </div>
+                                <span asp-validation-for="DepartmentName" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group mb-4">
+                                <label class="form-label">Mô tả / Giới thiệu</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-dark border-right-0 rounded-left" style="height: auto;">
+                                            <i class="fas fa-align-left"></i>
+                                        </span>
+                                    </div>
+                                    <textarea asp-for="DepartmentDescription" class="form-control form-control-dark border-left-0" rows="3" placeholder="Nhập thông tin giới thiệu về ngành này..."></textarea>
+                                </div>
+                                <span asp-validation-for="DepartmentDescription" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <a asp-action="Index" class="btn btn-outline-light mr-2">
+                            Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 font-weight-bold shadow" style="background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); border:none;">
+                            <i class="fas fa-plus-circle mr-2"></i>Thêm mới
+                        </button>
+                    </div>
+                </form>
+
             </div>
-            <div class="form-group">
-                <label asp-for="DepartmentDescription" class="control-label"></label>
-                <input asp-for="DepartmentDescription" class="form-control" />
-                <span asp-validation-for="DepartmentDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DepartmentCode" class="control-label"></label>
-                <input asp-for="DepartmentCode" class="form-control" />
-                <span asp-validation-for="DepartmentCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FacultyId" class="control-label"></label>
-                <select asp-for="FacultyId" class ="form-control" asp-items="ViewBag.FacultyId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

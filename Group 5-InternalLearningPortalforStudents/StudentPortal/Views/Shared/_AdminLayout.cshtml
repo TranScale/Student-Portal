@@ -52,7 +52,7 @@
             </a>
 
             <a asp-controller="Departments" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Departments" ? "active" : "")">
-                <i class="fas fa-sitemap"></i> <span>Bộ môn</span>
+                <i class="fas fa-sitemap"></i> <span>Ngành (Departments)</span>
             </a>
 
             <a asp-controller="Courses" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Courses" ? "active" : "")">
@@ -73,9 +73,9 @@
                 <i class="fas fa-layer-group"></i> <span>Lớp Học phần</span>
             </a>
 
-            <a asp-controller="Enrollment" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Enrollment" ? "active" : "")">
+            @* <a asp-controller="Enrollments" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Enrollments" ? "active" : "")">
                 <i class="fas fa-user-check"></i> <span>Quản lý Đăng ký</span>
-            </a>
+            </a> *@
 
             <div class="menu-group-header">3. Tiện ích & Hệ thống</div>
 
