@@ -6,35 +6,58 @@
 
             <div class="modal-header glass-header">
                 <h5 class="modal-title font-weight-bold">
-                    <i class="fas fa-user-edit mr-2"></i> CẬP NHẬT HỒ SƠ
+                    <i class="fas fa-user-edit mr-2"></i> CẬP NHẬT HỒ SƠ SINH VIÊN
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
-            <form id="editProfileForm" asp-action="UpdateProfile" method="post">
+            <form id="editProfileForm" asp-action="UpdateStudentProfile" asp-controller="Dashboard" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <div class="modal-body p-4">
                     <div class="row">
+                        @* --- CỘT TRÁI: AVATAR --- *@
                         <div class="col-md-4 text-center mb-4 border-right">
-                            <div class="avatar-box mb-3">
-                                @if (!string.IsNullOrEmpty(Model.User.ImagePath))
-                                {
-                                    <img src="@Model.User.ImagePath" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+                            <div class="avatar-box mb-3 position-relative">
+                                @* --- 1. XỬ LÝ ĐƯỜNG DẪN ẢNH (Logic chuẩn) --- *@
+                                @{
+                                    var avatarPath = Model.User.ImagePath;
+                                    if (string.IsNullOrEmpty(avatarPath))
+                                    {
+                                        avatarPath = "https://via.placeholder.com/150";
+                                    }
+                                    else if (!avatarPath.StartsWith("http") && !avatarPath.StartsWith("/"))
+                                    {
+                                        avatarPath = "/" + avatarPath;
+                                    }
                                 }
-                                else
-                                {
-                                    <i class="fas fa-user fa-3x text-secondary"></i>
-                                }
+
+                                @* --- 2. ID: avatarPreviewModal (Để JS bên ngoài bắt được) --- *@
+                                <img id="avatarPreviewModal"
+                                     src="@avatarPath"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/150';"
+                                     style="width:120px; height:120px; object-fit:cover; border-radius:50%; border: 3px solid #eee;" />
                             </div>
+
+                            <div class="form-group">
+                                <label for="avatarFile" class="btn btn-sm btn-outline-primary" style="cursor: pointer;">
+                                    <i class="fa fa-camera"></i> Đổi ảnh
+                                </label>
+                                @* --- 3. INPUT FILE ID: avatarFile --- *@
+                                <input type="file" id="avatarFile" name="avatarFile" accept="image/*" style="display:none;" />
+                            </div>
+
                             <h5 class="font-weight-bold text-dark mb-1">@Model.User.FullName</h5>
-                            <div class="text-muted small mb-2">@Model.StudentCode</div>
-                            <span class="badge badge-pill badge-primary px-3 py-2">@Model.Department?.DepartmentName</span>
+                            <div class="text-muted small mb-2">MSSV: @Model.StudentCode</div>
+
+                            <span class="badge badge-pill badge-primary px-3 py-2">
+                                @(Model.Department?.DepartmentName ?? "Chưa có khoa")
+                            </span>
                         </div>
 
+                        @* --- CỘT PHẢI: FORM NHẬP LIỆU --- *@
                         <div class="col-md-8 pl-md-4">
-
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
@@ -53,7 +76,6 @@
                                                pattern="[0]{1}[0-9]{9}"
                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                                title="Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số" />
-
                                         <span asp-validation-for="User.PhoneNumber" class="text-danger small font-weight-bold mt-1"></span>
                                     </div>
                                 </div>
@@ -99,16 +121,16 @@
     </div>
 </div>
 
+@* --- GIỮ NGUYÊN PHẦN STYLE CỦA BẠN Ở ĐÂY --- *@
 <style>
-    /* 1. Làm đẹp khung Modal */
+    /* ... Code CSS cũ của bạn giữ nguyên ... */
     .glass-content {
         border: none;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        overflow: hidden; /* Để bo tròn góc không bị header che mất */
+        overflow: hidden;
     }
 
-    /* 2. Header màu Gradient sang chảnh */
     .glass-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -122,51 +144,42 @@
             text-shadow: none;
         }
 
-    /* 3. Tút lại ô Input */
     .input-glass {
-        background: #f8f9fa; /* Nền xám rất nhạt */
+        background: #f8f9fa;
         border: 2px solid #eee;
         border-radius: 8px;
         padding: 10px 15px;
         transition: all 0.3s;
         font-weight: 500;
-        /* [QUAN TRỌNG] Ép màu chữ thành màu ĐEN */
         color: #212529 !important;
     }
 
-        /* Màu chữ khi click vào nhập liệu */
         .input-glass:focus {
             background: white;
             border-color: #764ba2;
             box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
-            color: #000 !important; /* Vẫn giữ màu đen khi focus */
+            color: #000 !important;
         }
 
-        /* [MỚI] Chỉnh màu cho dòng chữ gợi ý (Placeholder) - Ví dụ: "Nhập SĐT..." */
         .input-glass::placeholder {
-            color: #888 !important; /* Màu xám đậm cho dễ đọc */
-            opacity: 1; /* Hiển thị rõ, không bị mờ */
+            color: #888 !important;
+            opacity: 1;
         }
 
-        /* [MỚI] Fix lỗi trình duyệt tự đổi màu nền khi chọn autofill (lưu mật khẩu/email cũ) */
-        .input-glass:-webkit-autofill,
-        .input-glass:-webkit-autofill:hover,
-        .input-glass:-webkit-autofill:focus {
-            -webkit-text-fill-color: #000 !important; /* Ép chữ autofill thành màu đen */
+        .input-glass:-webkit-autofill, .input-glass:-webkit-autofill:hover, .input-glass:-webkit-autofill:focus {
+            -webkit-text-fill-color: #000 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Xử lý riêng cái ô Readonly (Email) */
         .input-glass[readonly] {
-            background-color: #e9ecef; /* Nền xám tối hơn 1 chút */
+            background-color: #e9ecef;
             opacity: 1;
             border: 1px solid #ced4da;
-            color: #495057 !important; /* Màu xám đen đậm */
-            font-weight: bold; /* In đậm cho dễ nhìn */
+            color: #495057 !important;
+            font-weight: bold;
             cursor: not-allowed;
         }
 
-    /* 4. Nhãn (Label) */
     .form-group label {
         color: #666;
         font-size: 0.85rem;
@@ -174,7 +187,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* 5. Avatar Box */
     .avatar-box {
         width: 120px;
         height: 120px;
@@ -184,12 +196,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 4px solid #fff; /* Viền trắng */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Đổ bóng nổi lên */
+        border: 4px solid #fff;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         position: relative;
     }
 
-    /* 6. Footer nút bấm */
     .glass-footer {
         background-color: #fff;
         border-top: 1px solid #eee;

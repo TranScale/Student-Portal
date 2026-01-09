@@ -7,85 +7,147 @@
 }
 
 <style>
-    /* Style riêng cho bảng quản lý */
+    /* --- CẢI THIỆN GIAO DIỆN GLASS --- */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --text-primary: #ffffff;
+        --text-secondary: #e0e0e0;
+        --accent-gradient: linear-gradient(135deg, #0f9b0f, #00b09b); /* Gradient Xanh dịu mắt */
+    }
+
+    /* Bảng hiệu ứng kính mờ xịn hơn */
     .table-glass {
-        color: white !important;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
+        color: var(--text-primary) !important;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px); /* Làm mờ nền phía sau */
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         overflow: hidden;
     }
 
         .table-glass thead th {
-            background-color: rgba(0, 0, 0, 0.2);
-            color: #fff;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.3); /* Nền tiêu đề đậm hơn để dễ đọc */
+            color: #81ecec; /* Màu chữ tiêu đề sáng (Cyan) để nổi bật */
+            border-bottom: 1px solid var(--glass-border);
             border-top: none;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
         }
 
         .table-glass tbody td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             vertical-align: middle;
             font-size: 0.95rem;
+            color: var(--text-secondary);
+            padding: 12px 15px;
         }
 
         .table-glass tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.15); /* Sáng lên khi di chuột */
+            transition: 0.3s ease;
         }
 
-    /* Các nút hành động nhỏ */
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        margin-right: 5px;
-        transition: all 0.2s;
+    /* Input tìm kiếm đẹp hơn */
+    .search-input-glass {
+        background: rgba(0, 0, 0, 0.4) !important; /* Nền đen mờ để chữ trắng dễ đọc */
+        border: 1px solid var(--glass-border) !important;
+        color: white !important;
+        padding-left: 40px;
+        border-radius: 20px;
+        transition: all 0.3s;
     }
 
-        .btn-icon:hover {
-            transform: scale(1.1);
+        .search-input-glass:focus {
+            background: rgba(0, 0, 0, 0.6) !important;
+            box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+            border-color: #00b09b !important;
         }
 
     /* Toolbar kính mờ */
     .toolbar-glass {
-        background: rgba(0, 0, 0, 0.25);
-        border-radius: 8px;
-        padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 10px 20px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
+
+    /* Nút bấm custom */
+    .btn-gradient-success {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 176, 155, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 8px;
+    }
+
+        .btn-gradient-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 176, 155, 0.6);
+            color: white;
+        }
+
+    /* Modal đẹp hơn */
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-header-custom {
+        background: var(--accent-gradient);
+        color: white;
+        padding: 20px;
+    }
+
+    .custom-file-label {
+        border-radius: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+        .custom-file-label::after {
+            background-color: #00b09b;
+            color: white;
+        }
 </style>
 
-<div class="container-fluid mt-3">
-    <a href="@Url.Action("LecturerIndex", "CourseMaterials")" class="text-white-50 mb-3 d-inline-block hover-highlight" style="text-decoration: none;">
-        <i class="fa fa-arrow-left mr-2"></i> Quay lại danh sách lớp
+<div class="container-fluid mt-4">
+    <a href="@Url.Action("LecturerIndex", "CourseMaterials")" class="text-white-50 mb-4 d-inline-flex align-items-center hover-highlight" style="text-decoration: none; transition: 0.3s;">
+        <div style="width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+            <i class="fa fa-arrow-left text-white"></i>
+        </div>
+        <span class="font-weight-bold">Quay lại danh sách lớp</span>
     </a>
 
     <div class="row">
         <div class="col-12">
-
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
                 <div class="mb-3 mb-md-0">
-                    <h3 class="text-white font-weight-bold">@ViewData["CourseName"]</h3>
+                    <h5 class="text-white-50 text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 1px;">Quản lý tài liệu</h5>
+                    <h2 class="text-white font-weight-bold display-5" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">@ViewData["CourseName"]</h2>
                 </div>
 
                 <div class="toolbar-glass d-flex align-items-center">
-
                     <div class="position-relative mr-3">
-                        <i class="fa fa-search text-white-50" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%);"></i>
+                        <i class="fa fa-search text-white-50" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 5;"></i>
                         <input type="text" id="ajaxSearchInput"
-                               class="form-control border-0 text-white"
-                               style="background: rgba(255,255,255,0.15); padding-left: 35px; width: 250px;"
-                               placeholder="Tìm tên tài liệu..." autocomplete="off">
+                               class="form-control search-input-glass"
+                               style="width: 280px;"
+                               placeholder="Tìm nhanh tài liệu..." autocomplete="off">
                     </div>
 
-                    <button class="btn btn-success font-weight-bold shadow-sm" data-toggle="modal" data-target="#uploadModal">
-                        <i class="fa fa-cloud-upload mr-2"></i> Tải lên
+                    <button class="btn btn-gradient-success font-weight-bold px-4 py-2" data-toggle="modal" data-target="#uploadModal">
+                        <i class="fa fa-cloud-upload mr-2"></i> Tải lên mới
                     </button>
                 </div>
             </div>
@@ -100,34 +162,38 @@
 
 <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title font-weight-bold"><i class="fa fa-upload mr-2"></i> Tải lên tài liệu mới</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title font-weight-bold"><i class="fa fa-folder-open mr-2"></i> Tải lên tài liệu mới</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form asp-action="UploadMaterial" asp-controller="CourseMaterials" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
+                <div class="modal-body p-4 bg-light">
                     <input type="hidden" name="sectionId" value="@sectionId" />
 
-                    <div class="form-group">
-                        <label class="font-weight-bold text-dark">Chọn tập tin</label>
-                        <div class="custom-file">
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold text-dark text-uppercase small text-muted mb-2">1. Chọn tập tin</label>
+                        <div class="custom-file shadow-sm">
                             <input type="file" class="custom-file-input" name="file" id="customFile" required>
-                            <label class="custom-file-label" for="customFile">Chọn file...</label>
+                            <label class="custom-file-label border-0" for="customFile" style="color: #333 !important;">Nhấn để chọn file...</label>
                         </div>
-                        <small class="text-muted">Hỗ trợ: PDF, Word, Excel, PPT, Zip (Max: 20MB)</small>
+                        <small class="text-muted mt-2 d-block"><i class="fa fa-info-circle mr-1"></i> Hỗ trợ: PDF, Word, Excel, PPT, Zip (Max: 20MB)</small>
                     </div>
 
                     <div class="form-group">
-                        <label class="font-weight-bold text-dark">Tiêu đề hiển thị (Tùy chọn)</label>
-                        <input type="text" name="displayTitle" class="form-control" placeholder="Nhập tên hiển thị cho sinh viên...">
+                        <label class="font-weight-bold text-dark text-uppercase small text-muted mb-2">2. Tiêu đề hiển thị (Tùy chọn)</label>
+                        <input type="text" name="displayTitle" class="form-control border-0 shadow-sm bg-white"
+                               style="padding: 22px 15px; color: #333 !important;"
+                               placeholder="VD: Bài giảng chương 1 - Giới thiệu...">
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-success">Xác nhận tải lên</button>
+                <div class="modal-footer bg-white border-top-0 pb-4 pr-4">
+                    <button type="button" class="btn btn-light font-weight-bold text-muted mr-2" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-gradient-success px-4 font-weight-bold shadow-sm">
+                        <i class="fa fa-check mr-2"></i> Xác nhận tải lên
+                    </button>
                 </div>
             </form>
         </div>
@@ -136,22 +202,26 @@
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Xác nhận xóa</h5>
+                <h5 class="modal-title font-weight-bold"><i class="fa fa-exclamation-triangle mr-2"></i> Xác nhận xóa</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body text-dark">
-                Bạn có chắc chắn muốn xóa tài liệu <b id="deleteFileName"></b> không?
-                <br />Hành động này không thể hoàn tác.
+            <div class="modal-body text-dark p-4">
+                <p class="mb-1">Bạn có chắc chắn muốn xóa tài liệu:</p>
+                <h5 class="text-danger font-weight-bold mb-3" id="deleteFileName"></h5>
+                <div class="alert alert-warning border-0 small m-0">
+                    <i class="fa fa-info-circle mr-1"></i> Hành động này sẽ xóa file khỏi hệ thống và không thể hoàn tác.
+                </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer bg-light border-0">
                 <form asp-action="DeleteMaterial" method="post">
                     <input type="hidden" name="id" id="deleteFileId" />
-                    <input type="hidden" name="sectionId" value="@sectionId" /> <button type="button" class="btn btn-light" data-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-danger">Xóa ngay</button>
+                    <input type="hidden" name="sectionId" value="@sectionId" />
+                    <button type="button" class="btn btn-white font-weight-bold" data-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger font-weight-bold px-4 shadow-sm">Xóa ngay</button>
                 </form>
             </div>
         </div>
@@ -160,44 +230,39 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // 1. Script cho ô input file hiển thị tên
+    // 1. Script hiển thị tên file
     $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
         $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
     });
 
-    // 2. Script gán dữ liệu cho Modal Xóa
+    // 2. Gán dữ liệu Modal Xóa
     function confirmDelete(id, name) {
         $('#deleteFileId').val(id);
         $('#deleteFileName').text(name);
         $('#deleteModal').modal('show');
     }
 
-    // 3. Script AJAX Search (Giống Student nhưng trỏ về partial của Lecturer)
-        // 3. Script AJAX Search - Gõ đến đâu tìm đến đó
+    // 3. AJAX Search
     $(document).ready(function () {
         const $input = $('#ajaxSearchInput');
         const $container = $('#tableContainer');
         const sectionId = '@ViewData["SectionId"]';
 
-        // Sự kiện 'input' sẽ bắt thay đổi ngay lập tức khi gõ phím
         $input.on('input', function () {
             var searchText = $(this).val();
-
             $.ajax({
-                // SỬA TẠI ĐÂY: Trỏ về CourseMaterials thay vì Lecturers
                 url: '@Url.Action("GetMaterialsTable", "CourseMaterials")',
                 type: 'GET',
                 data: { sectionId: sectionId, searchString: searchText },
                 beforeSend: function() {
-                    // Hiệu ứng mờ nhẹ để người dùng biết đang load
                     $container.stop().fadeTo(100, 0.6);
                 },
                 success: function (result) {
                     $container.stop().fadeTo(100, 1).html(result);
                 },
                 error: function (xhr) {
-                    console.error("Lỗi tìm kiếm:", xhr.responseText);
+                    console.error("Lỗi:", xhr.responseText);
                     $container.stop().fadeTo(100, 1);
                 }
             });

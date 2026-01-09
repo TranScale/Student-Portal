@@ -12,13 +12,15 @@ namespace StudentPortal.Controllers
         private readonly UserManager<User> _userManager;
         private readonly StudentPortalContext _context;
         private readonly SignInManager<User> _signInManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public DashboardController(UserManager<User> userManager, StudentPortalContext context, SignInManager<User> signInManager)
+        public DashboardController(UserManager<User> userManager, StudentPortalContext context, SignInManager<User> signInManager, IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _context = context;
             _signInManager = signInManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -36,7 +38,7 @@ namespace StudentPortal.Controllers
             {
                 return RedirectToAction("StudentIndex", "Dashboard");
             }
-            return View();
+            return Redirect("/Identity/Account/Login");
         }
 
         [Authorize]
@@ -220,7 +222,7 @@ namespace StudentPortal.Controllers
                 ViewData["TotalScore"] = totalGPA;
                 ViewData["TotalCredits"] = totalCredits;
                 ViewData["CourseList"] = listEnrollment;
-                return View();
+                return View(currentStudent);
             }
             catch (Exception)
             { return View("Error"); }
@@ -257,7 +259,7 @@ namespace StudentPortal.Controllers
                 ViewData["TotalClass"] = totalClass; 
                 ViewData["CourseList"] = listTeaching;   
 
-                return View();
+                return View(lecturer);
             }
             catch (Exception)
             { return View("Error"); }
@@ -286,39 +288,107 @@ namespace StudentPortal.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Lecturer")]
-        public async Task<IActionResult> UpdateLecturerProfile(Lecturer modelInput)
+        public async Task<IActionResult> UpdateLecturerProfile(Lecturer modelInput, IFormFile? avatarFile)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-
-            // Lấy dữ liệu gốc từ DB
             var lecturerInDb = await _context.Lecturers
                 .Include(l => l.User)
                 .FirstOrDefaultAsync(l => l.UserId == currentUser.Id);
 
             if (lecturerInDb != null)
             {
-
                 lecturerInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
                 lecturerInDb.User.City = modelInput.User.City;
                 lecturerInDb.User.Address = modelInput.User.Address;
-                lecturerInDb.User.Country = modelInput.User.Country;
 
-                // Validate ngày sinh
-                if (modelInput.User.DateOfBirth > DateTime.MinValue)
+                if (avatarFile != null && avatarFile.Length > 0)
                 {
-                    lecturerInDb.User.DateOfBirth = modelInput.User.DateOfBirth;
+                    var fileName = $"avatar_{lecturerInDb.UserId}_{Guid.NewGuid()}{Path.GetExtension(avatarFile.FileName)}";
+
+                    var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "avatars");
+
+                    if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                    var filePath = Path.Combine(uploadPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await avatarFile.CopyToAsync(stream);
+                    }
+
+                    if (!string.IsNullOrEmpty(lecturerInDb.User.ImagePath))
+                    {
+                        var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, lecturerInDb.User.ImagePath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                    }
+
+                    lecturerInDb.User.ImagePath = "/images/avatars/" + fileName;
                 }
 
-                // Lưu thay đổi
                 _context.Update(lecturerInDb);
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
             }
 
-            // Nếu lỗi, trả về lại form
+            ViewData["Avatar"] = lecturerInDb.User.ImagePath ?? "/images/default-avatar.png"; 
             return PartialView("_EditLecturerProfileModal", modelInput);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Student")] 
+        public async Task<IActionResult> UpdateStudentProfile(Student modelInput, IFormFile? avatarFile)
+        {
+            // 1. Lấy User hiện tại
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var studentInDb = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+
+            if (studentInDb != null)
+            {
+                studentInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
+                studentInDb.User.City = modelInput.User.City;
+                studentInDb.User.Address = modelInput.User.Address;
+                studentInDb.User.Country = modelInput.User.Country;
+                studentInDb.User.DateOfBirth = modelInput.User.DateOfBirth;
+
+                if (avatarFile != null && avatarFile.Length > 0)
+                {
+                    var fileName = $"avatar_{studentInDb.UserId}_{Guid.NewGuid()}{Path.GetExtension(avatarFile.FileName)}";
+
+                    var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "avatars");
+
+                    if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                    var filePath = Path.Combine(uploadPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await avatarFile.CopyToAsync(stream);
+                    }
+
+                    if (!string.IsNullOrEmpty(studentInDb.User.ImagePath))
+                    {
+                        var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, studentInDb.User.ImagePath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                    }
+
+                    studentInDb.User.ImagePath = "/images/avatars/" + fileName;
+                }
+
+                _context.Update(studentInDb);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+
+            ViewData["Avatar"] = studentInDb?.User.ImagePath ?? "/images/default-avatar.png";
+            return PartialView("_EditProfileModal", modelInput);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> EditProfile()
@@ -339,7 +409,7 @@ namespace StudentPortal.Controllers
         // 2. POST: Cập nhật thông tin
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(Student modelInput)
+        public async Task<IActionResult> UpdateProfileFast(Student modelInput)
         {
             // Lấy User đang đăng nhập (để bảo mật, tránh sửa hồ sơ người khác qua F12)
             var currentUser = await _userManager.GetUserAsync(User);

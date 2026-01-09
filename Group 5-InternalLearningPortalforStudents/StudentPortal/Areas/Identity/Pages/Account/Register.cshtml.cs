@@ -103,7 +103,8 @@ namespace StudentPortal.Areas.Identity.Pages.Account
                     UserName = Input.Email,
                     Email = Input.Email,
                     FullName = Input.FullName, // Gán Họ tên
-                    UserRole = UserRoles.Lecturer // Gán mặc định Role là Lecturer
+                    UserRole = UserRoles.Lecturer, // Gán mặc định Role là Lecturer
+                    EmailConfirmed = true
                 };
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -111,6 +112,7 @@ namespace StudentPortal.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+                    await _userManager.AddToRoleAsync(user, "Lecturer");
 
                     // --- BƯỚC QUAN TRỌNG: TẠO LECTURER ---
                     var lecturer = new Lecturer

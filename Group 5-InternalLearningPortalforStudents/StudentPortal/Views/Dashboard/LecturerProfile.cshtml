@@ -27,7 +27,8 @@
                 <div class="row align-items-center">
                     <div class="col-lg-2 col-md-3">
                         <div class="profile-user-avatar">
-                            <img src="https://via.placeholder.com/150" class="img-fluid img-thumbnail rounded" alt="user avatar">
+                            <img id="avatarPreview" src="@(string.IsNullOrEmpty(Model.User.ImagePath) ? "https://via.placeholder.com/150" : Model.User.ImagePath)"
+                                 style="width:120px; height:120px; object-fit:cover; border-radius:50%; border: 3px solid #eee;" />
                         </div>
                     </div>
                     <div class="col-lg-10 col-md-9">
@@ -142,42 +143,63 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Scripts {
 <script>
+    // --- PHẦN 1: CẤU HÌNH XEM TRƯỚC ẢNH (QUAN TRỌNG) ---
+    // Dùng $(document).on(...) để "đón lõng" sự kiện, kể cả khi Modal chưa hiện ra
+    $(document).on('change', '#avatarFile', function (e) {
+        if (e.target.files && e.target.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // SỬA DÒNG NÀY: Trỏ vào ID mới bên trong Modal
+                $('#avatarPreviewModal').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    // --- PHẦN 2: HÀM MỞ MODAL VÀ XỬ LÝ LƯU ---
     function openProfileModal() {
-        // LƯU Ý: Đại ca nhớ tạo Action "EditLecturerProfile" trong DashboardController
-        // hoặc trỏ đúng đường dẫn form sửa của giảng viên nhé.
         $.get('/Dashboard/EditLecturerProfile', function (data) {
             $('#modal-placeholder').html(data);
-
-            // Vì ID modal có thể nằm trong Partial View trả về,
-            // đảm bảo Partial View có <div id="profileModal" ...>
             $('#profileModal').modal('show');
 
-            // Xử lý khi bấm nút Save (POST)
-            $('#editProfileForm').submit(function (e) {
-                e.preventDefault(); // Chặn load lại trang
+            // Xử lý nút LƯU (Submit form)
+            $('#editProfileForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
 
-                var form = $(this);
+                var form = $(this)[0];
+                var formData = new FormData(form);
+
+                // Hiển thị loading hoặc disable nút lưu nếu cần
+                var btn = $(this).find('button[type="submit"]');
+                btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
+
                 $.ajax({
-                    url: form.attr('action'),
+                    url: $(this).attr('action'),
                     type: 'POST',
-                    data: form.serialize(),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function (response) {
                         if (response.success) {
-                            // Tắt modal và reload trang để thấy thông tin mới
                             $('#profileModal').modal('hide');
-                            location.reload();
+                            location.reload(); // Reload trang để cập nhật hết
                         } else {
-                            // Nếu lỗi (validate), nó sẽ trả về lại form html kèm lỗi
+                            // Nếu lỗi validate, hiện lại form
                             $('#modal-placeholder').html(response);
+                            btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Lưu thông tin');
                         }
                     },
-                    error: function() {
-                        alert("Lỗi hệ thống, vui lòng thử lại sau!");
+                    error: function(xhr, status, error) {
+                        alert("Lỗi hệ thống: " + error);
+                        btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Lưu thông tin');
                     }
                 });
             });
         });
     }
 </script>
+}
