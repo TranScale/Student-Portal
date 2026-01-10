@@ -144,26 +144,16 @@ namespace StudentPortal.Controllers
             ViewData["ListSchedule"] = schedule;
 
             var teachingList = _context.CoursesSections
-                .Include(cs => cs.Course) 
+                .Include(cs => cs.Course)
                 .Include(cs => cs.Lecturer)
                 .Include(cs => cs.Semester)
                 .Where(cs => cs.LecturerId == lecturer.LecturerId
-                       && cs.Semester.StartDate <= DateTime.Now
-                       && cs.Semester.EndDate >= DateTime.Now)
+                        && cs.Semester.StartDate <= DateTime.Now
+                        && cs.Semester.EndDate >= DateTime.Now)
                 .ToList();
 
             ViewData["teachingList"] = teachingList;
 
-            return View();
-        }
-
-        public async Task<ActionResult> AdminIndex(DateTime? date)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
             return View();
         }
 
@@ -256,8 +246,8 @@ namespace StudentPortal.Controllers
 
                 int totalClass = listTeaching.Count();
 
-                ViewData["TotalClass"] = totalClass; 
-                ViewData["CourseList"] = listTeaching;   
+                ViewData["TotalClass"] = totalClass;
+                ViewData["CourseList"] = listTeaching;
 
                 return View(lecturer);
             }

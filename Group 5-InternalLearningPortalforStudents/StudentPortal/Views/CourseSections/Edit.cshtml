@@ -1,69 +1,75 @@
 ﻿@model StudentPortal.Models.CourseSection
 
 @{
-    ViewData["Title"] = "Edit";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa Lớp học";
 }
 
-<h1>Edit</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel">
+            <div class="panel-title border-bottom pb-3 mb-3">
+                <i class="fas fa-edit mr-2"></i> Chỉnh sửa Lớp học phần
+            </div>
 
-<h4>CourseSection</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CourseSectionId" />
-            <div class="form-group">
-                <label asp-for="Room" class="control-label"></label>
-                <input asp-for="Room" class="form-control" />
-                <span asp-validation-for="Room" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Days" class="control-label"></label>
-                <input asp-for="Days" class="form-control" />
-                <span asp-validation-for="Days" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DayStart" class="control-label"></label>
-                <input asp-for="DayStart" class="form-control" />
-                <span asp-validation-for="DayStart" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DayEnd" class="control-label"></label>
-                <input asp-for="DayEnd" class="form-control" />
-                <span asp-validation-for="DayEnd" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Sessions" class="control-label"></label>
-                <input asp-for="Sessions" class="form-control" />
-                <span asp-validation-for="Sessions" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseId" class="control-label"></label>
-                <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
-                <span asp-validation-for="CourseId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LecturerId" class="control-label"></label>
-                <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId"></select>
-                <span asp-validation-for="LecturerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="CourseSectionId" />
+
+                <div class="form-group mb-4">
+                    <label asp-for="SemesterId" class="control-label font-weight-bold text-warning">Học kỳ áp dụng</label>
+                    <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
+                    <small class="text-white-50 font-italic">* Thay đổi học kỳ sẽ reset lại ngày bắt đầu/kết thúc.</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="CourseId" class="control-label font-weight-bold">Môn học</label>
+                        <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label asp-for="LecturerId" class="control-label font-weight-bold">Giảng viên</label>
+                        <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId"></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label asp-for="Room" class="control-label">Phòng học</label>
+                        <input asp-for="Room" class="form-control" />
+                        <span asp-validation-for="Room" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label asp-for="Capacity" class="control-label">Sĩ số tối đa</label>
+                        <input asp-for="Capacity" class="form-control" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label asp-for="Sessions" class="control-label">Ca học</label>
+                        <input asp-for="Sessions" class="form-control" />
+                        <span asp-validation-for="Sessions" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Days" class="control-label">Thứ trong tuần</label>
+                    <input asp-for="Days" class="form-control" placeholder="Ví dụ: Monday, Wednesday" />
+                    <span asp-validation-for="Days" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right mt-4">
+                    <a asp-action="Index" class="btn btn-outline-light mr-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-warning font-weight-bold px-4">
+                        <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Import Dữ liệu";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="text-white mb-4"><i class="fas fa-file-import mr-2"></i>Import Sinh viên</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["ErrorDetail"] != null)
+{
+    <div class="alert alert-warning">
+        <strong>Chi tiết lỗi:</strong>
+        <pre class="mt-2 text-danger">@TempData["ErrorDetail"]</pre>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid #4e73df; color: #fff;">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #161925; border-bottom: 1px solid #4e73df;">
+                <h6 class="m-0 font-weight-bold text-primary">Import Danh sách Sinh viên</h6>
+                <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+            </div>
+            <div class="card-body">
+                <form asp-action="ImportStudents" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Chọn file Excel (.xlsx)</label>
+                        <input type="file" name="file" class="form-control-file text-white" accept=".xlsx" required />
+                    </div>
+
+                    <div class="alert alert-info bg-transparent border-info text-info mt-3" style="font-size: 0.9em;">
+                        <strong>Cấu trúc cột (Sheet 1):</strong><br />
+                        - Cột A: Mã Sinh viên (Username)<br />
+                        - Cột B: Họ và tên<br />
+                        - Cột C: Email<br />
+                        - Cột D: ID Bộ môn (Số nguyên, VD: 1)
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-3">
+                        <i class="fas fa-upload mr-2"></i> Tiến hành Import
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

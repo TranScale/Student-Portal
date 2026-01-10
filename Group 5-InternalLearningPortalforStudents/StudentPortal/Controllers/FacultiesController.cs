@@ -28,11 +28,13 @@ namespace StudentPortal.Controllers
 
         // ✅ Student + Lecturer + Admin đều xem được
         [Authorize(Roles = "Admin,Student,Lecturer")]
+        [Authorize(Roles = "Admin,Student,Lecturer")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
             var faculty = await _context.Faculties
+                .Include(f => f.Departments)
                 .FirstOrDefaultAsync(m => m.FacultyId == id);
 
             if (faculty == null) return NotFound();

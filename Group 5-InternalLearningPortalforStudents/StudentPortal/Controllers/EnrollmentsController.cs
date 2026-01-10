@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering; // Thêm namespace này để dùng SelectList
 using Microsoft.EntityFrameworkCore;
 using StudentPortal.Data;
 using StudentPortal.Models;
@@ -34,12 +35,12 @@ namespace StudentPortal.Controllers
                 return RedirectToAction(nameof(LecturerEnrollment));
             }
 
-            // 3. Admin -> Mở lớp (Thêm Enrollment cho mọi người đăng ký)
-            if (User.IsInRole("Admin"))
-            {
-                // Admin dùng Controller khác để quản lý lớp học phần
-                return RedirectToAction("Index", "CourseSections");
-            }
+            // 3. Admin -> Quản lý danh sách đăng ký
+            //if (User.IsInRole("Admin"))
+            //{
+            //    // Admin dùng Controller khác để quản lý lớp học phần
+            //    return RedirectToAction("Index", "CourseSections");
+            //}
 
             return RedirectToAction("AccessDenied", "Account");
         }
@@ -297,6 +298,89 @@ namespace StudentPortal.Controllers
 
             return RedirectToAction(nameof(LecturerEnrollment));
         }
+
+        // Admin: Xem danh sách toàn bộ đăng ký
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> AdminIndex(int? semesterId)
+        //{
+        //    // Load danh sách học kỳ để lọc
+        //    ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", semesterId);
+
+        //    var query = _context.Enrollments
+        //        .Include(e => e.Student).ThenInclude(s => s.User)
+        //        .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
+        //        .Include(e => e.CourseSection).ThenInclude(cs => cs.Semester)
+        //        .AsQueryable();
+
+        //    if (semesterId.HasValue)
+        //    {
+        //        query = query.Where(e => e.CourseSection.SemesterId == semesterId);
+        //    }
+
+        //    // Sắp xếp mới nhất lên đầu
+        //    var enrollments = await query.OrderByDescending(e => e.EnrollmentId).ToListAsync();
+        //    return View(enrollments);
+        //}
+
+        //// Admin: GET trang chỉnh sửa trạng thái
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> AdminEdit(int? id)
+        //{
+        //    if (id == null) return NotFound();
+
+        //    var enrollment = await _context.Enrollments
+        //        .Include(e => e.Student).ThenInclude(s => s.User)
+        //        .Include(e => e.CourseSection).ThenInclude(c => c.Course)
+        //        .Include(e => e.CourseSection).ThenInclude(c => c.Semester)
+        //        .FirstOrDefaultAsync(m => m.EnrollmentId == id);
+
+        //    if (enrollment == null) return NotFound();
+        //    return View(enrollment);
+        //}
+
+        //// Admin: POST cập nhật trạng thái
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> AdminEdit(int id, EnrollmentStatus status)
+        //{
+        //    var enrollment = await _context.Enrollments.FindAsync(id);
+        //    if (enrollment == null) return NotFound();
+
+        //    enrollment.Status = status;
+        //    _context.Update(enrollment);
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Cập nhật trạng thái thành công!";
+        //    return RedirectToAction(nameof(AdminIndex));
+        //}
+
+        //// Admin: Xóa sinh viên khỏi lớp (Bao gồm xóa Score)
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> AdminDelete(int id)
+        //{
+        //    var enrollment = await _context.Enrollments.FindAsync(id);
+        //    if (enrollment != null)
+        //    {
+        //        // Cần xóa cả bảng điểm (Score) nếu đã được tạo để tránh rác database
+        //        var score = await _context.Scores
+        //            .FirstOrDefaultAsync(s => s.StudentId == enrollment.StudentId
+        //                                   && s.CourseSectionId == enrollment.CourseSectionId);
+
+        //        if (score != null) _context.Scores.Remove(score);
+
+        //        _context.Enrollments.Remove(enrollment);
+        //        await _context.SaveChangesAsync();
+        //        TempData["Success"] = "Đã xóa sinh viên khỏi lớp học phần.";
+        //    }
+        //    else
+        //    {
+        //        TempData["Error"] = "Không tìm thấy dữ liệu để xóa.";
+        //    }
+        //    return RedirectToAction(nameof(AdminIndex));
+        //}
 
         // Helper
         private async Task<Student> GetCurrentStudentAsync()

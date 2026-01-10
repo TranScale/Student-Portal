@@ -34,6 +34,9 @@ namespace StudentPortal.Controllers
 
             var course = await _context.Courses
                 .Include(c => c.Department)
+                .Include(c => c.CourseSections)
+                .ThenInclude(cs => cs.Enrollments)
+                .Include(c => c.CourseSections).ThenInclude(cs => cs.Semester)
                 .FirstOrDefaultAsync(m => m.CourseId == id);
 
             if (course == null) return NotFound();
@@ -123,10 +126,26 @@ namespace StudentPortal.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var course = await _context.Courses.FindAsync(id);
-            if (course != null)
+            if (course == null)
+            {
+                return NotFound();
+            }
+            bool isUsedInSections = await _context.CoursesSections.AnyAsync(cs => cs.CourseId == id);
+
+            if (isUsedInSections)
+            {
+                TempData["Error"] = $"Không thể xóa môn '{course.CourseName}' vì đang có lớp học phần hoạt động!";
+                return RedirectToAction(nameof(Index));
+            }
+            try
             {
                 _context.Courses.Remove(course);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa môn học thành công!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Đã xảy ra lỗi khi xóa.";
             }
 
             return RedirectToAction(nameof(Index));

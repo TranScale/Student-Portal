@@ -1,0 +1,76 @@
+﻿@model StudentPortal.Models.ViewModels.LecturerViewModel
+
+@{
+    ViewData["Title"] = "Thêm Giảng viên";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="text-white mb-4">Thêm Giảng viên mới</h2>
+
+<div class="card shadow" style="background-color: #1e2130; border: none;">
+    <div class="card-body p-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <h5 class="text-primary mb-3 border-bottom pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                1. Thông tin Tài khoản
+            </h5>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="LecturerCode" class="text-white control-label"></label> <span class="text-danger">*</span>
+                    <input asp-for="LecturerCode" class="form-control bg-dark text-white border-secondary" placeholder="VD: GV001" />
+                    <span asp-validation-for="LecturerCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="Email" class="text-white control-label"></label> <span class="text-danger">*</span>
+                    <input asp-for="Email" class="form-control bg-dark text-white border-secondary" placeholder="email@example.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="Password" class="text-white control-label"></label>
+                    <input asp-for="Password" class="form-control bg-dark text-white border-secondary" placeholder="Mặc định: Lecturer@123" />
+                </div>
+            </div>
+
+            <h5 class="text-primary mt-4 mb-3 border-bottom pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                2. Thông tin Cá nhân & Công tác
+            </h5>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="FullName" class="text-white control-label"></label> <span class="text-danger">*</span>
+                    <input asp-for="FullName" class="form-control bg-dark text-white border-secondary" placeholder="Nhập họ và tên" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label asp-for="FacultyId" class="text-white control-label"></label> <span class="text-danger">*</span>
+                    <select asp-for="FacultyId" class="form-control bg-dark text-white border-secondary" asp-items="ViewBag.FacultyId">
+                        <option value="">-- Chọn Khoa --</option>
+                    </select>
+                    <span asp-validation-for="FacultyId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="DateOfBirth" class="text-white control-label"></label>
+                    <input asp-for="DateOfBirth" class="form-control bg-dark text-white border-secondary" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="PhoneNumber" class="text-white control-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control bg-dark text-white border-secondary" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="Address" class="text-white control-label"></label>
+                    <input asp-for="Address" class="form-control bg-dark text-white border-secondary" />
+                </div>
+            </div>
+
+            <div class="form-group mt-4 text-right">
+                <a asp-action="Index" class="btn btn-secondary mr-2">Quay lại</a>
+                <button type="submit" class="btn btn-success px-5"><i class="fas fa-save mr-2"></i>Lưu hồ sơ</button>
+            </div>
+        </form>
+    </div>
+</div>

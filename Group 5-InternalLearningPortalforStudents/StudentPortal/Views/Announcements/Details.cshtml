@@ -1,60 +1,67 @@
 ﻿@model StudentPortal.Models.Announcement
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết Thông báo";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Details</h1>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="glass-panel">
 
-<div>
-    <h4>Announcement</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Summary)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Summary)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Content)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Content)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ExpiredDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ExpiredDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Taker)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Taker)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.AnnouncementId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                <div class="mb-3 border-bottom border-secondary pb-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            @if (Model.Taker == StudentPortal.Models.RecipientType.All)
+                            {
+                                <span class="badge badge-info mb-2">Gửi: Tất cả</span>
+                            }
+                            else if (Model.Taker == StudentPortal.Models.RecipientType.Student)
+                            {
+                                <span class="badge badge-success mb-2">Gửi: Sinh viên</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning mb-2">Gửi: Giảng viên</span>
+                            }
+
+                            <h2 class="text-white font-weight-bold display-5">@Model.Title</h2>
+                        </div>
+
+                        <a asp-action="Edit" asp-route-id="@Model.AnnouncementId" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-edit mr-1"></i> Sửa
+                        </a>
+                    </div>
+
+                    <div class="mt-2 text-white-50">
+                        <i class="fas fa-user-circle mr-1"></i> <span class="mr-3">@(Model.User?.FullName ?? "Admin")</span>
+                        <i class="far fa-clock mr-1"></i> <span class="mr-3">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
+
+                        @if (Model.ExpiredDate.HasValue)
+                        {
+                            <span class="@(Model.ExpiredDate.Value < DateTime.Now ? "text-danger" : "text-warning")">
+                                <i class="fas fa-hourglass-end mr-1"></i> Hết hạn: @Model.ExpiredDate.Value.ToString("dd/MM/yyyy")
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="alert alert-dark border-secondary text-white-50 font-italic mb-4" role="alert">
+                    <strong class="text-white">Tóm tắt:</strong> @Model.Summary
+                </div>
+
+                <div class="text-white content-body mb-5" style="font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap;">
+                    @Model.Content
+                </div>
+
+                <div class="text-center border-top border-secondary pt-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>

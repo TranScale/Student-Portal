@@ -1,0 +1,50 @@
+﻿@model StudentPortal.Models.Semester
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chi tiết Học kỳ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow" style="background-color: #1e2130; border: none; color: white;">
+            <div class="card-header border-bottom-0 pt-4" style="background: none;">
+                <h4 class="font-weight-bold"><i class="fas fa-info-circle mr-2"></i>Chi tiết Học kỳ</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-white-50">Tên học kỳ:</dt>
+                    <dd class="col-sm-8 font-weight-bold">@Html.DisplayFor(model => model.SemesterName)</dd>
+
+                    <dt class="col-sm-4 text-white-50">Năm học:</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.AcademicYear)</dd>
+
+                    <dt class="col-sm-4 text-white-50">Thời gian:</dt>
+                    <dd class="col-sm-8">
+                        @Model.StartDate.ToString("dd/MM/yyyy")
+                        <span class="mx-2">-</span>
+                        @Model.EndDate.ToString("dd/MM/yyyy")
+                    </dd>
+
+                    <dt class="col-sm-4 text-white-50">Trạng thái:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.IsActive == true)
+                        {
+                            <span class="text-success"><i class="fas fa-check-circle mr-1"></i>Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="text-secondary"><i class="fas fa-stop-circle mr-1"></i>Đã đóng</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer border-top-0 pb-4 text-right" style="background: none;">
+                <a asp-action="Index" class="btn btn-secondary mr-2">Quay lại</a>
+                <a asp-action="Edit" asp-route-id="@Model.SemesterId" class="btn btn-primary">
+                    <i class="fas fa-pen mr-2"></i>Chỉnh sửa
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

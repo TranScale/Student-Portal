@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using StudentPortal.Business.Implementation;
 using StudentPortal.Business.Interface;
@@ -68,8 +69,11 @@ builder.Services.AddScoped<ICourseSectionService, CourseSectionService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<ICourseMaterialService, CourseMaterialService>();
 builder.Services.AddScoped<IScoreService, ScoreService>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
+// Đặt context license cho EPPlus (Bắt buộc)
+OfficeOpenXml.ExcelPackage.License.SetNonCommercialPersonal("StudentPortal");
 
 // --- 4. SEED DATA (KHỞI TẠO DỮ LIỆU MẪU) ---
 using (var scope = app.Services.CreateScope())

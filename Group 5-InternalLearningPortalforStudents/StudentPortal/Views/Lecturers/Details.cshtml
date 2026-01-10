@@ -1,0 +1,205 @@
+﻿@model StudentPortal.Models.Lecturer
+
+@{
+    ViewData["Title"] = "Hồ sơ Giảng viên";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .profile-header-banner {
+        height: 150px;
+        background: linear-gradient(to right, #f83600 0%, #f9d423 100%); /* Màu cam/vàng cho giảng viên để khác sinh viên */
+        border-radius: 15px 15px 0 0;
+        position: relative;
+    }
+
+    .profile-user-avatar {
+        position: relative;
+        margin-top: -75px;
+        margin-left: 20px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background-color: #1e2130;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #ffc107; /* Màu vàng cam */
+        color: #212529;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        font-weight: bold;
+    }
+
+    .profile-user-info h4 {
+        color: white;
+        font-weight: bold;
+    }
+
+    .profile-user-info p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-weight-bold text-white mb-0">Hồ sơ Giảng viên</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.LecturerId" class="btn btn-warning shadow-sm">
+            <i class="fas fa-pen mr-2"></i>Cập nhật
+        </a>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm ml-2">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="glass-panel p-0 mb-4">
+            <div class="profile-header-banner">
+                <div class="text-right p-4 text-white">
+                    <h3 class="mt-2" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">UEF LECTURER</h3>
+                    <p style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Đội ngũ giảng dạy chất lượng cao</p>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-2 col-md-3">
+                        <div class="profile-user-avatar">
+                            <div class="avatar-circle">
+                                @(Model.User.FullName?.Substring(0, 1) ?? "G")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="profile-user-info mt-3 mt-md-0 ml-md-3">
+                            <h4 class="mb-1">@Model.User.FullName</h4>
+                            <p class="mb-2">
+                                <span class="badge badge-light text-dark mr-2">@Model.User.UserName</span>
+                                <span class="badge badge-warning">Giảng viên</span>
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-briefcase mr-1"></i> @(Model.Faculty?.FacultyName ?? "Chưa phân khoa")
+                                &nbsp;|&nbsp;
+                                <i class="fas fa-envelope mr-1"></i> @Model.User.Email
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-3 text-md-right mt-3 mt-md-0">
+                        <div class="d-inline-block text-center mr-4">
+                            <h4 class="text-white font-weight-bold mb-0">@Model.CoursesSection?.Count</h4>
+                            <small class="text-white-50">Lớp giảng dạy</small>
+                        </div>
+                        <div class="d-inline-block text-center">
+                            <h4 class="text-white font-weight-bold mb-0">Active</h4>
+                            <small class="text-white-50">Trạng thái</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="glass-panel h-100">
+            <h5 class="text-uppercase border-bottom pb-2 mb-3 text-white" style="border-color: rgba(255,255,255,0.1) !important;">
+                Thông tin liên hệ
+            </h5>
+            <ul class="list-unstyled text-white">
+                <li class="mb-3">
+                    <i class="fas fa-envelope mr-2 text-warning"></i>
+                    <strong>Email:</strong>
+                    <div class="ml-4 text-white-50">@Model.User.Email</div>
+                </li>
+                <li class="mb-3">
+                    <i class="fas fa-phone mr-2 text-success"></i>
+                    <strong>Số điện thoại:</strong>
+                    <div class="ml-4 text-white-50">@(Model.User.PhoneNumber ?? "Chưa cập nhật")</div>
+                </li>
+                <li class="mb-3">
+                    <i class="fas fa-building mr-2 text-info"></i>
+                    <strong>Khoa / Bộ môn:</strong>
+                    <div class="ml-4 text-white-50">@(Model.Faculty?.FacultyName ?? "Chưa cập nhật")</div>
+                </li>
+                <li class="mb-3">
+                    <i class="fas fa-map-marker-alt mr-2 text-danger"></i>
+                    <strong>Địa chỉ:</strong>
+                    <div class="ml-4 text-white-50">@(Model.User.Address ?? "Chưa cập nhật")</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="glass-panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-white mb-0">Các học phần đang giảng dạy</h5>
+                <span class="badge badge-primary">HK Hiện tại</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table-admin">
+                    <thead>
+                        <tr>
+                            <th>Mã môn</th>
+                            <th>Tên môn học</th>
+                            <th>Phòng học</th>
+                            <th>Học kỳ</th>
+                            <th class="text-center">Tín chỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.CoursesSection != null && Model.CoursesSection.Count > 0)
+                        {
+                            @foreach (var item in Model.CoursesSection)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-info p-2">@item.Course.CourseCode</span>
+                                    </td>
+                                    <td>
+                                        <div class="font-weight-bold text-white">@item.Course.CourseName</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary">@item.Room</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-white-50">
+                                            @(item.Semester?.SemesterName ?? item.SemesterId.ToString())
+                                        </span>
+                                    </td>
+                                    <td class="text-center font-weight-bold text-white">
+                                        @item.Course.CourseCredit
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-chalkboard-teacher fa-2x text-white-50 mb-2"></i>
+                                    <p class="text-white-50">Giảng viên này chưa được phân công lớp nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -41,7 +41,7 @@ namespace StudentPortal.Models
 
         //Một khóa học có một người giảng viên
         [ForeignKey("Lecturer")]
-        public int LecturerId { get; set; }
+        public int LecturerId { get; set; } 
         [ValidateNever]
         public Lecturer Lecturer { get; set; } = null!;
 

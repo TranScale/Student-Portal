@@ -1,42 +1,215 @@
 ﻿@model StudentPortal.Models.Department
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết Ngành";
+    Layout = "_AdminLayout";
 }
 
-<h1>Details</h1>
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        overflow: hidden;
+    }
 
-<div>
-    <h4>Department</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DepartmentName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DepartmentName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DepartmentDescription)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DepartmentDescription)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DepartmentCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DepartmentCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Faculty)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Faculty.FacultyCode)
-        </dd>
-    </dl>
+    .profile-header-banner {
+        height: 150px;
+        background: linear-gradient(to right, #11998e 0%, #38ef7d 100%);
+        position: relative;
+    }
+
+    .profile-user-avatar {
+        position: relative;
+        margin-top: -75px;
+        margin-left: 30px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #1e2130;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+
+    .avatar-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #20c997;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+    }
+
+    .info-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        transition: all 0.3s;
+    }
+
+        .info-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-weight-bold text-white mb-0">Quản lý Ngành</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.DepartmentId" class="btn btn-warning shadow-sm">
+            <i class="fas fa-pen mr-2"></i>Cập nhật
+        </a>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm ml-2">
+            <i class="fas fa-arrow-left mr-2"></i>Quay lại
+        </a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.DepartmentId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="glass-panel">
+            <div class="profile-header-banner">
+                <div class="text-right p-4 text-white">
+                    <h3 class="mt-2" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">DEPARTMENT INFO</h3>
+                    <p style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Thông tin chuyên ngành</p>
+                </div>
+            </div>
+
+            <div class="px-4 pb-4">
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="profile-user-avatar">
+                            <div class="avatar-circle">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col pt-3">
+                        <h3 class="text-white font-weight-bold mb-1">@Model.DepartmentName</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-light text-dark mr-2" style="font-size: 14px;">
+                                <i class="fas fa-barcode mr-1"></i> @Model.DepartmentCode
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border-top: 1px solid rgba(255,255,255,0.1);" class="mt-4 mb-4">
+
+                <div class="row">
+                    <div class="col-lg-4 mb-3">
+                        <h5 class="text-white-50 text-uppercase font-weight-bold mb-3" style="font-size: 0.9rem;">
+                            Đơn vị trực thuộc
+                        </h5>
+                        <a asp-controller="Faculties" asp-action="Details" asp-route-id="@Model.FacultyId" class="text-decoration-none">
+                            <div class="info-card d-flex align-items-center">
+                                <div class="mr-3 text-center" style="width: 50px;">
+                                    <i class="fas fa-university fa-2x text-info"></i>
+                                </div>
+                                <div>
+                                    <small class="text-white-50 d-block">Trực thuộc Khoa</small>
+                                    <strong class="text-white" style="font-size: 1.1rem;">
+                                        @(Model.Faculty?.FacultyName ?? "Chưa phân bổ")
+                                    </strong>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <h5 class="text-white-50 text-uppercase font-weight-bold mb-3" style="font-size: 0.9rem;">
+                            Giới thiệu
+                        </h5>
+                        <div class="glass-panel p-3" style="background: rgba(0,0,0,0.2); border: none;">
+                            <p class="text-white mb-0">@Model.DepartmentDescription</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="glass-panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3 p-3 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
+                <h5 class="text-white mb-0">
+                    <i class="fas fa-book mr-2"></i>Chương trình đào tạo / Môn học
+                </h5>
+                <span class="badge badge-success px-3 py-2">
+                    @(Model.Courses?.Count ?? 0) Môn
+                </span>
+            </div>
+
+            <div class="p-3">
+                <div class="table-responsive">
+                    <table class="table text-white mb-0">
+                        <thead style="background: rgba(0,0,0,0.2);">
+                            <tr>
+                                <th class="border-top-0">Mã Môn</th>
+                                <th class="border-top-0">Tên Môn học</th>
+                                <th class="border-top-0 text-center">Số Tín chỉ</th>
+                                <th class="border-top-0 text-right">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Courses != null && Model.Courses.Any())
+                            {
+                                foreach (var item in Model.Courses)
+                                {
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td class="align-middle">
+                                            <span class="badge badge-light text-dark font-weight-bold">
+                                                @item.CourseCode
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <strong class="d-block">@item.CourseName</strong>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="badge badge-info p-2">@item.CourseCredit TC</span>
+                                        </td>
+                                        <td class="align-middle text-right">
+                                            <a asp-controller="Courses" asp-action="Edit" asp-route-id="@item.CourseId" class="btn btn-sm btn-outline-warning mr-1" title="Sửa">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a asp-controller="Courses" asp-action="Details" asp-route-id="@item.CourseId" class="btn btn-sm btn-outline-info" title="Chi tiết">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="text-white-50">
+                                            <i class="fas fa-box-open fa-3x mb-3" style="opacity: 0.5;"></i>
+                                            <p class="font-italic mb-3">Chưa có môn học nào thuộc ngành này.</p>
+
+                                            <a asp-controller="Subjects" asp-action="Create" asp-route-departmentId="@Model.DepartmentId" class="btn btn-primary btn-sm shadow">
+                                                <i class="fas fa-plus mr-1"></i> Thêm môn học ngay
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

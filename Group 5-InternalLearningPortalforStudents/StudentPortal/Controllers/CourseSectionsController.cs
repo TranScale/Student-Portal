@@ -21,15 +21,13 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
-        // ==========================================
-        // 1. INDEX & DETAILS
-        // ==========================================
         public async Task<IActionResult> Index()
         {
             var sections = _context.CoursesSections
                 .Include(c => c.Course)
-                .Include(c => c.Lecturer).ThenInclude(l => l.User) // Include User để lấy tên GV
-                .Include(c => c.Semester); // Include Semester để hiển thị
+                .Include(c => c.Lecturer).ThenInclude(l => l.User)
+                .Include(c => c.Semester)
+                .OrderByDescending(c => c.CourseSectionId);
 
             return View(await sections.ToListAsync());
         }
@@ -49,24 +47,13 @@ namespace StudentPortal.Controllers
             return View(courseSection);
         }
 
-        // ==========================================
-        // 2. CREATE (ADMIN ONLY)
-        // ==========================================
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            // Load danh sách Course: Hiển thị Mã + Tên
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName");
-
-            // Load danh sách Lecturer: Hiển thị Tên Giảng Viên (Thay vì ID)
-            var lecturers = _context.Lecturers.Include(l => l.User)
-                .Select(l => new { LecturerId = l.LecturerId, FullName = l.User.FullName })
-                .ToList();
+            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName");
-
-            // Load danh sách Semester (Chỉ lấy kỳ đang Active hoặc tương lai)
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName");
-
             return View();
         }
 
@@ -75,37 +62,39 @@ namespace StudentPortal.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("CourseSectionId,Room,Capacity,Days,Sessions,CourseId,LecturerId,SemesterId")] CourseSection courseSection)
         {
+            ModelState.Remove("DayStart");
+            ModelState.Remove("DayEnd");
+            ModelState.Remove("Course");
+            ModelState.Remove("Lecturer");
+            ModelState.Remove("Semester");
+
+            var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
+            if (semester != null)
+            {
+                courseSection.DayStart = semester.StartDate;
+                courseSection.DayEnd = semester.EndDate;
+            }
+            else
+            {
+                ModelState.AddModelError("SemesterId", "Học kỳ không hợp lệ");
+            }
+
             if (ModelState.IsValid)
             {
-                // 1. Ràng buộc ngày: Lấy ngày từ Semester
-                var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
-                if (semester != null)
-                {
-                    courseSection.DayStart = semester.StartDate;
-                    courseSection.DayEnd = semester.EndDate;
-                }
-
-                // 2. Lưu CourseSection trước để lấy ID
                 _context.Add(courseSection);
                 await _context.SaveChangesAsync();
-
-                // 3. Tự động sinh ScheduleItems (Thời khóa biểu chi tiết)
                 await GenerateScheduleItems(courseSection);
-
                 return RedirectToAction(nameof(Index));
             }
 
-            // Reload data nếu lỗi
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
             return View(courseSection);
         }
 
-        // ==========================================
-        // 3. EDIT (ADMIN ONLY)
-        // ==========================================
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -115,11 +104,10 @@ namespace StudentPortal.Controllers
             if (courseSection == null) return NotFound();
 
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
-
-            ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
+            ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName", courseSection.SemesterId);
 
             return View(courseSection);
         }
@@ -131,27 +119,29 @@ namespace StudentPortal.Controllers
         {
             if (id != courseSection.CourseSectionId) return NotFound();
 
+            ModelState.Remove("DayStart");
+            ModelState.Remove("DayEnd");
+            ModelState.Remove("Course");
+            ModelState.Remove("Lecturer");
+            ModelState.Remove("Semester");
+
+            var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
+            if (semester != null)
+            {
+                courseSection.DayStart = semester.StartDate;
+                courseSection.DayEnd = semester.EndDate;
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // 1. Cập nhật ngày theo Semester (nếu Semester thay đổi)
-                    var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
-                    if (semester != null)
-                    {
-                        courseSection.DayStart = semester.StartDate;
-                        courseSection.DayEnd = semester.EndDate;
-                    }
-
                     _context.Update(courseSection);
 
-                    // 2. Xóa lịch cũ & Tạo lịch mới (Để đồng bộ dữ liệu nếu đổi ngày/thứ)
                     var oldSchedules = _context.ScheduleItems.Where(s => s.CourseSectionId == id);
                     _context.ScheduleItems.RemoveRange(oldSchedules);
 
-                    await _context.SaveChangesAsync(); // Commit xóa và update
-
-                    // 3. Tạo lại lịch mới
+                    await _context.SaveChangesAsync();
                     await GenerateScheduleItems(courseSection);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -161,45 +151,13 @@ namespace StudentPortal.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            // Reload view
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
+
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
+            // Đã sửa: Lọc bỏ system
+            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
             ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
             return View(courseSection);
-        }
-
-        // ==========================================
-        // 4. DELETE & HELPER
-        // ==========================================
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-            var courseSection = await _context.CoursesSections
-                .Include(c => c.Course)
-                .Include(c => c.Lecturer).ThenInclude(l => l.User)
-                .FirstOrDefaultAsync(m => m.CourseSectionId == id);
-            if (courseSection == null) return NotFound();
-            return View(courseSection);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var courseSection = await _context.CoursesSections.FindAsync(id);
-            if (courseSection != null)
-            {
-                // ScheduleItems sẽ tự xóa nếu có Cascade Delete, nếu không thì xóa thủ công:
-                var schedules = _context.ScheduleItems.Where(s => s.CourseSectionId == id);
-                _context.ScheduleItems.RemoveRange(schedules);
-
-                _context.CoursesSections.Remove(courseSection);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
         }
 
         private bool CourseSectionExists(int id)
@@ -207,22 +165,14 @@ namespace StudentPortal.Controllers
             return _context.CoursesSections.Any(e => e.CourseSectionId == id);
         }
 
-        // ---------------------------------------------------------
-        // LOGIC TẠO THỜI KHÓA BIỂU TỰ ĐỘNG
-        // ---------------------------------------------------------
         private async Task GenerateScheduleItems(CourseSection section)
         {
             var scheduleItems = new List<ScheduleItem>();
-
-            // Duyệt từ ngày bắt đầu đến kết thúc
             for (DateTime date = section.DayStart; date <= section.DayEnd; date = date.AddDays(1))
             {
-                // Kiểm tra xem ngày này (Thứ 2, 3...) có nằm trong lịch học (Days) không
                 if (IsClassDay(section.Days, date.DayOfWeek))
                 {
-                    // Tính tuần học (Tuần 1, Tuần 2...)
                     int weekNum = (date.Subtract(section.DayStart).Days / 7) + 1;
-
                     scheduleItems.Add(new ScheduleItem
                     {
                         CourseSectionId = section.CourseSectionId,
@@ -231,7 +181,6 @@ namespace StudentPortal.Controllers
                     });
                 }
             }
-
             if (scheduleItems.Any())
             {
                 _context.ScheduleItems.AddRange(scheduleItems);
@@ -239,7 +188,6 @@ namespace StudentPortal.Controllers
             }
         }
 
-        // Helper check cờ Enum
         private bool IsClassDay(ClassDays days, DayOfWeek dayOfWeek)
         {
             switch (dayOfWeek)
