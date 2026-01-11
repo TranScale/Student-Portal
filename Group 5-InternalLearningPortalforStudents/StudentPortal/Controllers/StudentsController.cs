@@ -22,12 +22,51 @@ namespace StudentPortal.Controllers
         }
 
         // 1. DANH SÁCH SINH VIÊN
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? departmentId, int? admissionYear, int? pageNumber)
         {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentDept"] = departmentId;
+            ViewData["CurrentYear"] = admissionYear;
+
+            ViewBag.Departments = new SelectList(_context.Departments, "DepartmentId", "DepartmentName", departmentId);
+
+            var years = await _context.Students
+                .Select(s => s.StartStudyDate.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+            ViewBag.Years = new SelectList(years, admissionYear);
+
+
             var students = _context.Students
-                .Include(s => s.User)       // Join bảng User để lấy Tên
-                .Include(s => s.Department); // Join bảng Department để lấy Tên Ngành
-            return View(await students.ToListAsync());
+                .Include(s => s.User)       
+                .Include(s => s.Department)
+                .Where(s => !s.IsDeleted)
+                .AsNoTracking();            
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+
+                students = students.Where(s =>
+                    s.User.FullName.Contains(searchString) ||
+                    s.StudentCode.Contains(searchString) ||
+                    s.User.Email.Contains(searchString));
+            }
+
+            if (departmentId.HasValue)
+            {
+                students = students.Where(s => s.DepartmentId == departmentId);
+            }
+
+            if (admissionYear.HasValue)
+            {
+                students = students.Where(s => s.StartStudyDate.Year == admissionYear);
+            }
+
+            students = students.OrderByDescending(s => s.StartStudyDate);
+
+            int pageSize = 10;
+            return View(await PaginatedList<Student>.CreateAsync(students, pageNumber ?? 1, pageSize));
         }
 
         // 2. TẠO MỚI (GET)
@@ -44,19 +83,17 @@ namespace StudentPortal.Controllers
         {
             if (ModelState.IsValid)
             {
-                // A. TẠO USER (IDENTITY)
                 var user = new User
                 {
-                    UserName = model.StudentCode, // Lấy Mã SV làm tên đăng nhập
+                    UserName = model.StudentCode,
                     Email = model.Email,
                     FullName = model.FullName,
                     DateOfBirth = model.DateOfBirth,
                     PhoneNumber = model.PhoneNumber,
                     Address = model.Address,
-                    UserRole = UserRoles.Student // Enum của bạn
+                    UserRole = UserRoles.Student 
                 };
 
-                // Mật khẩu mặc định: Student@123 (Hoặc lấy từ model.Password)
                 string password = !string.IsNullOrEmpty(model.Password) ? model.Password : "Student@123";
 
                 var result = await _userManager.CreateAsync(user, password);
@@ -71,9 +108,10 @@ namespace StudentPortal.Controllers
                     {
                         StudentCode = model.StudentCode,
                         DepartmentId = model.DepartmentId,
-                        StartStudyDate = model.StartStudyDate,
+                        StartStudyDate = DateTime.Today,
                         IsGraduate = false,
-                        UserId = user.Id // <--- LIÊN KẾT KHÓA NGOẠI
+                        UserId = user.Id,
+                        
                     };
 
                     _context.Add(student);
@@ -185,29 +223,26 @@ namespace StudentPortal.Controllers
             return View(student);
         }
 
-        // 6. DELETE (Dùng Popup ở Index nên chỉ cần hàm POST)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Tìm Sinh viên
             var student = await _context.Students.FindAsync(id);
             if (student == null) return NotFound();
 
-            // Tìm User tương ứng để xóa luôn 
+            student.IsDeleted = true;
+            _context.Students.Update(student);
+
             var user = await _userManager.FindByIdAsync(student.UserId.ToString());
-
-            // Xóa Sinh viên trước
-            _context.Students.Remove(student);
-
-            // Xóa User sau 
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.LockoutEnd = DateTimeOffset.MaxValue; 
+                user.LockoutEnabled = true;
+                await _userManager.UpdateAsync(user);
             }
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã xóa hồ sơ sinh viên và tài khoản liên quan!";
+            TempData["Success"] = "Đã chuyển sinh viên vào danh sách lưu trữ (Đã xóa)!";
             return RedirectToAction(nameof(Index));
         }
     }

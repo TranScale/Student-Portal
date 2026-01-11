@@ -1,0 +1,214 @@
+﻿@using StudentPortal.Models
+@model PaginatedList<StudentPortal.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Quản lý Thông báo";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var currentFilter = ViewData["CurrentFilter"] as string;
+    var currentRecipient = ViewData["CurrentRecipient"] as int?;
+}
+
+<style>
+    /* Style cho form tìm kiếm trên nền tối (Giống trang Sinh viên) */
+    .filter-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+        .filter-input:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-color: #007bff;
+            box-shadow: none;
+        }
+
+        .filter-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Màu dropdown options để không bị trắng trên nền trắng */
+        .filter-input option {
+            background-color: #1e2130;
+            color: white;
+        }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #fff;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="font-weight-bold text-white mb-0">Quản lý Thông báo</h2>
+        <a asp-action="AdminCreate" class="btn btn-light text-primary font-weight-bold shadow-sm">
+            <i class="fas fa-plus mr-2"></i>Thêm Tin Mới
+        </a>
+    </div>
+
+    <div class="glass-panel mb-4 p-3">
+        <form asp-action="AdminIndex" method="get">
+            <div class="row">
+                <div class="col-md-5 mb-2">
+                    <input type="text" name="searchString" value="@currentFilter" class="form-control filter-input" placeholder="Tìm theo tiêu đề, nội dung tóm tắt..." />
+                </div>
+
+                <div class="col-md-4 mb-2">
+                    <select name="filterRecipient" class="form-control filter-input" onchange="this.form.submit()">
+                        <option value="">-- Tất cả đối tượng --</option>
+                        @* Value khớp với Enum RecipientType: All=0, Lecturer=1, Student=2 *@
+                        <option value="0" selected="@(currentRecipient == 0)">Gửi Tất cả (All)</option>
+                        <option value="2" selected="@(currentRecipient == 2)">Gửi Sinh viên (Students)</option>
+                        <option value="1" selected="@(currentRecipient == 1)">Gửi Giảng viên (Lecturers)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-2 d-flex">
+                    <button type="submit" class="btn btn-primary mr-2 flex-grow-1"><i class="fas fa-search mr-1"></i> Tìm</button>
+                    <a asp-action="AdminIndex" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-sync-alt"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="glass-panel">
+        <div class="table-responsive">
+            <table class="table table-admin table-hover w-100">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Tóm tắt</th>
+                        <th>Người nhận</th>
+                        <th>Ngày tạo</th>
+                        <th>Hết hạn</th>
+                        <th>Người đăng</th>
+                        <th class="text-right">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count() == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-white-50">
+                                <i class="fas fa-search-minus fa-2x mb-2"></i><br />
+                                Không tìm thấy thông báo nào phù hợp.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="font-weight-bold text-white">@item.Title</td>
+                                <td>@(item.Summary.Length > 40 ? item.Summary.Substring(0, 40) + "..." : item.Summary)</td>
+                                <td>
+                                    @if (item.Taker == RecipientType.All)
+                                    {
+                                        <span class="badge badge-info p-2">Tất cả</span>
+                                    }
+                                    else if (item.Taker == RecipientType.Student)
+                                    {
+                                        <span class="badge badge-success p-2">Sinh viên</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning p-2 text-dark">Giảng viên</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (item.ExpiredDate.HasValue)
+                                    {
+                                        if (item.ExpiredDate.Value < DateTime.Now)
+                                        {
+                                            <span class="text-danger small font-weight-bold">
+                                                @item.ExpiredDate.Value.ToString("dd/MM/yyyy") <br />(Hết hạn)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>@item.ExpiredDate.Value.ToString("dd/MM/yyyy")</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-white-50">-</span>
+                                    }
+                                </td>
+                                <td>@(item.User?.FullName ?? "Admin")</td>
+                                <td class="text-right">
+                                    <a asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="AdminEdit" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle"
+                                            data-toggle="modal" data-target="#deleteModal-@item.AnnouncementId"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                    <div class="modal fade" id="deleteModal-@item.AnnouncementId" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog text-left" role="document">
+                                            <div class="modal-content" style="background-color: #1e2130; color: white; border: 1px solid rgba(255,255,255,0.1);">
+                                                <div class="modal-header border-bottom-0">
+                                                    <h5 class="modal-title">Xác nhận xóa</h5>
+                                                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Bạn có chắc chắn muốn xóa thông báo: <br />
+                                                    <strong class="text-warning">"@item.Title"</strong>?
+                                                </div>
+                                                <div class="modal-footer border-top-0">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                    <form asp-action="AdminDelete" asp-route-id="@item.AnnouncementId" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger">Xóa ngay</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+        <div class="p-3 d-flex justify-content-between align-items-center border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+            <div class="text-white-50 small">
+                Trang @(Model.TotalPages < Model.PageIndex ? 0 : Model.PageIndex) / @Model.TotalPages
+            </div>
+            <div>
+                <a asp-action="AdminIndex"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-searchString="@currentFilter"
+                   asp-route-filterRecipient="@currentRecipient"
+                   class="btn btn-sm btn-outline-light @prevDisabled">
+                    <i class="fas fa-chevron-left mr-1"></i> Trước
+                </a>
+
+                <a asp-action="AdminIndex"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-searchString="@currentFilter"
+                   asp-route-filterRecipient="@currentRecipient"
+                   class="btn btn-sm btn-outline-light ml-2 @nextDisabled">
+                    Sau <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

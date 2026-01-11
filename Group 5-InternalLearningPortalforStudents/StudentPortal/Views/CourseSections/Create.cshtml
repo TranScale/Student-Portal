@@ -26,7 +26,10 @@
 
             <div class="form-group">
                 <label asp-for="LecturerId" class="control-label font-weight-bold">Giảng viên phụ trách</label>
-                <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId"></select>
+                <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId">
+                    <option value="0">--- Chưa phân công ---</option>
+                </select>
+                <span asp-validation-for="LecturerId" class="text-danger"></span>
             </div>
 
             <div class="row">

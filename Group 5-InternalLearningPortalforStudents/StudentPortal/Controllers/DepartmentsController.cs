@@ -20,16 +20,34 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
-        // ✅ Student + Lecturer + Admin đều xem được
         [Authorize(Roles = "Admin,Student,Lecturer")]
-        public async Task<IActionResult> Index()
+        // Action Index
+        public async Task<IActionResult> Index(string searchString, int? facultyId, int? pageNumber)
         {
-            var studentPortalContext = _context.Departments.Include(d => d.Faculty);
-            return View(await studentPortalContext.ToListAsync());
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentFaculty"] = facultyId; 
+
+            var departments = _context.Departments.Include(d => d.Faculty).AsQueryable();
+            if (facultyId.HasValue)
+            {
+                departments = departments.Where(d => d.FacultyId == facultyId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                departments = departments.Where(d => d.DepartmentName.Contains(searchString)
+                                                  || d.DepartmentCode.Contains(searchString));
+            }
+
+            departments = departments.OrderBy(d => d.DepartmentName);
+
+            ViewBag.Faculties = new SelectList(_context.Faculties, "FacultyId", "FacultyName", facultyId);
+
+            int pageSize = 5;
+            return View(await PaginatedList<Department>.CreateAsync(departments.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
-        // ✅ Student + Lecturer + Admin đều xem được
-        [Authorize(Roles = "Admin,Student,Lecturer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

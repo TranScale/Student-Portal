@@ -15,6 +15,8 @@ namespace StudentPortal.Models
         [Display(Name = "Trạng thái")]
         public bool IsGraduate { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         //Khóa ngoại, sinh viên là một User
         [ForeignKey("User")]
         public int UserId { get; set; }

@@ -32,20 +32,20 @@ namespace StudentPortal.Controllers
         public async Task<IActionResult> Index()
         {
             var announcementsQuery = _context.Announcements.Include(a => a.User);
-            var listAnnouncements = await announcementsQuery.ToListAsync(); // [cite: 5]
+            var listAnnouncements = await announcementsQuery.ToListAsync();
 
             if (User.IsInRole("Student"))
             {
-                return RedirectToAction(nameof(StudentAnnouncement)); // [cite: 6]
+                return RedirectToAction(nameof(StudentAnnouncement));
             }
             else if (User.IsInRole("Lecturer"))
             {
-                return RedirectToAction(nameof(LecturerAnnouncement)); // [cite: 7]
+                return RedirectToAction(nameof(LecturerAnnouncement));
             }
             else if (User.IsInRole("Admin"))
             {
                 // Logic cũ của bạn trỏ về View AdminIndex
-                return View("AdminIndex", listAnnouncements); // [cite: 8]
+                return RedirectToAction(nameof(AdminIndex));
             }
             return View(listAnnouncements); // [cite: 9]
         }
@@ -301,15 +301,41 @@ namespace StudentPortal.Controllers
         // (Tôi đã đổi tên hàm thành Admin... để không bị trùng với phần trên)
         // ============================================================
 
-        // 1. Admin Index (Thay thế cho Index của bạn kia) [cite: 73]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AdminIndex()
+        public async Task<IActionResult> AdminIndex(string searchString, int? filterRecipient, int? pageNumber)
         {
-            var announcements = await _context.Announcements
-                .Include(a => a.User)
-                .OrderByDescending(a => a.CreatedDate)
-                .ToListAsync();
-            return View("AdminIndex", announcements); // Đảm bảo bạn có View tên là AdminIndex.cshtml
+            // 1. Lưu giữ trạng thái để View hiển thị lại
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentRecipient"] = filterRecipient;
+
+            // 2. Query cơ bản
+            var announcements = _context.Announcements
+                .Include(a => a.User) // Join bảng User để lấy tên người đăng
+                .AsQueryable();
+
+            // 3. Xử lý Tìm kiếm
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                announcements = announcements.Where(s =>
+                    s.Title.Contains(searchString) ||
+                    s.Summary.Contains(searchString));
+            }
+
+            // 4. Xử lý Lọc theo Role (RecipientType)
+            if (filterRecipient.HasValue)
+            {
+                var enumType = (RecipientType)filterRecipient.Value;
+                announcements = announcements.Where(s => s.Taker == enumType);
+            }
+
+            // 5. Sắp xếp (Mới nhất lên đầu)
+            announcements = announcements.OrderByDescending(a => a.CreatedDate).Take(3);
+
+            // 6. Phân trang
+            int pageSize = 5; // Số dòng trên 1 trang
+
+            // Chuyển đổi sang PaginatedList và trả về View
+            return View("AdminIndex", await PaginatedList<Announcement>.CreateAsync(announcements.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // 2. Admin Create - GET (Thay thế Create cũ) [cite: 75]

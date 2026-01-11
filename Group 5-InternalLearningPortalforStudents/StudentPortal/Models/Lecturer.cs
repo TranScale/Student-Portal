@@ -6,6 +6,7 @@ namespace StudentPortal.Models
     public class Lecturer
     {
         public int LecturerId { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         //Khóa ngoại, Lecturer là một user
         [ForeignKey("User")]

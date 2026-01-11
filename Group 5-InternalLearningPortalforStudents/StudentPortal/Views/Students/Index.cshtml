@@ -1,4 +1,5 @@
-﻿@model IEnumerable<StudentPortal.Models.Student>
+﻿@using StudentPortal.Models
+@model PaginatedList<StudentPortal.Models.Student>
 
 @{
     ViewData["Title"] = "Quản lý Sinh viên";
@@ -6,6 +7,7 @@
 }
 
 <style>
+    /* CSS cho trạng thái dựa trên IsGraduate */
     .badge-status-studying {
         background-color: rgba(23, 162, 184, 0.2);
         color: #17a2b8;
@@ -17,6 +19,25 @@
         color: #28a745;
         border: 1px solid rgba(40, 167, 69, 0.3);
     }
+
+    /* Style cho form tìm kiếm trên nền tối */
+    .filter-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+        .filter-input:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-color: #007bff;
+            box-shadow: none;
+        }
+        /* Màu dropdown options */
+        .filter-input option {
+            background-color: #1e2130;
+            color: white;
+        }
 </style>
 
 @if (TempData["Success"] != null)
@@ -34,6 +55,33 @@
     </a>
 </div>
 
+<div class="glass-panel mb-4 p-3">
+    <form asp-action="Index" method="get">
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control filter-input" placeholder="Tìm tên, mã SV, email..." />
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <select name="departmentId" asp-items="ViewBag.Departments" class="form-control filter-input" onchange="this.form.submit()">
+                    <option value="">-- Tất cả Ngành --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <select name="admissionYear" asp-items="ViewBag.Years" class="form-control filter-input" onchange="this.form.submit()">
+                    <option value="">-- Năm nhập học --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-2 d-flex">
+                <button type="submit" class="btn btn-primary mr-2 flex-grow-1"><i class="fas fa-search mr-1"></i> Tìm</button>
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-sync-alt"></i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="glass-panel">
     <div class="table-responsive">
         <table class="table-admin">
@@ -42,12 +90,19 @@
                     <th>Mã SV</th>
                     <th>Họ và Tên</th>
                     <th>Ngành học</th>
+                    <th>Ngày nhập học</th>
                     <th>Email</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-right">Hành động</th>
                 </tr>
             </thead>
             <tbody>
+                @if (Model.Count() == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-white-50">Không tìm thấy sinh viên nào phù hợp.</td>
+                    </tr>
+                }
                 @foreach (var item in Model)
                 {
                     <tr>
@@ -69,6 +124,10 @@
 
                         <td>
                             <div class="font-weight-bold">@item.Department.DepartmentName</div>
+                        </td>
+
+                        <td>
+                            @item.StartStudyDate.ToString("dd/MM/yyyy")
                         </td>
 
                         <td>
@@ -105,6 +164,36 @@
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="p-3 d-flex justify-content-between align-items-center border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+        <div class="text-white-50 small">
+            Trang @(Model.TotalPages < Model.PageIndex ? 0 : Model.PageIndex) / @Model.TotalPages
+        </div>
+        <div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-departmentId="@ViewData["CurrentDept"]"
+               asp-route-admissionYear="@ViewData["CurrentYear"]"
+               class="btn btn-sm btn-outline-light @prevDisabled">
+                <i class="fas fa-chevron-left mr-1"></i> Trước
+            </a>
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-departmentId="@ViewData["CurrentDept"]"
+               asp-route-admissionYear="@ViewData["CurrentYear"]"
+               class="btn btn-sm btn-outline-light ml-2 @nextDisabled">
+                Sau <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+        </div>
     </div>
 </div>
 

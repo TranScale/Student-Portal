@@ -1,9 +1,17 @@
-﻿@model IEnumerable<StudentPortal.Models.Department>
+﻿@using StudentPortal.Models
+@model PaginatedList<StudentPortal.Models.Department>
 
 @{
     ViewData["Title"] = "Quản lý Ngành";
     Layout = "_AdminLayout";
 }
+
+<style>
+    .glass-select option {
+        color: #000 !important;
+        background-color: #fff !important;
+    }
+</style>
 
 @if (TempData["Success"] != null)
 {
@@ -28,6 +36,41 @@
             <i class="fas fa-plus mr-2"></i>Thêm Ngành Mới
         </a>
     }
+</div>
+
+<div class="glass-panel mb-4 p-3">
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="form-row align-items-end">
+
+            <div class="col-md-5 mb-2">
+                <label class="text-white small font-weight-bold">Từ khóa</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent text-white border-secondary">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                           class="form-control bg-transparent text-white border-secondary"
+                           placeholder="Nhập tên ngành hoặc mã ngành..." />
+                </div>
+            </div>
+
+            <div class="col-md-5 mb-2">
+                <label class="text-white small font-weight-bold">Thuộc Khoa</label>
+                <select name="facultyId" class="form-control bg-transparent text-white border-secondary glass-select"
+                        asp-items="ViewBag.Faculties" onchange="this.form.submit()">
+                    <option value="">-- Tất cả các khoa --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <a asp-action="Index" class="btn btn-outline-light btn-block">
+                    <i class="fas fa-sync-alt mr-1"></i> Làm mới
+                </a>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="glass-panel">
@@ -108,14 +151,44 @@
                     <tr>
                         <td colspan="5" class="text-center py-5">
                             <div class="text-white-50">
-                                <i class="fas fa-box-open fa-3x mb-3 opacity-50"></i>
-                                <p>Chưa có dữ liệu ngành nào.</p>
+                                <i class="fas fa-search-minus fa-3x mb-3 opacity-50"></i>
+                                <p>Không tìm thấy ngành nào phù hợp.</p>
+                                <a asp-action="Index" class="btn btn-sm btn-outline-light mt-2">Xóa bộ lọc</a>
                             </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
+        <div class="text-white-50 small">
+            Trang <span class="text-white font-weight-bold">@Model.PageIndex</span> / @Model.TotalPages
+        </div>
+
+        <div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-facultyId="@ViewData["CurrentFaculty"]"
+               class="btn btn-outline-light btn-sm @prevDisabled">
+                <i class="fas fa-chevron-left"></i> Trước
+            </a>
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-facultyId="@ViewData["CurrentFaculty"]"
+               class="btn btn-outline-light btn-sm ml-2 @nextDisabled">
+                Tiếp <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
     </div>
 </div>
 

@@ -3,7 +3,7 @@
     Layout = "_AdminLayout";
 }
 
-<h2 class="text-white mb-4"><i class="fas fa-file-import mr-2"></i>Import Sinh viên</h2>
+<h2 class="text-white mb-4"><i class="fas fa-file-import mr-2"></i>Import Dữ liệu Hệ thống</h2>
 
 @if (TempData["Success"] != null)
 {
@@ -35,7 +35,7 @@
     <div class="col-md-6">
         <div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid #4e73df; color: #fff;">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #161925; border-bottom: 1px solid #4e73df;">
-                <h6 class="m-0 font-weight-bold text-primary">Import Danh sách Sinh viên</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Import Sinh viên</h6>
                 <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
             </div>
             <div class="card-body">
@@ -50,11 +50,40 @@
                         - Cột A: Mã Sinh viên (Username)<br />
                         - Cột B: Họ và tên<br />
                         - Cột C: Email<br />
-                        - Cột D: ID Bộ môn (Số nguyên, VD: 1)
+                        - Cột D: <strong>Tên Ngành (VD: Công nghệ thông tin)</strong>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block mt-3">
-                        <i class="fas fa-upload mr-2"></i> Tiến hành Import
+                        <i class="fas fa-upload mr-2"></i> Import Sinh viên
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid #1cc88a; color: #fff;">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #161925; border-bottom: 1px solid #1cc88a;">
+                <h6 class="m-0 font-weight-bold text-success">Import Giảng viên</h6>
+                <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+            </div>
+            <div class="card-body">
+                <form asp-action="ImportLecturers" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Chọn file Excel (.xlsx)</label>
+                        <input type="file" name="file" class="form-control-file text-white" accept=".xlsx" required />
+                    </div>
+
+                    <div class="alert alert-success bg-transparent border-success text-success mt-3" style="font-size: 0.9em;">
+                        <strong>Cấu trúc cột (Sheet 1):</strong><br />
+                        - Cột A: Mã Giảng viên (Username)<br />
+                        - Cột B: Họ và tên<br />
+                        - Cột C: Email<br />
+                        - Cột D: <strong>Tên Khoa/Đơn vị (VD: Kinh Tế)</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-block mt-3">
+                        <i class="fas fa-upload mr-2"></i> Import Giảng viên
                     </button>
                 </form>
             </div>

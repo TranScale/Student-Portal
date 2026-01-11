@@ -21,14 +21,35 @@ namespace StudentPortal.Controllers
             _userManager = userManager;
         }
 
-        // 1. DANH SÁCH GIẢNG VIÊN
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? facultyId, int? pageNumber)
         {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentFaculty"] = facultyId;
+
+            ViewBag.Faculties = new SelectList(_context.Faculties, "FacultyId", "FacultyName", facultyId);
+
             var lecturers = _context.Lecturers
-                .Include(l => l.User)
-                .Include(l => l.Faculty) // Join bảng Faculty để lấy tên Khoa
-                .Where(l => l.User.UserName != "system");
-            return View(await lecturers.ToListAsync());
+                .Include(l => l.User)       
+                .Include(l => l.Faculty)    
+                .Where(l => !l.IsDeleted && l.User.UserName != "system") 
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                lecturers = lecturers.Where(l =>
+                    l.User.FullName.Contains(searchString) ||
+                    l.LecturerId.ToString().Contains(searchString) || 
+                    l.User.Email.Contains(searchString));
+            }
+
+            if (facultyId.HasValue)
+            {
+                lecturers = lecturers.Where(l => l.FacultyId == facultyId);
+            }
+            lecturers = lecturers.OrderByDescending(l => l.LecturerId);
+
+            int pageSize = 10;
+            return View(await PaginatedList<Lecturer>.CreateAsync(lecturers, pageNumber ?? 1, pageSize));
         }
 
         // 2. GET: CREATE
@@ -186,20 +207,20 @@ namespace StudentPortal.Controllers
             var lecturer = await _context.Lecturers.FindAsync(id);
             if (lecturer == null) return NotFound();
 
-            // Tìm User tương ứng để xóa
+            lecturer.IsDeleted = true;
+            _context.Lecturers.Update(lecturer);
+
             var user = await _userManager.FindByIdAsync(lecturer.UserId.ToString());
-
-            // Xóa Lecturer trước
-            _context.Lecturers.Remove(lecturer);
-
-            // Xóa User sau
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.LockoutEnd = DateTimeOffset.MaxValue; 
+                user.LockoutEnabled = true;
+                await _userManager.UpdateAsync(user);
             }
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã xóa giảng viên và tài khoản liên quan!";
+
+            TempData["Success"] = "Đã chuyển giảng viên vào danh sách lưu trữ (Đã xóa)!";
             return RedirectToAction(nameof(Index));
         }
     }

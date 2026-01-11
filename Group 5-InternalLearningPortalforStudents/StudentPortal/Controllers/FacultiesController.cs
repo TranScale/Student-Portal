@@ -21,13 +21,36 @@ namespace StudentPortal.Controllers
 
         // ✅ Student + Lecturer + Admin đều xem được
         [Authorize(Roles = "Admin,Student,Lecturer")]
-        public async Task<IActionResult> Index()
+        // Nhớ thêm using StudentPortal.Models; (hoặc namespace chứa PaginatedList)
+
+        public async Task<IActionResult> Index(string searchString, string sortOrder, int? pageNumber)
         {
-            return View(await _context.Faculties.ToListAsync());
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+
+            var faculties = _context.Faculties.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                faculties = faculties.Where(f => f.FacultyName.Contains(searchString)
+                                              || f.FacultyCode.Contains(searchString));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    faculties = faculties.OrderByDescending(f => f.FacultyName);
+                    break;
+                default:
+                    faculties = faculties.OrderBy(f => f.FacultyName);
+                    break;
+            }
+
+            int pageSize = 5; 
+            return View(await PaginatedList<StudentPortal.Models.Faculty>.CreateAsync(faculties.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // ✅ Student + Lecturer + Admin đều xem được
-        [Authorize(Roles = "Admin,Student,Lecturer")]
         [Authorize(Roles = "Admin,Student,Lecturer")]
         public async Task<IActionResult> Details(int? id)
         {

@@ -401,43 +401,83 @@ namespace StudentPortal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfileFast(Student modelInput)
         {
-            // Lấy User đang đăng nhập (để bảo mật, tránh sửa hồ sơ người khác qua F12)
             var currentUser = await _userManager.GetUserAsync(User);
 
-            // Lấy dữ liệu gốc từ DB
             var studentInDb = await _context.Students
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
 
             if (studentInDb != null)
             {
-                // --- CẬP NHẬT DỮ LIỆU ---
-                // Dữ liệu mới nằm trong modelInput.User...
-
-                studentInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
-                studentInDb.User.City = modelInput.User.City;
-
-                // [QUAN TRỌNG] Address giờ nằm trong User, không phải Student
-                studentInDb.User.Address = modelInput.User.Address;
-
-                // Các trường mới bạn vừa thêm
-                studentInDb.User.Country = modelInput.User.Country;
-
-                // Chỉ cập nhật ngày sinh nếu hợp lệ (không phải ngày mặc định MinValue)
-                if (modelInput.User.DateOfBirth > DateTime.MinValue)
+                // Kiểm tra xem View có gửi thông tin User lên không
+                if (modelInput.User != null)
                 {
-                    studentInDb.User.DateOfBirth = modelInput.User.DateOfBirth;
+                    // Đảm bảo DB có User để gán
+                    if (studentInDb.User == null) studentInDb.User = currentUser;
+
+                    // --- CHỈ CẬP NHẬT NHỮNG GÌ VIEW GỬI LÊN ---
+
+                    // 1. Cập nhật Số điện thoại
+                    if (!string.IsNullOrEmpty(modelInput.User.PhoneNumber))
+                    {
+                        studentInDb.User.PhoneNumber = modelInput.User.PhoneNumber;
+                    }
+
+                    // 2. Cập nhật Họ tên (Nếu View cho phép sửa)
+                    if (!string.IsNullOrEmpty(modelInput.User.FullName))
+                    {
+                        studentInDb.User.FullName = modelInput.User.FullName;
+                        // Cập nhật lại claim để hiển thị ngay lập tức trên Header (nếu dùng Claim)
+                        // await _signInManager.RefreshSignInAsync(currentUser); 
+                    }
+
                 }
 
-                // Lưu thay đổi vào DB
-                _context.Update(studentInDb);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                TempData["Success"] = "Cập nhật hồ sơ thành công!";
+                // Redirect về lại trang Dashboard để load lại dữ liệu mới nhất
+                return RedirectToAction("StudentIndex");
             }
 
-            // Nếu có lỗi, trả về form cũ
-            return PartialView("_EditProfileModal", modelInput);
+            // Nếu lỗi thì quay lại trang cũ
+            return RedirectToAction("StudentIndex");
         }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminIndex()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            // 1. THỐNG KÊ TỔNG QUAN (Stats Cards)
+            ViewData["TotalStudents"] = await _context.Students.CountAsync();
+
+            // Đếm giảng viên (trừ user system nếu có)
+            ViewData["TotalLecturers"] = await _context.Lecturers.CountAsync(); 
+
+            // Đếm số lớp học phần đang mở (Kiểm tra lại tên bảng trong DBContext của bạn là CourseSections hay CoursesSections nhé)
+            // Ở đây tôi dùng theo code cũ của bạn là CoursesSections
+            ViewData["TotalCourses"] = await _context.CoursesSections.CountAsync();
+
+            // 2. HỌC KỲ HIỆN TẠI
+            var today = DateTime.Now;
+            var currentSemester = await _context.Semesters
+                .Where(s => s.StartDate <= today && s.EndDate >= today)
+                .FirstOrDefaultAsync();
+
+            ViewData["CurrentSemesterName"] = currentSemester != null ? currentSemester.SemesterName : "Chưa thiết lập";
+
+            // 3. (Tùy chọn) Lấy 5 thông báo mới nhất để hiển thị 
+            var recentAnnouncements = await _context.Announcements
+                .Include(a => a.User)
+                .OrderByDescending(a => a.CreatedDate)
+                .Take(5)
+                .ToListAsync();
+            ViewData["RecentAnnouncements"] = recentAnnouncements;
+
+            return View(); // Trả về Views/Dashboard/AdminIndex.cshtml
+        }
+
     }
 }

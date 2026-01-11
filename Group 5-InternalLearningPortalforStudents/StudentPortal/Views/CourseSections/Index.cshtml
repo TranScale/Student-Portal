@@ -1,4 +1,5 @@
-﻿@model IEnumerable<StudentPortal.Models.CourseSection>
+﻿@using StudentPortal.Models
+@model PaginatedList<CourseSection>
 
 @{
     Layout = "_AdminLayout";
@@ -20,13 +21,56 @@
     </a>
 </div>
 
+<div class="glass-panel mb-4 p-3">
+    <form asp-action="Index" method="get">
+        <div class="form-row align-items-end">
+            <div class="col-md-3 mb-2">
+                <label class="text-white small font-weight-bold">Từ khóa</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent text-white border-secondary"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control bg-transparent text-white border-secondary" placeholder="Tên môn, mã môn, phòng..." />
+                </div>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <label class="text-white small font-weight-bold">Học kỳ</label>
+                <select name="semesterId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Semesters" onchange="this.form.submit()">
+                    <option value="">-- Tất cả học kỳ --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <label class="text-white small font-weight-bold">Khoa</label>
+                <select name="facultyId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Faculties" onchange="this.form.submit()">
+                    <option value="">-- Tất cả khoa --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <label class="text-white small font-weight-bold">Ngành</label>
+                <select name="departmentId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Departments" onchange="this.form.submit()">
+                    <option value="">-- Tất cả ngành --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <a asp-action="Index" class="btn btn-outline-light btn-block">
+                    <i class="fas fa-sync-alt mr-1"></i> Làm mới
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="glass-panel">
     <div class="table-responsive">
         <table class="table-admin">
             <thead>
                 <tr>
                     <th>Học kỳ</th>
-                    <th>Môn học</th>
+                    <th>Môn học / Ngành</th>
                     <th>Lớp / Phòng</th>
                     <th>Giảng viên</th>
                     <th>Lịch học</th>
@@ -35,6 +79,16 @@
                 </tr>
             </thead>
             <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-white-50 py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            Không tìm thấy dữ liệu phù hợp
+                        </td>
+                    </tr>
+                }
+
                 @foreach (var item in Model)
                 {
                     <tr>
@@ -44,7 +98,8 @@
 
                         <td>
                             <div class="font-weight-bold text-white">@item.Course?.CourseName</div>
-                            <div class="small text-white-50">@item.Course?.CourseCode</div>
+                            <div class="small text-warning">@item.Course?.CourseCode</div>
+                            <div class="small text-white-50 font-italic">@item.Course?.Department?.DepartmentName</div>
                         </td>
 
                         <td>
@@ -61,7 +116,9 @@
                         </td>
 
                         <td>
-                            <div class="small text-white">@item.Days</div>
+                            <div class="small text-white">
+                                @item.Days
+                            </div>
                             <div class="badge badge-secondary">@item.Sessions</div>
                         </td>
 
@@ -73,14 +130,82 @@
                             <a asp-action="Details" asp-route-id="@item.CourseSectionId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>
-
                             <a asp-action="Edit" asp-route-id="@item.CourseSectionId" class="btn btn-sm btn-outline-info rounded-circle" title="Sửa">
                                 <i class="fas fa-pen"></i>
                             </a>
+                            <form asp-action="Delete" asp-route-id="@item.CourseSectionId" method="post" class="d-inline">
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger rounded-circle"
+                                        title="Xóa"
+                                        onclick="return confirm('CẢNH BÁO: Xóa lớp học này sẽ xóa cả lịch học và danh sách sinh viên.\n\nBạn có chắc chắn không?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="p-3 border-top border-secondary">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link bg-transparent text-white border-secondary"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-semesterId="@ViewData["CurrentSemester"]"
+                           asp-route-facultyId="@ViewData["CurrentFaculty"]"
+                           asp-route-departmentId="@ViewData["CurrentDepartment"]">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item disabled">
+                        <span class="page-link bg-transparent text-white border-secondary">
+                            Trang @Model.PageIndex / @Model.TotalPages
+                        </span>
+                    </li>
+
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link bg-transparent text-white border-secondary"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-semesterId="@ViewData["CurrentSemester"]"
+                           asp-route-facultyId="@ViewData["CurrentFaculty"]"
+                           asp-route-departmentId="@ViewData["CurrentDepartment"]">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <style>
+        /* Bắt buộc các lựa chọn trong thẻ select phải có nền trắng chữ đen */
+        select.form-control option {
+            color: #333333 !important; /* Chữ đen đậm */
+        }
+
+        /* (Tùy chọn) Nếu bạn muốn lúc chưa bấm nó cũng nền trắng chữ đen cho dễ nhìn */
+        select.form-control {
+            background-color: #ffffff !important;
+            color: #333333 !important;
+        }
+    </style>
+
+    <script>
+        // Đoạn script reload khi chọn Khoa (như code trước đã gửi)
+        function submitForm() {
+            document.forms[0].submit();
+        }
+    </script>
+}

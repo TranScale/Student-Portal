@@ -1,9 +1,17 @@
-﻿@model IEnumerable<StudentPortal.Models.Course>
+﻿@using StudentPortal.Models
+@model PaginatedList<StudentPortal.Models.Course>
 
 @{
     ViewData["Title"] = "Quản lý Môn học";
     Layout = "_AdminLayout";
 }
+
+<style>
+    .glass-select option {
+        color: #000 !important;
+        background-color: #fff !important;
+    }
+</style>
 
 @if (TempData["Success"] != null)
 {
@@ -22,11 +30,56 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="font-weight-bold text-white mb-0">Quản lý Môn học</h2>
-    <a asp-action="Create" class="btn btn-light text-primary font-weight-bold shadow-sm">
-        <i class="fas fa-plus mr-2"></i>Thêm Môn Mới
-    </a>
+    @if (User.IsInRole("Admin")) // Kiểm tra quyền nếu cần
+    {
+        <a asp-action="Create" class="btn btn-light text-primary font-weight-bold shadow-sm">
+            <i class="fas fa-plus mr-2"></i>Thêm Môn Mới
+        </a>
+    }
 </div>
 
+<div class="glass-panel mb-4 p-3">
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="form-row align-items-end">
+
+            <div class="col-md-3 mb-2">
+                <label class="text-white small font-weight-bold">Từ khóa</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent text-white border-secondary">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                           class="form-control bg-transparent text-white border-secondary"
+                           placeholder="Tên môn, mã môn..." />
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <label class="text-white small font-weight-bold">Lọc theo Khoa</label>
+                <select name="facultyId" class="form-control bg-transparent text-white border-secondary glass-select"
+                        asp-items="ViewBag.Faculties" onchange="this.form.submit()">
+                    <option value="">-- Tất cả Khoa --</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="text-white small font-weight-bold">Lọc theo Ngành/Bộ môn</label>
+                <select name="departmentId" class="form-control bg-transparent text-white border-secondary glass-select"
+                        asp-items="ViewBag.Departments" onchange="this.form.submit()">
+                    <option value="">-- Tất cả Ngành --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <a asp-action="Index" class="btn btn-outline-light btn-block">
+                    <i class="fas fa-sync-alt mr-1"></i> Làm mới
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
 <div class="glass-panel">
     <div class="table-responsive">
         <table class="table-admin">
@@ -35,7 +88,7 @@
                     <th>Mã môn</th>
                     <th>Tên môn học</th>
                     <th class="text-center">Tín chỉ</th>
-                    <th>Khoa / Bộ môn</th>
+                    <th>Ngành / Bộ môn</th>
                     <th class="text-right">Hành động</th>
                 </tr>
             </thead>
@@ -60,7 +113,20 @@
                             <td>
                                 <div class="text-white small">
                                     <i class="fas fa-university mr-2 text-muted"></i>
-                                    @(item.Department?.DepartmentName ?? "Chung")
+                                    @if (item.Department != null)
+                                    {
+                                        <span>@item.Department.DepartmentName</span>
+                                        @if (item.Department.Faculty != null)
+                                        {
+                                            <div class="text-white-50" style="font-size: 0.8em; margin-left: 24px;">
+                                                (@item.Department.Faculty.FacultyName)
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>Chung</span>
+                                    }
                                 </div>
                             </td>
 
@@ -87,14 +153,46 @@
                     <tr>
                         <td colspan="5" class="text-center py-5">
                             <div class="text-white-50">
-                                <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
-                                <p>Chưa có dữ liệu môn học nào.</p>
+                                <i class="fas fa-search-minus fa-3x mb-3 opacity-50"></i>
+                                <p>Không tìm thấy môn học nào phù hợp.</p>
+                                <a asp-action="Index" class="btn btn-sm btn-outline-light mt-2">Xóa bộ lọc</a>
                             </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
+        <div class="text-white-50 small">
+            Trang <span class="text-white font-weight-bold">@Model.PageIndex</span> / @Model.TotalPages
+        </div>
+
+        <div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-facultyId="@ViewData["CurrentFaculty"]"
+               asp-route-departmentId="@ViewData["CurrentDept"]"
+               class="btn btn-outline-light btn-sm @prevDisabled">
+                <i class="fas fa-chevron-left"></i> Trước
+            </a>
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-searchString="@ViewData["CurrentFilter"]"
+               asp-route-facultyId="@ViewData["CurrentFaculty"]"
+               asp-route-departmentId="@ViewData["CurrentDept"]"
+               class="btn btn-outline-light btn-sm ml-2 @nextDisabled">
+                Tiếp <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
     </div>
 </div>
 

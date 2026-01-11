@@ -1,4 +1,5 @@
 ﻿@model StudentPortal.Models.CourseSection
+@using StudentPortal.Models
 
 @{
     Layout = "_AdminLayout";
@@ -18,43 +19,141 @@
 
                 <div class="form-group mb-4">
                     <label asp-for="SemesterId" class="control-label font-weight-bold text-warning">Học kỳ áp dụng</label>
-                    <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
+                    <select asp-for="SemesterId" class="form-control" asp-items="@(ViewData["SemesterId"] as SelectList)"></select>
+                    <span asp-validation-for="SemesterId" class="text-danger"></span>
                     <small class="text-white-50 font-italic">* Thay đổi học kỳ sẽ reset lại ngày bắt đầu/kết thúc.</small>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label asp-for="CourseId" class="control-label font-weight-bold">Môn học</label>
-                        <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
+                        <label asp-for="CourseId" class="control-label font-weight-bold text-white">Môn học</label>
+                        <select asp-for="CourseId" class="form-control" asp-items="@(ViewData["CourseId"] as SelectList)"></select>
+                        <span asp-validation-for="CourseId" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 form-group">
-                        <label asp-for="LecturerId" class="control-label font-weight-bold">Giảng viên</label>
-                        <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId"></select>
+                        <label asp-for="LecturerId" class="control-label font-weight-bold text-white">Giảng viên</label>
+                        <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId">
+                            <option value="0">--- Chưa phân công ---</option>
+                        </select>
+                        <span asp-validation-for="LecturerId" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-4 form-group">
-                        <label asp-for="Room" class="control-label">Phòng học</label>
+                        <label asp-for="Room" class="control-label text-white">Phòng học</label>
                         <input asp-for="Room" class="form-control" />
                         <span asp-validation-for="Room" class="text-danger"></span>
                     </div>
                     <div class="col-md-4 form-group">
-                        <label asp-for="Capacity" class="control-label">Sĩ số tối đa</label>
+                        <label asp-for="Capacity" class="control-label text-white">Sĩ số tối đa</label>
                         <input asp-for="Capacity" class="form-control" />
                         <span asp-validation-for="Capacity" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label asp-for="Sessions" class="control-label">Ca học</label>
-                        <input asp-for="Sessions" class="form-control" />
-                        <span asp-validation-for="Sessions" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Days" class="control-label">Thứ trong tuần</label>
-                    <input asp-for="Days" class="form-control" placeholder="Ví dụ: Monday, Wednesday" />
-                    <span asp-validation-for="Days" class="text-danger"></span>
+                    <label class="control-label text-white font-weight-bold">Thứ trong tuần</label>
+                    <div class="card p-2" style="background-color: rgba(255,255,255,0.1); border: 1px solid #ced4da;">
+                        <div class="d-flex flex-wrap">
+                            @foreach (ClassDays day in Enum.GetValues(typeof(ClassDays)))
+                            {
+                                if (day == ClassDays.None) continue;
+
+                                // Logic quan trọng: Kiểm tra xem Database có lưu ngày này không
+                                bool isChecked = Model.Days.HasFlag(day);
+
+                                <div class="custom-control custom-checkbox mr-3">
+                                    <input type="checkbox" class="custom-control-input" id="day_@day" name="Days" value="@day" @(isChecked ? "checked" : "")>
+                                    <label class="custom-control-label text-white" for="day_@day">
+                                        @switch (day)
+                                        {
+                                            case ClassDays.Monday:
+                                                <text>Thứ 2</text>
+                                                ; break;
+                                            case ClassDays.Tuesday:
+
+                                                <text>Thứ 3</text>
+                                                ; break;
+                                            case ClassDays.Wednesday:
+
+                                                <text>Thứ 4</text>
+                                                ; break;
+                                            case ClassDays.Thursday:
+
+                                                <text>Thứ 5</text>
+                                                ; break;
+                                            case ClassDays.Friday:
+
+                                                <text>Thứ 6</text>
+                                                ; break;
+                                            case ClassDays.Saturday:
+
+                                                <text>Thứ 7</text>
+                                                ; break;
+                                            case ClassDays.Sunday:
+
+                                                <text>CN</text>
+                                                ; break;
+                                            default:
+
+                                                @day
+                                                ; break;
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="Days" class="text-danger" id="daysError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label text-white font-weight-bold">Ca học (Chọn nhiều)</label>
+                    <div class="card p-2" style="background-color: rgba(255,255,255,0.1); border: 1px solid #ced4da;">
+                        <div class="d-flex flex-wrap">
+                            @foreach (StudySessions session in Enum.GetValues(typeof(StudySessions)))
+                            {
+                                if (session == StudySessions.None) continue;
+
+                                // Logic quan trọng: Kiểm tra xem Database có lưu ca này không
+                                bool isChecked = Model.Sessions.HasFlag(session);
+
+                                <div class="custom-control custom-checkbox mr-3 mb-2" style="min-width: 150px;">
+                                    <input type="checkbox" class="custom-control-input" id="session_@session" name="Sessions" value="@session" @(isChecked ? "checked" : "")>
+                                    <label class="custom-control-label text-white" for="session_@session">
+                                        @switch (session)
+                                        {
+                                            case StudySessions.Ca1:
+                                                <text>Ca 1 (07:00-09:30)</text>
+                                                ; break;
+                                            case StudySessions.Ca2:
+
+                                                <text>Ca 2 (09:30-12:00)</text>
+                                                ; break;
+                                            case StudySessions.Ca3:
+
+                                                <text>Ca 3 (12:30-15:00)</text>
+                                                ; break;
+                                            case StudySessions.Ca4:
+
+                                                <text>Ca 4 (15:00-17:30)</text>
+                                                ; break;
+                                            case StudySessions.Ca5:
+
+                                                <text>Ca 5 (17:30-20:00)</text>
+                                                ; break;
+                                            default:
+
+                                                @session
+                                                ; break;
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="Sessions" class="text-danger" id="sessionsError"></span>
                 </div>
 
                 <div class="form-group text-right mt-4">
@@ -72,4 +171,37 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            // Dùng lại đoạn script validation y hệt bên Create
+            function validateCheckboxGroup(groupName, errorId, errorMessage) {
+                var checkedCount = $('input[name="' + groupName + '"]:checked').length;
+                if (checkedCount === 0) {
+                    $('#' + errorId).text(errorMessage);
+                    return false;
+                } else {
+                    $('#' + errorId).text('');
+                    return true;
+                }
+            }
+
+            $('form').submit(function (e) {
+                var isValidDays = validateCheckboxGroup('Days', 'daysError', 'Vui lòng chọn ít nhất một ngày học.');
+                var isValidSessions = validateCheckboxGroup('Sessions', 'sessionsError', 'Vui lòng chọn ít nhất một ca học.');
+
+                if (!isValidDays || !isValidSessions) {
+                    e.preventDefault();
+                }
+            });
+
+            $('input[name="Days"]').change(function () {
+                validateCheckboxGroup('Days', 'daysError', 'Vui lòng chọn ít nhất một ngày học.');
+            });
+
+            $('input[name="Sessions"]').change(function () {
+                validateCheckboxGroup('Sessions', 'sessionsError', 'Vui lòng chọn ít nhất một ca học.');
+            });
+        });
+    </script>
 }

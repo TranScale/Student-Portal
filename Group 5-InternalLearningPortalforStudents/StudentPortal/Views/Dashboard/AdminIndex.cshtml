@@ -47,63 +47,80 @@
     <div class="col-lg-8 mb-4">
         <div class="glass-panel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="panel-title mb-0">Sửa thành thông báo</div>
-                <a asp-controller="CourseSections" asp-action="Index" class="btn btn-sm text-white-50">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                <div class="panel-title mb-0">Bảng tin thông báo</div>
+                <a asp-controller="Announcements" asp-action="Index" class="btn btn-sm text-white-50">Xem tất cả <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="table-responsive">
                 <table class="table-admin">
                     <thead>
                         <tr>
-                            <th>Sinh viên</th>
-                            <th>Môn học</th>
-                            <th>Lớp/Phòng</th>
-                            <th>Trạng thái</th>
+                            <th>Người đăng</th>
+                            <th>Tiêu đề / Tóm tắt</th>
+                            <th>Đối tượng</th>
+                            <th>Ngày đăng</th>
                             <th class="text-right">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="mini-avatar">A</div>
-                                    <div>
-                                        <div class="font-weight-bold">Nguyễn Văn An</div>
-                                        <div class="small text-white-50">SV21001</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="font-weight-bold">Lập trình Web</div>
-                                <div class="small text-white-50">WEB301</div>
-                            </td>
-                            <td><i class="fas fa-door-open"></i> A101</td>
-                            <td><span class="badge-pending">Chờ duyệt</span></td>
-                            <td class="text-right">
-                                <button class="btn btn-sm btn-success rounded-circle"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-sm btn-danger rounded-circle"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="mini-avatar" style="background-color: #f72585;">B</div>
-                                    <div>
-                                        <div class="font-weight-bold">Trần Thị Bích</div>
-                                        <div class="small text-white-50">SV21005</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="font-weight-bold">Trí tuệ nhân tạo</div>
-                                <div class="small text-white-50">AI102</div>
-                            </td>
-                            <td><i class="fas fa-door-open"></i> C305</td>
-                            <td><span class="badge-pending">Chờ duyệt</span></td>
-                            <td class="text-right">
-                                <button class="btn btn-sm btn-success rounded-circle"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-sm btn-danger rounded-circle"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
+                        @{
+                            var announcements = ViewData["RecentAnnouncements"] as List<StudentPortal.Models.Announcement>;
+                        }
+
+                        @if (announcements != null && announcements.Any())
+                        {
+                            foreach (var item in announcements)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="mini-avatar" style="background-color: var(--accent-purple);">
+                                                @(item.User != null && !string.IsNullOrEmpty(item.User.FullName) ? item.User.FullName.Substring(0, 1).ToUpper() : "A")
+                                            </div>
+                                            <div>
+                                                <div class="font-weight-bold">@(item.User?.FullName ?? "Admin")</div>
+                                                <div class="small text-white-50">Giảng viên/Admin</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="font-weight-bold">@item.Title</div>
+                                        <div class="small text-white-50">
+                                            @(item.Summary.Length > 40 ? item.Summary.Substring(0, 40) + "..." : item.Summary)
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (item.Taker == StudentPortal.Models.RecipientType.All)
+                                        {
+                                            <span class="badge badge-info">Toàn trường</span>
+                                        }
+                                        else if (item.Taker == StudentPortal.Models.RecipientType.Student)
+                                        {
+                                            <span class="badge badge-success">Sinh viên</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">Giảng viên</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <i class="far fa-clock small mr-1"></i> @item.CreatedDate.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="text-right">
+                                        <a asp-controller="Announcements" asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-primary rounded-circle" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-white-50 py-4">
+                                    Chưa có thông báo nào được tạo.
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

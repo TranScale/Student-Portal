@@ -20,14 +20,50 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
-        // ✅ User thường + Admin đều xem được
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Index(string searchString, int? facultyId, int? departmentId, int? pageNumber)
         {
-            var studentPortalContext = _context.Courses.Include(c => c.Department);
-            return View(await studentPortalContext.ToListAsync());
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentFaculty"] = facultyId;
+            ViewData["CurrentDept"] = departmentId;
+
+            var courses = _context.Courses
+                .Include(c => c.Department)
+                .ThenInclude(d => d.Faculty)
+                .AsQueryable();
+
+            if (facultyId.HasValue)
+            {
+                courses = courses.Where(c => c.Department.FacultyId == facultyId.Value);
+            }
+
+            if (departmentId.HasValue)
+            {
+                courses = courses.Where(c => c.DepartmentId == departmentId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                courses = courses.Where(c => c.CourseName.Contains(searchString)
+                                          || c.CourseCode.Contains(searchString));
+            }
+
+            courses = courses.OrderBy(c => c.CourseName);
+
+            ViewBag.Faculties = new SelectList(_context.Faculties, "FacultyId", "FacultyName", facultyId);
+
+            var deptQuery = _context.Departments.AsQueryable();
+            if (facultyId.HasValue)
+            {
+                deptQuery = deptQuery.Where(d => d.FacultyId == facultyId.Value);
+            }
+            ViewBag.Departments = new SelectList(deptQuery, "DepartmentId", "DepartmentName", departmentId);
+
+            int pageSize = 10; 
+            return View(await PaginatedList<Course>.CreateAsync(courses.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
-        // ✅ User thường + Admin đều xem được
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -44,7 +80,6 @@ namespace StudentPortal.Controllers
             return View(course);
         }
 
-        // ✅ ADMIN mới được CRUD
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {

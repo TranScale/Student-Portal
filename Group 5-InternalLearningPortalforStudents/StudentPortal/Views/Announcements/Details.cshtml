@@ -6,62 +6,102 @@
 }
 
 <div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="glass-panel">
+    <div class="mb-3">
+        <a asp-action="Index" class="text-white-50 text-decoration-none">
+            <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+        </a>
+    </div>
 
-                <div class="mb-3 border-bottom border-secondary pb-3">
-                    <div class="d-flex justify-content-between align-items-start">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="glass-panel p-0 overflow-hidden">
+
+                <div class="p-4 border-bottom border-secondary" style="background: rgba(255,255,255,0.02);">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             @if (Model.Taker == StudentPortal.Models.RecipientType.All)
                             {
-                                <span class="badge badge-info mb-2">Gửi: Tất cả</span>
+                                <span class="badge badge-info px-3 py-2 rounded-pill">📢 Toàn trường</span>
                             }
                             else if (Model.Taker == StudentPortal.Models.RecipientType.Student)
                             {
-                                <span class="badge badge-success mb-2">Gửi: Sinh viên</span>
+                                <span class="badge badge-success px-3 py-2 rounded-pill">🎓 Sinh viên</span>
                             }
                             else
                             {
-                                <span class="badge badge-warning mb-2">Gửi: Giảng viên</span>
+                                <span class="badge badge-warning px-3 py-2 rounded-pill">👨‍🏫 Giảng viên</span>
                             }
-
-                            <h2 class="text-white font-weight-bold display-5">@Model.Title</h2>
                         </div>
 
-                        <a asp-action="Edit" asp-route-id="@Model.AnnouncementId" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-edit mr-1"></i> Sửa
+                        <a asp-action="AdminEdit" asp-route-id="@Model.AnnouncementId" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                            <i class="fas fa-pen mr-1"></i> Chỉnh sửa
                         </a>
                     </div>
 
-                    <div class="mt-2 text-white-50">
-                        <i class="fas fa-user-circle mr-1"></i> <span class="mr-3">@(Model.User?.FullName ?? "Admin")</span>
-                        <i class="far fa-clock mr-1"></i> <span class="mr-3">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
+                    <h1 class="text-white font-weight-bold mb-3" style="font-size: 2rem;">@Model.Title</h1>
+
+                    <div class="d-flex align-items-center text-white-50 small flex-wrap">
+                        <div class="d-flex align-items-center mr-4 mb-2">
+                            <div class="rounded-circle bg-primary d-flex justify-content-center align-items-center mr-2 text-white font-weight-bold" style="width: 32px; height: 32px;">
+                                @(Model.User?.FullName?.Substring(0, 1).ToUpper() ?? "A")
+                            </div>
+                            <span>
+                                Đăng bởi <strong class="text-white">@(Model.User?.FullName ?? "Quản trị viên")</strong>
+                            </span>
+                        </div>
+
+                        <div class="mr-4 mb-2">
+                            <i class="far fa-clock mr-1"></i> @Model.CreatedDate.ToString("HH:mm - dd/MM/yyyy")
+                        </div>
 
                         @if (Model.ExpiredDate.HasValue)
                         {
-                            <span class="@(Model.ExpiredDate.Value < DateTime.Now ? "text-danger" : "text-warning")">
-                                <i class="fas fa-hourglass-end mr-1"></i> Hết hạn: @Model.ExpiredDate.Value.ToString("dd/MM/yyyy")
-                            </span>
+                            <div class="mb-2 @(Model.ExpiredDate.Value < DateTime.Now ? "text-danger" : "text-warning")">
+                                <i class="fas fa-hourglass-half mr-1"></i>
+                                @(Model.ExpiredDate.Value < DateTime.Now ? "Đã hết hạn: " : "Hết hạn: ")
+                                @Model.ExpiredDate.Value.ToString("dd/MM/yyyy")
+                            </div>
                         }
                     </div>
                 </div>
 
-                <div class="alert alert-dark border-secondary text-white-50 font-italic mb-4" role="alert">
-                    <strong class="text-white">Tóm tắt:</strong> @Model.Summary
+                <div class="p-4 p-md-5">
+
+                    <div class="summary-block p-4 mb-4 rounded" style="background-color: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--accent-blue, #00d2d3);">
+                        <h6 class="text-uppercase text-white-50 font-weight-bold mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Tóm tắt nội dung</h6>
+                        <div class="text-white font-italic font-weight-light" style="font-size: 1.1rem;">
+                            "@Model.Summary"
+                        </div>
+                    </div>
+
+                    <div class="content-body text-white" style="font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap;">
+                        @Html.Raw(Model.Content.Replace("\n", "<br/>"))
+                        @* Lưu ý: Nếu Content chỉ là text thuần thì dùng Model.Content bình thường. 
+                           Nếu muốn xuống dòng đẹp hơn có thể dùng Replace hoặc style white-space: pre-wrap như cũ *@
+                    </div>
                 </div>
 
-                <div class="text-white content-body mb-5" style="font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap;">
-                    @Model.Content
-                </div>
-
-                <div class="text-center border-top border-secondary pt-4">
-                    <a asp-action="Index" class="btn btn-secondary px-4">
-                        <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
-                    </a>
+                <div class="p-3 bg-dark-transparent text-center border-top border-secondary">
+                    <span class="text-white-50 small">Thông báo mã số #@Model.AnnouncementId</span>
                 </div>
 
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* CSS bổ trợ nội tuyến để tinh chỉnh */
+    .glass-panel {
+        /* Đảm bảo class này đã có trong file css chung, nếu chưa thì thêm background mờ */
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-dark-transparent {
+        background-color: rgba(0,0,0,0.2);
+    }
+</style>
