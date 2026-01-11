@@ -30,34 +30,44 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-transparent text-white border-secondary"><i class="fas fa-search"></i></span>
                     </div>
-                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control bg-transparent text-white border-secondary" placeholder="Tên môn, mã môn, phòng..." />
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control bg-transparent text-white border-secondary" placeholder="Tên môn, mã môn..." />
                 </div>
             </div>
 
             <div class="col-md-2 mb-2">
                 <label class="text-white small font-weight-bold">Học kỳ</label>
                 <select name="semesterId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Semesters" onchange="this.form.submit()">
-                    <option value="">-- Tất cả học kỳ --</option>
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <label class="text-white small font-weight-bold">Trạng thái GV</label>
+                <select name="assignStatus" class="form-control bg-transparent text-white border-secondary" onchange="this.form.submit()">
+                    <option value="">-- Tất cả --</option>
+                    @* Logic kiểm tra selected *@
+                    <!option value="1" @(ViewData["CurrentAssignStatus"] as int? == 1 ? "selected" : "") class="text-warning font-weight-bold">⚠️ Chưa có GV</!option>
+                    <!option value="2" @(ViewData["CurrentAssignStatus"] as int? == 2 ? "selected" : "") class="text-success">✅ Đã có GV</!option>
                 </select>
             </div>
 
             <div class="col-md-2 mb-2">
                 <label class="text-white small font-weight-bold">Khoa</label>
                 <select name="facultyId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Faculties" onchange="this.form.submit()">
-                    <option value="">-- Tất cả khoa --</option>
-                </select>
-            </div>
-
-            <div class="col-md-3 mb-2">
-                <label class="text-white small font-weight-bold">Ngành</label>
-                <select name="departmentId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Departments" onchange="this.form.submit()">
-                    <option value="">-- Tất cả ngành --</option>
+                    <option value="">-- Tất cả --</option>
                 </select>
             </div>
 
             <div class="col-md-2 mb-2">
-                <a asp-action="Index" class="btn btn-outline-light btn-block">
-                    <i class="fas fa-sync-alt mr-1"></i> Làm mới
+                <label class="text-white small font-weight-bold">Ngành</label>
+                <select name="departmentId" class="form-control bg-transparent text-white border-secondary" asp-items="ViewBag.Departments" onchange="this.form.submit()">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+
+            <div class="col-md-1 mb-2">
+                <a asp-action="Index" class="btn btn-outline-light btn-block" title="Xóa bộ lọc">
+                    <i class="fas fa-sync-alt"></i>
                 </a>
             </div>
         </div>

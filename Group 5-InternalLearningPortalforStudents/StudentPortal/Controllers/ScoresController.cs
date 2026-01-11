@@ -21,70 +21,51 @@ namespace StudentPortal.Controllers
         }
 
         // 1. TRANG CHỦ (Điều hướng)
-        public async Task<IActionResult> Index(int? semesterId)
+        public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            // --- NẾU LÀ GIẢNG VIÊN ---
+            // --- TRƯỜNG HỢP: GIẢNG VIÊN ---
             if (User.IsInRole("Lecturer"))
             {
                 var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
                 if (lecturer == null) return View("Error");
 
-                // 1. Lấy danh sách tất cả các học kỳ (sắp xếp mới nhất lên đầu)
-                var semesters = await _context.Semesters
-                    .OrderByDescending(s => s.StartDate)
-                    .Select(s => new
-                    {
-                        Id = s.SemesterId,
-                        DisplayText = $"{s.SemesterName} - {s.AcademicYear}",
-                        IsActive = s.IsActive
-                    }).ToListAsync();
+                // 1. Chỉ lấy duy nhất Học kỳ đang Active
+                var activeSemester = await _context.Semesters
+                    .FirstOrDefaultAsync(s => s.IsActive);
 
-                // 2. Xác định học kỳ được chọn
-                // Ưu tiên 1: Người dùng chọn (semesterId)
-                // Ưu tiên 2: Học kỳ đang Active
-                // Ưu tiên 3: Học kỳ mới nhất (đầu danh sách)
-                int selectedSemesterId = 0;
-
-                if (semesterId.HasValue)
+                // Nếu không có học kỳ nào đang kích hoạt
+                if (activeSemester == null)
                 {
-                    selectedSemesterId = semesterId.Value;
-                }
-                else
-                {
-                    var activeSemester = semesters.FirstOrDefault(s => s.IsActive);
-                    selectedSemesterId = activeSemester != null ? activeSemester.Id : (semesters.FirstOrDefault()?.Id ?? 0);
+                    ViewBag.CurrentSemesterName = "Hiện không có học kỳ nào đang diễn ra";
+                    return View("LecturerIndex", new List<CourseSection>());
                 }
 
-                // 3. Tạo Dropdown cho View
-                ViewData["SemesterList"] = new SelectList(semesters, "Id", "DisplayText", selectedSemesterId);
+                // 2. Lưu tên học kỳ để hiển thị
+                ViewBag.CurrentSemesterName = $"{activeSemester.SemesterName} - {activeSemester.AcademicYear}";
 
-                // 4. Lấy tên học kỳ hiện tại để hiển thị tiêu đề
-                var currentSemesterObj = semesters.FirstOrDefault(s => s.Id == selectedSemesterId);
-                ViewBag.CurrentSemesterName = currentSemesterObj?.DisplayText ?? "Chưa xác định";
-
-                // 5. Lấy danh sách lớp theo Học kỳ đã chọn
+                // 3. Lấy danh sách lớp CHỈ thuộc học kỳ Active này
                 var sections = await _context.CoursesSections
                     .Include(cs => cs.Course)
-                    .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == selectedSemesterId)
+                    .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
+                    .OrderBy(cs => cs.Course.CourseName) // Sắp xếp cho đẹp
                     .ToListAsync();
 
-                // Trả về View chính chứa danh sách
                 return View("LecturerIndex", sections);
             }
 
-                // --- NẾU LÀ SINH VIÊN (Giữ nguyên logic cũ của bạn) ---
-                if (User.IsInRole("Student"))
-                {
-                    return RedirectToAction(nameof(StudentScore));
-                }
-
-                return RedirectToAction("AccessDenied", "Account");
+            // --- TRƯỜNG HỢP: SINH VIÊN ---
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction(nameof(StudentScore));
             }
 
-            [Authorize(Roles = "Student")]
+            return RedirectToAction("AccessDenied", "Account");
+        }
+
+        [Authorize(Roles = "Student")]
             public async Task<IActionResult> StudentScore(int? semesterId)
             {
                 try
@@ -124,56 +105,64 @@ namespace StudentPortal.Controllers
                 }
             }
 
-            [Authorize(Roles = "Lecturer")]
-            [HttpGet]
-            public async Task<IActionResult> EnterGrades(int sectionId)
+        [Authorize(Roles = "Lecturer")]
+        [HttpGet]
+        public async Task<IActionResult> EnterGrades(int sectionId)
+        {
+            var sectionCheck = await _context.CoursesSections
+                .Include(c => c.Semester)
+                .FirstOrDefaultAsync(c => c.CourseSectionId == sectionId);
+
+            if (sectionCheck == null) return NotFound();
+
+            if (!sectionCheck.Semester.IsActive)
             {
-                // Lấy danh sách sinh viên đã Approved trong lớp
-                var enrollments = await _context.Enrollments
-                    .AsNoTracking()
-                    .Include(e => e.Student).ThenInclude(s => s.User)
-                    .Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
-                    .OrderBy(e => e.Student.StudentCode)
-                    .ToListAsync();
-
-                // Lấy điểm đã có (nếu có)
-                var existingScores = await _context.Scores
-                    .Where(s => s.CourseSectionId == sectionId)
-                    .ToListAsync();
-
-                var modelList = new List<Score>();
-
-                foreach (var enrollment in enrollments)
-                {
-                    var score = existingScores.FirstOrDefault(s => s.StudentId == enrollment.StudentId);
-
-                    if (score == null)
-                    {
-                        score = new Score
-                        {
-                            StudentId = enrollment.StudentId,
-                            Student = enrollment.Student,
-                            CourseSectionId = sectionId,
-                            ProcessScore = 0,
-                            MiddleScore = 0,
-                            ExamScore = 0
-                        };
-                    }
-                    else
-                    {
-                        score.Student = enrollment.Student;
-                    }
-                    modelList.Add(score);
-                }
-
-                ViewBag.SectionId = sectionId;
-
-                // QUAN TRỌNG: Trả về PartialView để JS load vào Modal
-                return PartialView("_EnterGradesPartial", modelList);
+                return Content("Lỗi: Không được phép nhập điểm cho học kỳ đã đóng.");
             }
 
-            // 3. LƯU ĐIỂM (POST)
-            [Authorize(Roles = "Lecturer")]
+            var enrollments = await _context.Enrollments
+                .AsNoTracking()
+                .Include(e => e.Student).ThenInclude(s => s.User)
+                .Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
+                .OrderBy(e => e.Student.StudentCode)
+                .ToListAsync();
+
+            var existingScores = await _context.Scores
+                .Where(s => s.CourseSectionId == sectionId)
+                .ToListAsync();
+
+            var modelList = new List<Score>();
+
+            foreach (var enrollment in enrollments)
+            {
+                var score = existingScores.FirstOrDefault(s => s.StudentId == enrollment.StudentId);
+
+                if (score == null)
+                {
+                    score = new Score
+                    {
+                        StudentId = enrollment.StudentId,
+                        Student = enrollment.Student,
+                        CourseSectionId = sectionId,
+                        ProcessScore = 0,
+                        MiddleScore = 0,
+                        ExamScore = 0
+                    };
+                }
+                else
+                {
+                    score.Student = enrollment.Student;
+                }
+                modelList.Add(score);
+            }
+
+            ViewBag.SectionId = sectionId;
+
+            return PartialView("_EnterGradesPartial", modelList);
+        }
+
+
+        [Authorize(Roles = "Lecturer")]
             [HttpPost]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> EnterGrades(List<Score> models, int sectionId)

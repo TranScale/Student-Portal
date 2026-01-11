@@ -47,18 +47,18 @@ namespace StudentPortal.Controllers
             var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
             if (student == null) return View("Error");
 
-            var semesters = await _context.Semesters.OrderBy(s => s.StartDate).ToListAsync();
+            var semesters = await _context.Semesters.OrderByDescending(s => s.StartDate).ToListAsync();
 
             Semester selectedSemester = null;
 
-            if (!semesterId.HasValue && date.HasValue)
-            {
-                selectedSemester = semesters.FirstOrDefault(s => date.Value >= s.StartDate && date.Value <= s.EndDate);
-            }
-
-            if (selectedSemester == null && semesterId.HasValue)
+            if (semesterId.HasValue)
             {
                 selectedSemester = semesters.FirstOrDefault(s => s.SemesterId == semesterId);
+            }
+
+            else if (date.HasValue)
+            {
+                selectedSemester = semesters.FirstOrDefault(s => date.Value >= s.StartDate && date.Value <= s.EndDate);
             }
 
             if (selectedSemester == null)
@@ -68,12 +68,9 @@ namespace StudentPortal.Controllers
 
             if (selectedSemester == null) return View("Error");
 
-            if (date.HasValue)
+            if (date.HasValue && (date < selectedSemester.StartDate || date > selectedSemester.EndDate))
             {
-                if (date.Value < selectedSemester.StartDate || date.Value > selectedSemester.EndDate)
-                {
-                    date = null; 
-                }
+                date = null;
             }
 
             DateTime anchorDate;
@@ -94,19 +91,17 @@ namespace StudentPortal.Controllers
             DateTime endOfWeek = startOfWeek.AddDays(6).Date;
 
             var weeksList = new List<object>();
-
             int startOffset = (7 + (selectedSemester.StartDate.DayOfWeek - DayOfWeek.Monday)) % 7;
             DateTime loopDate = selectedSemester.StartDate.AddDays(-startOffset).Date;
-
             int weekNumber = 1;
+
             while (loopDate <= selectedSemester.EndDate.AddDays(6))
             {
                 DateTime weekEnd = loopDate.AddDays(6);
-                if (weekEnd >= selectedSemester.StartDate && loopDate <= selectedSemester.EndDate)
+                if (weekEnd >= selectedSemester.StartDate)
                 {
                     string label = $"Tuần {weekNumber} [{loopDate:dd/MM} - {weekEnd:dd/MM}]";
-                    if (loopDate == startOfWeek) label += " (Đang chọn)"; 
-
+                    if (loopDate == startOfWeek) label += " (Đang chọn)";
                     weeksList.Add(new { Value = loopDate.ToString("yyyy-MM-dd"), Label = label });
                     weekNumber++;
                 }
@@ -117,8 +112,10 @@ namespace StudentPortal.Controllers
                 .Include(si => si.CourseSection).ThenInclude(cs => cs.Course)
                 .Include(si => si.CourseSection).ThenInclude(cs => cs.Lecturer).ThenInclude(l => l.User)
                 .Where(si => si.CourseSection.Enrollments.Any(e => e.StudentId == student.StudentId))
+                .Where(si => si.CourseSection.SemesterId == selectedSemester.SemesterId)
                 .Where(si => si.ScheduleDate >= startOfWeek && si.ScheduleDate <= endOfWeek)
-                .ToListAsync();
+                .OrderBy(si => si.ScheduleDate)
+                .ToListAsync(); 
 
             ViewData["ScheduleList"] = scheduleItems;
             ViewData["StartOfWeek"] = startOfWeek;
@@ -146,40 +143,36 @@ namespace StudentPortal.Controllers
             var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
             if (lecturer == null) return View("Error");
 
-            // 1. Lấy danh sách kỳ học (Mới nhất lên đầu)
-            var semesters = await _context.Semesters.OrderBy(s => s.StartDate).ToListAsync();
+            // 1. Lấy danh sách học kỳ (Sắp xếp giảm dần để kỳ mới nhất lên đầu)
+            var semesters = await _context.Semesters.Where(s => s.IsActive).ToListAsync();
 
-            // 2. Logic xác định Học Kỳ (SelectedSemester)
             Semester selectedSemester = null;
 
-            // a. Nếu không chọn kỳ nhưng có chọn ngày (VD: bấm nút Hôm nay ở kỳ khác) -> Tìm kỳ chứa ngày đó
-            if (!semesterId.HasValue && date.HasValue)
+            // 2. Xác định Học kỳ (Ưu tiên ID người dùng chọn)
+            if (semesterId.HasValue)
+            {
+                selectedSemester = semesters.FirstOrDefault(s => s.SemesterId == semesterId);
+            }
+            else if (date.HasValue)
             {
                 selectedSemester = semesters.FirstOrDefault(s => date.Value >= s.StartDate && date.Value <= s.EndDate);
             }
 
-            // b. Lấy theo ID người dùng chọn
-            if (selectedSemester == null && semesterId.HasValue)
-            {
-                selectedSemester = semesters.FirstOrDefault(s => s.SemesterId == semesterId);
-            }
-
-            // c. Fallback: Kỳ Active hoặc kỳ đầu tiên tìm thấy
             if (selectedSemester == null)
             {
                 selectedSemester = semesters.FirstOrDefault(s => s.IsActive) ?? semesters.FirstOrDefault();
             }
 
-            if (selectedSemester == null) return View("Error");
+            if (selectedSemester == null)
+            {
+                ViewData["ErrorMessage"] = "Hiện tại chưa có học kỳ nào được kích hoạt. Vui lòng liên hệ Admin.";
+                return View();
+            }
 
             // 3. Xử lý logic Ngày hiển thị (Anchor Date)
-            // Nếu ngày được gửi lên KHÔNG thuộc kỳ đã chọn -> Reset ngày (để về mặc định của kỳ mới)
-            if (date.HasValue)
+            if (date.HasValue && (date < selectedSemester.StartDate || date > selectedSemester.EndDate))
             {
-                if (date.Value < selectedSemester.StartDate || date.Value > selectedSemester.EndDate)
-                {
-                    date = null;
-                }
+                date = null;
             }
 
             DateTime anchorDate;
@@ -189,49 +182,46 @@ namespace StudentPortal.Controllers
             }
             else
             {
-                // Mặc định: Nếu hôm nay nằm trong kỳ -> lấy hôm nay. Không thì lấy ngày bắt đầu kỳ.
                 if (DateTime.Today >= selectedSemester.StartDate && DateTime.Today <= selectedSemester.EndDate)
                     anchorDate = DateTime.Today;
                 else
                     anchorDate = selectedSemester.StartDate;
             }
 
-            // 4. Chuẩn hóa AnchorDate về THỨ 2 (StartOfWeek)
+            // 4. Tính toán tuần
             int diff = (7 + (anchorDate.DayOfWeek - DayOfWeek.Monday)) % 7;
             DateTime startOfWeek = anchorDate.AddDays(-1 * diff).Date;
             DateTime endOfWeek = startOfWeek.AddDays(6).Date;
 
-            // 5. Tạo Dropdown Tuần (Weeks List)
+            // 5. Tạo Dropdown Tuần
             var weeksList = new List<object>();
-
-            // Tìm thứ 2 của tuần bắt đầu kỳ
             int startOffset = (7 + (selectedSemester.StartDate.DayOfWeek - DayOfWeek.Monday)) % 7;
             DateTime loopDate = selectedSemester.StartDate.AddDays(-startOffset).Date;
-
             int weekNumber = 1;
-            // Loop phủ hết ngày kết thúc kỳ
+
             while (loopDate <= selectedSemester.EndDate.AddDays(6))
             {
                 DateTime weekEnd = loopDate.AddDays(6);
-                // Chỉ thêm vào list nếu tuần này dính dáng tới thời gian học
-                if (weekEnd >= selectedSemester.StartDate && loopDate <= selectedSemester.EndDate)
+                if (weekEnd >= selectedSemester.StartDate)
                 {
                     string label = $"Tuần {weekNumber} [{loopDate:dd/MM} - {weekEnd:dd/MM}]";
                     if (loopDate == startOfWeek) label += " (Đang chọn)";
-
                     weeksList.Add(new { Value = loopDate.ToString("yyyy-MM-dd"), Label = label });
                     weekNumber++;
                 }
                 loopDate = loopDate.AddDays(7);
             }
 
-            // 6. Query dữ liệu (Lọc theo LecturerId)
+            // 6. QUERY DỮ LIỆU (ĐÃ THÊM LỌC SEMESTERID)
             var scheduleItems = await _context.ScheduleItems
                 .Include(si => si.CourseSection).ThenInclude(cs => cs.Course)
-                // Lọc lịch dạy của GIẢNG VIÊN này
+                // Lọc theo Giảng viên
                 .Where(si => si.CourseSection.LecturerId == lecturer.LecturerId)
+                // [QUAN TRỌNG] Lọc theo Học kỳ đang chọn
+                .Where(si => si.CourseSection.SemesterId == selectedSemester.SemesterId)
+                // Lọc theo Tuần
                 .Where(si => si.ScheduleDate >= startOfWeek && si.ScheduleDate <= endOfWeek)
-                .OrderBy(si => si.ScheduleDate).ThenBy(si => si.CourseSection.DayStart)
+                .OrderBy(si => si.ScheduleDate)
                 .ToListAsync();
 
             // 7. Truyền dữ liệu ra View
@@ -239,13 +229,11 @@ namespace StudentPortal.Controllers
             ViewData["StartOfWeek"] = startOfWeek;
             ViewData["WeekRange"] = $"{startOfWeek:dd/MM/yyyy} - {endOfWeek:dd/MM/yyyy}";
 
-            // Dropdown Data
             ViewData["Semesters"] = new SelectList(semesters, "SemesterId", "SemesterName", selectedSemester.SemesterId);
             ViewData["Weeks"] = new SelectList(weeksList, "Value", "Label", startOfWeek.ToString("yyyy-MM-dd"));
             ViewData["CurrentSemesterId"] = selectedSemester.SemesterId;
             ViewData["CurrentDate"] = startOfWeek.ToString("yyyy-MM-dd");
 
-            // Navigation Data
             ViewData["PrevDate"] = startOfWeek.AddDays(-7).ToString("yyyy-MM-dd");
             ViewData["NextDate"] = startOfWeek.AddDays(7).ToString("yyyy-MM-dd");
 

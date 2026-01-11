@@ -2,7 +2,7 @@
 @{
     Layout = "~/Views/Shared/_LecturerLayout.cshtml";
     ViewData["Title"] = "Thông tin cá nhân";
-    var listCourses = ViewData["CourseList"] as List<StudentPortal.Models.CourseSection>;
+    var listCourses = ViewData["CourseList"] as List<StudentPortal.Models.Course>;
 }
 
 <style>
@@ -124,8 +124,10 @@
                                 {
                                     <tr>
                                         <th scope="row">@(STT++)</th>
-                                        <td>@item.Course.CourseCode</td>
-                                        <td>@item.Course.CourseName</td>
+
+                                        <td>@item.CourseCode</td>
+
+                                        <td>@item.CourseName</td>
                                     </tr>
                                 }
                             }
@@ -142,6 +144,52 @@
         </div>
     </div>
 </div>
+
+<style>
+    .nav-link {
+        cursor: pointer;
+    }
+
+    /* --- CẤU HÌNH SCROLL CHO BẢNG --- */
+    .custom-table-scroll {
+        /* Header (~50px) + 2 dòng (mỗi dòng ~55px) = ~160px */
+        /* Giảm xuống 165px để chỉ hiện 2 dòng, dòng thứ 3 sẽ bị che và hiện scroll */
+        max-height: 165px;
+        overflow-y: auto; /* Tự động hiện thanh cuộn dọc khi vượt quá chiều cao */
+        display: block; /* Đảm bảo div hoạt động như một khối hộp */
+        width: 100%;
+    }
+
+        /* Tùy chỉnh thanh cuộn cho đẹp (chỉ chạy trên Chrome/Safari/Edge) */
+        .custom-table-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+            .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+        /* --- (Quan trọng) Cố định tiêu đề bảng khi cuộn --- */
+        .custom-table-scroll table thead th {
+            position: sticky;
+            top: 0;
+            /* SỬA DÒNG NÀY: Đổi từ #fff (trắng) sang màu tối (ví dụ #2c3e50 hoặc #343a40) */
+            background-color: #343a40;
+            /* THÊM DÒNG NÀY: Để chữ tiêu đề có màu trắng cho dễ đọc */
+            color: #ffffff;
+            z-index: 1;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.5);
+        }
+</style>
 
 @section Scripts {
 <script>
@@ -202,4 +250,5 @@
         });
     }
 </script>
+
 }

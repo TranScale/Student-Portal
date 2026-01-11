@@ -5,100 +5,101 @@
 
 @{
     Layout = "_LecturerLayout";
-    ViewData["Title"] = "LecturerDashboard";
-    var teachingList = ViewData["teachingList"] as List<StudentPortal.Models.CourseSection>;
+    ViewData["Title"] = "Bảng điều khiển Giảng viên";
+
+    // 1. [AN TOÀN] Ép kiểu an toàn: Nếu null thì tạo List rỗng để tránh lỗi Crash trang
+    var teachingList = ViewData["teachingList"] as List<StudentPortal.Models.CourseSection>
+                       ?? new List<StudentPortal.Models.CourseSection>();
+
+    // 2. Lấy thông báo lỗi và tên học kỳ
+    var errorMessage = ViewData["ErrorMessage"] as string;
+    var currentSemesterName = ViewData["CurrentSemester"] as string;
 }
 
-<div class="card mt-3">
-    <div class="card-content">
-        <div class="row row-group m-0">
-            <div class="col-12 col-lg-6 col-xl-6 border-light">
-                <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; min-height: 100px;">
-                    <h4 class="mb-2 text-white font-weight-bold">Xin chào, Giảng viên @ViewData["Name"]</h4>
-                    <p class="mb-0 text-white small-font" style="opacity: 0.8">
-                        Chúc thầy/cô một ngày làm việc hiệu quả.
-                    </p>
-                </div>
-            </div>
-            <div class="col-12 col-lg-3 col-xl-3 border-light">
-                <div class="card-body">
-                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Count</h4>
-                    <p class="mb-0 text-white small-font" style="opacity: 0.8">Môn học đang đảm nhiệm</p>
-                </div>
-            </div>
-            <div class="col-12 col-lg-3 col-xl-3 border-light">
-                <div class="card-body">
-                    <h4 class="mb-2 text-white font-weight-bold">@teachingList.Sum(x => (int)x.Capacity)</h4>
-                    <p class="mb-0 text-white small-font" style="opacity: 0.8">Tổng sinh viên đang quản lý</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="container-fluid mt-3">
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title text-white">Lịch trình giảng dạy</h5>
-                <hr style="border-top: 1px solid rgba(255,255,255,0.1);">
-                <partial name="_LecturerCalendarPatial" />
-            </div>
+    @* --- 3. PHẦN HIỂN THỊ THÔNG BÁO LỖI (NẾU CÓ) --- *@
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-warning text-center shadow-sm mb-4" role="alert" style="border-radius: 15px; border-left: 5px solid #ffc107; background-color: rgba(255, 193, 7, 0.1); color: #856404;">
+            <h5 class="alert-heading" style="font-weight: bold; font-size: 1.1rem;">
+                <i class="zmdi zmdi-alert-triangle mr-2"></i> Thông báo
+            </h5>
+            <p class="mb-0">@errorMessage</p>
         </div>
-    </div>
-</div>
+    }
 
-<div class="row mt-3">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Danh sách lớp học phần đang giảng dạy</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Tên môn học</th>
-                                <th scope="col">Mã lớp</th>
-                                <th scope="col">Lịch học</th>
-                                <th scope="col">Phòng</th>
-                                <th scope="col">Sĩ số</th>
-                                <th scope="col">Tác vụ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (teachingList != null && teachingList.Count > 0)
+    <div class="card mt-3">
+        <div class="card-content">
+            <div class="row row-group m-0">
+                @* Cột 1: Lời chào *@
+                <div class="col-12 col-lg-6 col-xl-6 border-light">
+                    <div class="card-body" style="display: flex; flex-direction: column; justify-content: center; min-height: 100px;">
+                        <h4 class="mb-2 text-white font-weight-bold">Xin chào, @ViewData["Name"]</h4>
+
+                        <p class="mb-0 text-white small-font" style="opacity: 0.8">
+                            @if (!string.IsNullOrEmpty(currentSemesterName))
                             {
-                                int stt = 1;
-                                foreach (var item in teachingList)
-                                {
-                                    <tr>
-                                        <th scope="row">@stt</th>
-                                        <td>@item.Course.CourseName</td>
-                                        <td><span class="badge badge-light">@item.Course.CourseCode</span></td>
-                                        <td>@item.Sessions</td>
-                                        <td>@item.Room</td>
-                                        <td>@item.Capacity</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-light">Điểm danh</button>
-                                            <button class="btn btn-sm btn-outline-light">Nhập điểm</button>
-                                        </td>
-                                    </tr>
-                                    stt++;
-                                }
+                                <span class="badge badge-light text-dark mr-1" style="font-size: 0.8rem">@currentSemesterName</span>
+                                <span>Chúc thầy/cô một ngày làm việc hiệu quả.</span>
                             }
                             else
                             {
-                                <tr><td colspan="7" class="text-center">Chưa có dữ liệu</td></tr>
+                                <span>Chúc thầy/cô một ngày làm việc hiệu quả.</span>
                             }
-                        </tbody>
-                    </table>
+                        </p>
+                    </div>
+                </div>
+
+                @* Cột 2: Số lượng môn *@
+                <div class="col-12 col-lg-3 col-xl-3 border-light">
+                    <div class="card-body">
+                        @* teachingList.Count sẽ bằng 0 nếu list rỗng (không bị lỗi) *@
+                        <h4 class="mb-2 text-white font-weight-bold">@teachingList.Count</h4>
+                        <p class="mb-0 text-white small-font" style="opacity: 0.8">
+                            <i class="zmdi zmdi-collection-bookmark mr-1"></i> Môn học đảm nhiệm
+                        </p>
+                    </div>
+                </div>
+
+                @* Cột 3: Tổng sinh viên *@
+                <div class="col-12 col-lg-3 col-xl-3 border-light">
+                    <div class="card-body">
+                        @* Tính tổng an toàn, coi null là 0 *@
+                        <h4 class="mb-2 text-white font-weight-bold">
+                            @teachingList.Sum(x => (int?)x.Capacity ?? 0)
+                        </h4>
+                        <p class="mb-0 text-white small-font" style="opacity: 0.8">
+                            <i class="zmdi zmdi-accounts-outline mr-1"></i> Tổng sinh viên quản lý
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title text-white mb-0">
+                            <i class="zmdi zmdi-calendar-check mr-2"></i> Lịch giảng dạy hôm nay
+                        </h5>
+                        <a href="@Url.Action("LecturerSchedule", "Schedule")" class="btn btn-sm btn-light text-dark font-weight-bold shadow-sm">
+                            Xem chi tiết tuần này <i class="fa fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    <hr style="border-top: 1px solid rgba(255,255,255,0.1);">
+
+                    @* Partial View hiển thị lịch *@
+                    <partial name="_LecturerCalendarPatial" />
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script src="~/assets/plugins/Chart.js/Chart.min.js"></script>

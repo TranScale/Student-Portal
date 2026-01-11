@@ -1,4 +1,5 @@
-﻿@model IEnumerable<StudentPortal.Models.Semester>
+﻿@using StudentPortal.Models
+@model PaginatedList<StudentPortal.Models.Semester>
 
 @{
     ViewData["Title"] = "Quản lý Học kỳ";
@@ -21,7 +22,7 @@
 
     /* Dòng đang được kích hoạt */
     .row-active {
-        background-color: rgba(40, 167, 69, 0.15) !important; /* Tăng độ đậm xíu cho dễ nhìn */
+        background-color: rgba(40, 167, 69, 0.15) !important;
     }
 
     /* Badge hiển thị năm học */
@@ -31,6 +32,25 @@
         font-weight: normal;
         border: 1px solid rgba(255,255,255,0.2);
     }
+
+    /* Style cho Dropdown lọc */
+    .filter-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+        .filter-select option {
+            background-color: #1e2130; /* Màu nền option để không bị trắng */
+            color: white;
+        }
+
+        .filter-select:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-color: #0d6efd;
+            box-shadow: none;
+        }
 </style>
 
 @if (TempData["Success"] != null)
@@ -48,6 +68,39 @@
     </a>
 </div>
 
+<form asp-action="AutoUpdateCurrentSemester" method="post" style="display:inline;">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-warning" onclick="return confirm('Hệ thống sẽ dựa vào ngày hiện tại để Active học kỳ tương ứng. Bạn có chắc không?');">
+        <i class="fa fa-refresh"></i> Cập nhật tự động theo ngày
+    </button>
+</form>
+
+<div class="glass-panel mb-4 p-3">
+    <form asp-action="Index" method="get">
+        <div class="row align-items-end">
+            <div class="col-md-4 mb-2">
+                <label class="text-white small font-weight-bold">Lọc theo Năm học</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent text-white border-secondary">
+                            <i class="fas fa-filter"></i>
+                        </span>
+                    </div>
+                    <select name="academicYear" class="form-control filter-select" asp-items="ViewBag.AcademicYears" onchange="this.form.submit()">
+                        <option value="">-- Tất cả năm học --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <a asp-action="Index" class="btn btn-outline-light btn-block">
+                    <i class="fas fa-sync-alt mr-1"></i> Làm mới
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="glass-panel">
     <div class="table-responsive">
         <table class="table-admin">
@@ -61,6 +114,14 @@
                 </tr>
             </thead>
             <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-white-50">
+                            Không tìm thấy dữ liệu phù hợp.
+                        </td>
+                    </tr>
+                }
                 @foreach (var item in Model)
                 {
                     <tr class="@(item.IsActive ? "row-active" : "")">
@@ -124,6 +185,33 @@
             </tbody>
         </table>
     </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+            <div class="text-white-50 small">
+                Trang @(Model.TotalPages < Model.PageIndex ? 0 : Model.PageIndex) / @Model.TotalPages
+            </div>
+            <div>
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-academicYear="@ViewData["CurrentYear"]"
+                   class="btn btn-sm btn-outline-light @prevDisabled">
+                    <i class="fas fa-chevron-left mr-1"></i> Trước
+                </a>
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-academicYear="@ViewData["CurrentYear"]"
+                   class="btn btn-sm btn-outline-light ml-2 @nextDisabled">
+                    Sau <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    }
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">

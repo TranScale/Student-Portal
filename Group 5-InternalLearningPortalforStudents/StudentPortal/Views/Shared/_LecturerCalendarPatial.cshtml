@@ -2,27 +2,24 @@
 @using System.Globalization
 
 @{
-    // 1. LẤY DỮ LIỆU TRỰC TIẾP TỪ VIEWDATA (Được thừa hưởng từ StudentIndex)
-    // Lưu ý: Key phải khớp y chang bên Controller
     var selectedDate = ViewData["selectedDate"] as DateTime? ?? DateTime.Today;
     var listSchedule = ViewData["ListSchedule"] as List<ScheduleItem>;
 
-    // 2. LOGIC TÍNH TOÁN LỊCH
+    // Logic tính lịch
     var firstDayOfMonth = new DateTime(selectedDate.Year, selectedDate.Month, 1);
     int offset = firstDayOfMonth.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)firstDayOfMonth.DayOfWeek - 1;
     var startCalendarDate = firstDayOfMonth.AddDays(-offset);
 }
 
 <div class="row">
+    @* --- CỘT LỊCH THÁNG --- *@
     <div class="col-12 col-lg-5 mb-3">
         <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
             <div class="card-header d-flex justify-content-between align-items-center border-0 p-2">
                 <a href="@Url.Action("LecturerIndex", new { date = selectedDate.AddMonths(-1) })" class="btn btn-sm text-white-50">
                     <i class="fa fa-chevron-left"></i>
                 </a>
-
                 <span class="font-weight-bold text-white">Tháng @selectedDate.Month - @selectedDate.Year </span>
-
                 <a href="@Url.Action("LecturerIndex", new { date = selectedDate.AddMonths(1) })" class="btn btn-sm text-white-50">
                     <i class="fa fa-chevron-right"></i>
                 </a>
@@ -54,8 +51,6 @@
                                         ? "display:inline-block; width:28px; height:28px; line-height:26px; border: 1px solid #fff; border-radius: 50%; font-weight: bold; background: rgba(255,255,255,0.1);"
                                         : "display:inline-block; width:28px; height:28px; line-height:26px;";
                                         string textClass = isCurrentMonth ? "text-white" : "text-white-50";
-
-                                        // Lưu biến để dùng trong thẻ a
                                         var dateParam = currentDay;
 
                                         <td class="p-1">
@@ -74,6 +69,7 @@
         </div>
     </div>
 
+    @* --- CỘT DANH SÁCH LỊCH TRÌNH --- *@
     <div class="col-12 col-lg-7 mb-3">
         <div class="card h-100 mb-0" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); min-height: 380px;">
             <div class="card-header d-flex justify-content-between align-items-center border-bottom border-light-3 p-2 pl-3 pr-3">
@@ -88,20 +84,25 @@
                     {
                         foreach (var item in listSchedule)
                         {
+                            // [AN TOÀN] Kiểm tra null để tránh Crash
+                            var courseName = item.CourseSection?.Course?.CourseName ?? "Môn học không xác định";
+                            var roomName = item.CourseSection?.Room ?? "Online/Chưa xếp";
+                            var sessions = item.CourseSection?.Sessions ?? StudySessions.None; // Giá trị mặc định nếu null
+
                             <li class="list-group-item bg-transparent border-light-3 py-2">
                                 <div class="d-flex">
                                     <div class="mr-2 mt-1">
-                                        <span class="badge @GetBadgeColor(item.CourseSection.Sessions)">
-                                            @GetTimeFromSession(item.CourseSection.Sessions)
+                                        <span class="badge @GetBadgeColor(sessions)">
+                                            @GetTimeFromSession(sessions)
                                         </span>
                                     </div>
                                     <div style="flex: 1;">
                                         <h6 class="mb-1 text-white font-weight-bold" style="font-size: 0.85rem; line-height: 1.3;">
-                                            @item.CourseSection.Course.CourseName
+                                            @courseName
                                         </h6>
                                         <div class="small text-white-50" style="font-size: 0.75rem;">
                                             <span class="text-success">
-                                                <i class="fa fa-map-marker mr-1"></i> @(item.CourseSection.Room ?? "Online/Chưa xếp")
+                                                <i class="fa fa-map-marker mr-1"></i> @roomName
                                             </span>
                                         </div>
                                     </div>
@@ -125,7 +126,6 @@
 </div>
 
 @functions {
-    // Các hàm helper
     public string GetTimeFromSession(StudySessions session)
     {
         if ((session & StudySessions.Ca1) != 0) return "07:00 - 09:15";

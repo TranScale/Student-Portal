@@ -45,6 +45,7 @@ namespace StudentPortal.Controllers
             return RedirectToAction("AccessDenied", "Account");
         }
 
+        [Authorize(Roles = "Student")] // Đổi thành Student
         public async Task<IActionResult> StudentEnrollment()
         {
             var student = await GetCurrentStudentAsync();
@@ -53,29 +54,61 @@ namespace StudentPortal.Controllers
             var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
             if (activeSemester == null)
             {
-                ViewData["Message"] = "Hiện chưa có học kỳ nào mở đăng ký.";
+                ViewData["Message"] = "Hiện chưa có học kỳ nào được kích hoạt.";
                 return View();
             }
 
+            // --- 1. LOGIC TÍNH NGÀY & KHÓA (GIỐNG GIẢNG VIÊN) ---
+            DateTime today = DateTime.Today;
+            DateTime openDate = activeSemester.StartDate.AddDays(-14);
+            DateTime closeDate = activeSemester.StartDate.AddDays(-7);
+
+            bool isLocked = true;
+            string lockReason = "";
+
+            if (today < openDate)
+            {
+                isLocked = true;
+                lockReason = $"Chưa đến đợt đăng ký. Cổng sẽ mở từ {openDate:dd/MM/yyyy} đến {closeDate:dd/MM/yyyy}.";
+            }
+            else if (today > closeDate)
+            {
+                isLocked = true;
+                lockReason = $"Đã hết hạn đăng ký (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ phòng đào tạo.";
+            }
+            else
+            {
+                isLocked = false; // Trong thời gian cho phép
+            }
+
+            ViewData["IsLocked"] = isLocked;
+            ViewData["LockReason"] = lockReason;
+            ViewData["SemesterName"] = activeSemester.SemesterName;
+
+            // --- 2. LẤY DANH SÁCH ĐÃ ĐĂNG KÝ (LUÔN CHẠY - QUAN TRỌNG) ---
+            // Phần này phải để ngoài if(isLocked) để sinh viên luôn thấy môn mình đã chọn
             var registeredList = await _context.Enrollments
                 .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
-                .Include(e => e.CourseSection).ThenInclude(cs => cs.Lecturer).ThenInclude(l => l.User)
                 .Where(e => e.StudentId == student.StudentId && e.CourseSection.SemesterId == activeSemester.SemesterId)
                 .ToListAsync();
 
-            var registeredSectionIds = registeredList.Select(e => e.CourseSectionId).ToList();
+            // --- 3. LẤY DANH SÁCH MÔN MỞ (CHỈ CHẠY KHI KHÔNG KHÓA) ---
+            List<CourseSection> availableList = new List<CourseSection>();
 
-            var availableList = await _context.CoursesSections
-                .Include(cs => cs.Course)
-                .Include(cs => cs.Lecturer).ThenInclude(l => l.User)
-                .Include(cs => cs.Enrollments)
-                .Where(cs => cs.SemesterId == activeSemester.SemesterId
-                          && !registeredSectionIds.Contains(cs.CourseSectionId))
-                .ToListAsync();
+            if (!isLocked)
+            {
+                // Lấy danh sách ID các lớp đã đăng ký để loại trừ
+                var registeredSectionIds = registeredList.Select(r => r.CourseSectionId).ToList();
 
-            ViewData["RegisteredList"] = registeredList;
-            ViewData["AvailableList"] = availableList;
-            ViewData["SemesterName"] = activeSemester.SemesterName;
+                availableList = await _context.CoursesSections
+                    .Include(cs => cs.Course)
+                    .Where(cs => cs.SemesterId == activeSemester.SemesterId
+                                 && !registeredSectionIds.Contains(cs.CourseSectionId)) // Loại bỏ lớp đã đăng ký
+                    .ToListAsync();
+            }
+
+            ViewData["RegisteredList"] = registeredList; // List<Enrollment>
+            ViewData["AvailableList"] = availableList;   // List<CourseSection>
 
             return View();
         }
@@ -95,50 +128,89 @@ namespace StudentPortal.Controllers
 
             int successCount = 0;
             int failCount = 0;
+            List<string> errorMessages = new List<string>(); // Để lưu chi tiết lỗi
+
+            // 1. Lấy danh sách các môn ĐÃ đăng ký trong học kỳ này để so sánh lịch
+            // Lưu ý: Cần lấy danh sách này MỘT LẦN ở ngoài vòng lặp để tối ưu, 
+            // nhưng vì học kỳ có thể khác nhau (nếu hệ thống cho phép chọn nhiều kỳ), ta nên lấy theo từng section.
+            // Tuy nhiên, logic chuẩn là đăng ký cho "Học kỳ Active".
+
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
+
+            // Lấy tất cả lịch đã đăng ký của sinh viên trong học kỳ Active
+            var existingEnrollments = await _context.Enrollments
+                .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
+                .Where(e => e.StudentId == student.StudentId && e.CourseSection.SemesterId == activeSemester.SemesterId)
+                .ToListAsync();
 
             foreach (var sectionId in selectedCourses)
             {
                 var section = await _context.CoursesSections
                     .Include(s => s.Enrollments)
+                    .Include(s => s.Course)
                     .FirstOrDefaultAsync(s => s.CourseSectionId == sectionId);
 
-                if (section == null || section.Enrollments.Count >= section.Capacity)
+                if (section == null) continue;
+
+                if (section.Enrollments.Count >= section.Capacity)
                 {
                     failCount++;
+                    errorMessages.Add($"{section.Course.CourseName}: Lớp đã đầy.");
                     continue;
                 }
 
-                bool exists = await _context.Enrollments
-                    .AnyAsync(e => e.StudentId == student.StudentId && e.CourseSectionId == sectionId);
-
-                if (!exists)
+                bool exists = existingEnrollments.Any(e => e.CourseSectionId == sectionId);
+                if (exists)
                 {
-                    var enrollment = new Enrollment
-                    {
-                        StudentId = student.StudentId,
-                        CourseSectionId = sectionId,
-                        Status = EnrollmentStatus.Pending
-                    };
-                    _context.Enrollments.Add(enrollment);
-
-                    // Tạo bảng điểm để GV nhập sau này
-                    var score = new Score
-                    {
-                        StudentId = student.StudentId,
-                        CourseSectionId = sectionId,
-                        LecturerId = section.LecturerId,
-                        Value = ScoreValues.F
-                    };
-                    _context.Scores.Add(score);
-
-                    successCount++;
+                    failCount++;
+                    continue; 
                 }
+                var conflict = existingEnrollments.FirstOrDefault(e =>
+                    (e.CourseSection.Days & section.Days) != 0 &&      
+                    (e.CourseSection.Sessions & section.Sessions) != 0 
+                );
+
+                if (conflict != null)
+                {
+                    failCount++;
+                    errorMessages.Add($"{section.Course.CourseName}: Trùng lịch với môn {conflict.CourseSection.Course.CourseName} (Phòng {conflict.CourseSection.Room}).");
+                    continue;
+                }
+
+                // d. Nếu không có lỗi gì -> Tạo đăng ký
+                var enrollment = new Enrollment
+                {
+                    StudentId = student.StudentId,
+                    CourseSectionId = sectionId,
+                    Status = EnrollmentStatus.Pending
+                };
+                _context.Enrollments.Add(enrollment);
+
+                var score = new Score
+                {
+                    StudentId = student.StudentId,
+                    CourseSectionId = sectionId,
+                    LecturerId = section.LecturerId,
+                    Value = ScoreValues.F
+                };
+                _context.Scores.Add(score);
+
+                existingEnrollments.Add(enrollment);
+
+                successCount++;
             }
 
             await _context.SaveChangesAsync();
 
-            if (successCount > 0) TempData["Success"] = $"Đăng ký thành công {successCount} môn.";
-            if (failCount > 0) TempData["Error"] = $"Có {failCount} môn không thể đăng ký do lớp đầy.";
+            if (successCount > 0)
+                TempData["Success"] = $"Đăng ký thành công {successCount} môn.";
+
+            if (failCount > 0)
+            {
+                // Hiển thị chi tiết lỗi nếu có
+                string errorDetails = string.Join("<br/>", errorMessages);
+                TempData["Error"] = $"Không thể đăng ký {failCount} môn.<br/>{errorDetails}";
+            }
 
             return RedirectToAction(nameof(StudentEnrollment));
         }
@@ -185,27 +257,59 @@ namespace StudentPortal.Controllers
                 return View();
             }
 
-            // Lớp CỦA MÌNH (Đã đăng ký) -> Tìm theo ID của mình
+            // --- LOGIC MỚI: QUY ĐỊNH THỜI GIAN (GIỐNG SINH VIÊN) ---
+            DateTime today = DateTime.Today;
+
+            // Ngày mở: Trước 14 ngày
+            DateTime openDate = activeSemester.StartDate.AddDays(-14);
+
+            // Ngày đóng: Trước 7 ngày
+            DateTime closeDate = activeSemester.StartDate.AddDays(-7);
+
+            bool isLocked = true;
+            string lockReason = "";
+
+            if (today < openDate)
+            {
+                isLocked = true;
+                lockReason = $"Chưa đến đợt đăng ký giảng dạy. Cổng sẽ mở từ {openDate:dd/MM/yyyy} đến {closeDate:dd/MM/yyyy}.";
+            }
+            else if (today > closeDate)
+            {
+                isLocked = true;
+                lockReason = $"Đã hết hạn đăng ký giảng dạy (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ Phòng Đào Tạo.";
+            }
+            else
+            {
+                isLocked = false; // Trong "Tuần lễ vàng"
+            }
+
+            ViewData["IsLocked"] = isLocked;
+            ViewData["LockReason"] = lockReason;
+            ViewData["SemesterName"] = activeSemester.SemesterName;
+
             var myClasses = await _context.CoursesSections
                 .Include(cs => cs.Course)
                 .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
                 .ToListAsync();
 
-            // Lớp CÒN TRỐNG (Available) -> Thay vì tìm null, ta tìm bằng 0
-            var availableClasses = await _context.CoursesSections
-                .Include(cs => cs.Course)
-                // SỬA: So sánh với 0 thay vì null
-                .Where(cs => cs.SemesterId == activeSemester.SemesterId && cs.LecturerId == 0)
-                .ToListAsync();
+            // 2. Lớp CÒN TRỐNG (Available) -> CHỈ LẤY KHI KHÔNG BỊ KHÓA
+            List<CourseSection> availableClasses = new List<CourseSection>();
+
+            if (!isLocked)
+            {
+                availableClasses = await _context.CoursesSections
+                    .Include(cs => cs.Course)
+                    .Where(cs => cs.SemesterId == activeSemester.SemesterId && cs.LecturerId == 0) // LecturerId = 0 là chưa có ai dạy
+                    .ToListAsync();
+            }
 
             ViewData["MyClasses"] = myClasses;
             ViewData["AvailableClasses"] = availableClasses;
-            ViewData["SemesterName"] = activeSemester.SemesterName;
 
             return View();
         }
 
-        // 2. POST: Đăng ký dạy (Logic giống Student: Chọn -> Kiểm tra -> Lưu)
         [HttpPost]
         [Authorize(Roles = "Lecturer")]
         [ValidateAntiForgeryToken]
@@ -222,39 +326,73 @@ namespace StudentPortal.Controllers
 
             int successCount = 0;
             int failCount = 0;
+            List<string> errorMessages = new List<string>();
+
+            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
+            if (activeSemester == null)
+            {
+                TempData["Error"] = "Không tìm thấy học kỳ hiện tại.";
+                return RedirectToAction(nameof(LecturerEnrollment));
+            }
+
+            var myCurrentSchedule = await _context.CoursesSections
+                .Include(cs => cs.Course)
+                .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
+                .ToListAsync();
 
             foreach (var sectionId in selectedSections)
             {
-                var section = await _context.CoursesSections.FindAsync(sectionId);
+                var section = await _context.CoursesSections
+                    .Include(s => s.Course)
+                    .FirstOrDefaultAsync(s => s.CourseSectionId == sectionId);
 
-                // SỬA: Kiểm tra xem LecturerId có bằng 0 không (tức là lớp trống)
-                if (section != null && section.LecturerId == 0)
-                {
-                    // Gán lớp này cho giảng viên hiện tại
-                    section.LecturerId = lecturer.LecturerId;
+                if (section == null) continue;
 
-                    // Cập nhật các bảng điểm (Score) hiện có của sinh viên trong lớp đó
-                    var existingScores = await _context.Scores
-                        .Where(s => s.CourseSectionId == sectionId)
-                        .ToListAsync();
-
-                    foreach (var score in existingScores)
-                    {
-                        score.LecturerId = lecturer.LecturerId;
-                    }
-
-                    successCount++;
-                }
-                else
+                if (section.LecturerId != 0) 
                 {
                     failCount++;
+                    errorMessages.Add($"Lớp {section.Course.CourseName} ({section.CourseSectionId}) đã có giảng viên khác đăng ký.");
+                    continue;
                 }
+
+                var conflict = myCurrentSchedule.FirstOrDefault(existing =>
+                    (existing.Days & section.Days) != 0 &&       
+                    (existing.Sessions & section.Sessions) != 0  
+                );
+
+                if (conflict != null)
+                {
+                    failCount++;
+                    errorMessages.Add($"Lớp {section.Course.CourseName} trùng lịch với lớp {conflict.Course.CourseName} (Phòng {conflict.Room}) mà Thầy/Cô đang dạy.");
+                    continue;
+                }
+
+                section.LecturerId = lecturer.LecturerId;
+
+                var existingScores = await _context.Scores
+                    .Where(s => s.CourseSectionId == sectionId)
+                    .ToListAsync();
+
+                foreach (var score in existingScores)
+                {
+                    score.LecturerId = lecturer.LecturerId;
+                }
+
+                myCurrentSchedule.Add(section);
+
+                successCount++;
             }
 
             await _context.SaveChangesAsync();
 
-            if (successCount > 0) TempData["Success"] = $"Đăng ký dạy thành công {successCount} lớp.";
-            if (failCount > 0) TempData["Error"] = $"{failCount} lớp đã có giảng viên khác đăng ký trước.";
+            if (successCount > 0)
+                TempData["Success"] = $"Đăng ký dạy thành công {successCount} lớp.";
+
+            if (failCount > 0)
+            {
+                string errorDetails = string.Join("<br/>", errorMessages);
+                TempData["Error"] = $"Không thể nhận {failCount} lớp:<br/>{errorDetails}";
+            }
 
             return RedirectToAction(nameof(LecturerEnrollment));
         }
@@ -300,87 +438,87 @@ namespace StudentPortal.Controllers
         }
 
         // Admin: Xem danh sách toàn bộ đăng ký
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> AdminIndex(int? semesterId)
-        //{
-        //    // Load danh sách học kỳ để lọc
-        //    ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", semesterId);
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminIndex(int? semesterId)
+        {
+            // Load danh sách học kỳ để lọc
+            ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", semesterId);
 
-        //    var query = _context.Enrollments
-        //        .Include(e => e.Student).ThenInclude(s => s.User)
-        //        .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
-        //        .Include(e => e.CourseSection).ThenInclude(cs => cs.Semester)
-        //        .AsQueryable();
+            var query = _context.Enrollments
+                .Include(e => e.Student).ThenInclude(s => s.User)
+                .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
+                .Include(e => e.CourseSection).ThenInclude(cs => cs.Semester)
+                .AsQueryable();
 
-        //    if (semesterId.HasValue)
-        //    {
-        //        query = query.Where(e => e.CourseSection.SemesterId == semesterId);
-        //    }
+            if (semesterId.HasValue)
+            {
+                query = query.Where(e => e.CourseSection.SemesterId == semesterId);
+            }
 
-        //    // Sắp xếp mới nhất lên đầu
-        //    var enrollments = await query.OrderByDescending(e => e.EnrollmentId).ToListAsync();
-        //    return View(enrollments);
-        //}
+            // Sắp xếp mới nhất lên đầu
+            var enrollments = await query.OrderByDescending(e => e.EnrollmentId).ToListAsync();
+            return View(enrollments);
+        }
 
-        //// Admin: GET trang chỉnh sửa trạng thái
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> AdminEdit(int? id)
-        //{
-        //    if (id == null) return NotFound();
+        // Admin: GET trang chỉnh sửa trạng thái
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminEdit(int? id)
+        {
+            if (id == null) return NotFound();
 
-        //    var enrollment = await _context.Enrollments
-        //        .Include(e => e.Student).ThenInclude(s => s.User)
-        //        .Include(e => e.CourseSection).ThenInclude(c => c.Course)
-        //        .Include(e => e.CourseSection).ThenInclude(c => c.Semester)
-        //        .FirstOrDefaultAsync(m => m.EnrollmentId == id);
+            var enrollment = await _context.Enrollments
+                .Include(e => e.Student).ThenInclude(s => s.User)
+                .Include(e => e.CourseSection).ThenInclude(c => c.Course)
+                .Include(e => e.CourseSection).ThenInclude(c => c.Semester)
+                .FirstOrDefaultAsync(m => m.EnrollmentId == id);
 
-        //    if (enrollment == null) return NotFound();
-        //    return View(enrollment);
-        //}
+            if (enrollment == null) return NotFound();
+            return View(enrollment);
+        }
 
-        //// Admin: POST cập nhật trạng thái
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> AdminEdit(int id, EnrollmentStatus status)
-        //{
-        //    var enrollment = await _context.Enrollments.FindAsync(id);
-        //    if (enrollment == null) return NotFound();
+        // Admin: POST cập nhật trạng thái
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminEdit(int id, EnrollmentStatus status)
+        {
+            var enrollment = await _context.Enrollments.FindAsync(id);
+            if (enrollment == null) return NotFound();
 
-        //    enrollment.Status = status;
-        //    _context.Update(enrollment);
-        //    await _context.SaveChangesAsync();
+            enrollment.Status = status;
+            _context.Update(enrollment);
+            await _context.SaveChangesAsync();
 
-        //    TempData["Success"] = "Cập nhật trạng thái thành công!";
-        //    return RedirectToAction(nameof(AdminIndex));
-        //}
+            TempData["Success"] = "Cập nhật trạng thái thành công!";
+            return RedirectToAction(nameof(AdminIndex));
+        }
 
-        //// Admin: Xóa sinh viên khỏi lớp (Bao gồm xóa Score)
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> AdminDelete(int id)
-        //{
-        //    var enrollment = await _context.Enrollments.FindAsync(id);
-        //    if (enrollment != null)
-        //    {
-        //        // Cần xóa cả bảng điểm (Score) nếu đã được tạo để tránh rác database
-        //        var score = await _context.Scores
-        //            .FirstOrDefaultAsync(s => s.StudentId == enrollment.StudentId
-        //                                   && s.CourseSectionId == enrollment.CourseSectionId);
+        // Admin: Xóa sinh viên khỏi lớp (Bao gồm xóa Score)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminDelete(int id)
+        {
+            var enrollment = await _context.Enrollments.FindAsync(id);
+            if (enrollment != null)
+            {
+                // Cần xóa cả bảng điểm (Score) nếu đã được tạo để tránh rác database
+                var score = await _context.Scores
+                    .FirstOrDefaultAsync(s => s.StudentId == enrollment.StudentId
+                                           && s.CourseSectionId == enrollment.CourseSectionId);
 
-        //        if (score != null) _context.Scores.Remove(score);
+                if (score != null) _context.Scores.Remove(score);
 
-        //        _context.Enrollments.Remove(enrollment);
-        //        await _context.SaveChangesAsync();
-        //        TempData["Success"] = "Đã xóa sinh viên khỏi lớp học phần.";
-        //    }
-        //    else
-        //    {
-        //        TempData["Error"] = "Không tìm thấy dữ liệu để xóa.";
-        //    }
-        //    return RedirectToAction(nameof(AdminIndex));
-        //}
+                _context.Enrollments.Remove(enrollment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa sinh viên khỏi lớp học phần.";
+            }
+            else
+            {
+                TempData["Error"] = "Không tìm thấy dữ liệu để xóa.";
+            }
+            return RedirectToAction(nameof(AdminIndex));
+        }
 
         // Helper
         private async Task<Student> GetCurrentStudentAsync()

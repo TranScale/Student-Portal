@@ -56,7 +56,10 @@ namespace StudentPortal.Controllers
             ViewData["Email"] = currentUser.Email;
             ViewData["Phone"] = currentUser.PhoneNumber;
 
-            var student = await _context.Students.Include(s => s.Department).FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+            var student = await _context.Students
+                .Include(s => s.Department)
+                .FirstOrDefaultAsync(s => s.UserId == currentUser.Id);
+
             if (student == null)
             {
                 return View("Error");
@@ -64,23 +67,29 @@ namespace StudentPortal.Controllers
             ViewData["StudentCode"] = student.StudentCode;
             ViewData["Deparment"] = student.Department.DepartmentName;
 
-            //Thời khóa biểu ở trang index
+            // --- PHẦN 1: THỜI KHÓA BIỂU (ĐÃ SỬA) ---
             DateTime selectedDate = date ?? DateTime.Today;
             ViewData["selectedDate"] = selectedDate;
 
             var studentSchedule = await _context.ScheduleItems
                 .Include(s => s.CourseSection).ThenInclude(cs => cs.Course)
                 .Include(s => s.CourseSection).ThenInclude(cs => cs.Enrollments)
-                .Where(s => s.CourseSection.Enrollments.Any(e => e.StudentId == student.StudentId) && s.ScheduleDate.Date == selectedDate.Date)
+                .Include(s => s.CourseSection).ThenInclude(cs => cs.Semester) // [MỚI] Include thêm Semester
+                .Where(s => s.CourseSection.Enrollments.Any(e => e.StudentId == student.StudentId)
+                            && s.ScheduleDate.Date == selectedDate.Date
+                            && s.CourseSection.Semester.IsActive == true) // [MỚI] Chỉ lấy lịch của kỳ đang Active
                 .OrderBy(s => s.CourseSection.Sessions)
                 .ToListAsync();
 
+            ViewData["ListSchedule"] = studentSchedule;
+
+            // --- PHẦN 2: TÍNH ĐIỂM (ĐÃ GIA CỐ AN TOÀN) ---
             var listEnrollment = await _context.Enrollments
-                .Include(e => e.CourseSection)
-                .ThenInclude(cs => cs.Course)
+                .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
                 .Where(e => e.StudentId == student.StudentId && e.Status == EnrollmentStatus.Finished)
                 .ToListAsync();
 
+            // Tính tổng tín chỉ (dùng int? ?? 0 để an toàn)
             int totalCredits = listEnrollment.Sum(e => e.CourseSection?.Course?.CourseCredit ?? 0);
 
             var listScores = await _context.Scores
@@ -91,8 +100,15 @@ namespace StudentPortal.Controllers
 
             foreach (var enrollment in listEnrollment)
             {
+                // Tìm điểm tương ứng với môn học
                 var score = listScores.FirstOrDefault(s => s.CourseSectionId == enrollment.CourseSectionId);
-                TotalWeightScore += score.FinalScore * enrollment.CourseSection.Course.CourseCredit;
+
+                // [QUAN TRỌNG] Kiểm tra null trước khi cộng. 
+                // Nếu enrollment là Finished mà chưa vào điểm (score == null) thì bỏ qua để tránh lỗi Crash
+                if (score != null && enrollment.CourseSection?.Course != null)
+                {
+                    TotalWeightScore += score.FinalScore * enrollment.CourseSection.Course.CourseCredit;
+                }
             }
 
             double totalGPA = 0;
@@ -105,8 +121,6 @@ namespace StudentPortal.Controllers
 
             ViewData["TotalScore"] = totalGPA;
             ViewData["TotalCredits"] = totalCredits;
-
-            ViewData["ListSchedule"] = studentSchedule;
 
             return View();
         }
@@ -136,9 +150,12 @@ namespace StudentPortal.Controllers
             ViewData["selectedDate"] = selectedDate;
 
             var schedule = _context.ScheduleItems
-                .Include(si => si.CourseSection)
-                .ThenInclude(cs => cs.Lecturer)
-                .Where(si => si.CourseSection.LecturerId == lecturer.LecturerId && si.ScheduleDate.Date == selectedDate.Date)
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Lecturer)
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Course) 
+                .Include(si => si.CourseSection).ThenInclude(cs => cs.Semester) 
+                .Where(si => si.CourseSection.LecturerId == lecturer.LecturerId
+                          && si.ScheduleDate.Date == selectedDate.Date
+                          && si.CourseSection.Semester.IsActive == true) 
                 .ToList();
 
             ViewData["ListSchedule"] = schedule;
@@ -148,11 +165,22 @@ namespace StudentPortal.Controllers
                 .Include(cs => cs.Lecturer)
                 .Include(cs => cs.Semester)
                 .Where(cs => cs.LecturerId == lecturer.LecturerId
-                        && cs.Semester.StartDate <= DateTime.Now
-                        && cs.Semester.EndDate >= DateTime.Now)
+                        && cs.Semester.IsActive)
                 .ToList();
 
-            ViewData["teachingList"] = teachingList;
+            if (teachingList == null || !teachingList.Any())
+            {
+                ViewData["ErrorMessage"] = "Hiện tại không có học kỳ nào đang hoạt động hoặc bạn chưa được phân công lớp dạy.";
+
+                ViewData["teachingList"] = new List<CourseSection>();
+
+                ViewData["CurrentSemester"] = "";
+            }
+            else
+            {
+                ViewData["teachingList"] = teachingList;
+                ViewData["CurrentSemester"] = teachingList.FirstOrDefault()?.Semester?.SemesterName;
+            }
 
             return View();
         }
@@ -239,15 +267,17 @@ namespace StudentPortal.Controllers
                 ViewData["Email"] = lecturer.User.Email;
                 ViewData["PhoneNumber"] = lecturer.User.PhoneNumber ?? "Chưa có thông tin";
 
-                var listTeaching = await _context.CoursesSections
-                    .Include(cs => cs.Course)
+                var uniqueCourses = await _context.CoursesSections
                     .Where(cs => cs.LecturerId == lecturer.LecturerId)
+                    .Select(cs => cs.Course) 
+                    .Distinct()              
                     .ToListAsync();
 
-                int totalClass = listTeaching.Count();
+                int totalClassCount = await _context.CoursesSections
+                    .CountAsync(cs => cs.LecturerId == lecturer.LecturerId);
 
-                ViewData["TotalClass"] = totalClass;
-                ViewData["CourseList"] = listTeaching;
+                ViewData["TotalClass"] = totalClassCount; 
+                ViewData["CourseList"] = uniqueCourses;   
 
                 return View(lecturer);
             }
@@ -427,8 +457,6 @@ namespace StudentPortal.Controllers
                     if (!string.IsNullOrEmpty(modelInput.User.FullName))
                     {
                         studentInDb.User.FullName = modelInput.User.FullName;
-                        // Cập nhật lại claim để hiển thị ngay lập tức trên Header (nếu dùng Claim)
-                        // await _signInManager.RefreshSignInAsync(currentUser); 
                     }
 
                 }
@@ -436,7 +464,6 @@ namespace StudentPortal.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Cập nhật hồ sơ thành công!";
-                // Redirect về lại trang Dashboard để load lại dữ liệu mới nhất
                 return RedirectToAction("StudentIndex");
             }
 
@@ -463,7 +490,7 @@ namespace StudentPortal.Controllers
             // 2. HỌC KỲ HIỆN TẠI
             var today = DateTime.Now;
             var currentSemester = await _context.Semesters
-                .Where(s => s.StartDate <= today && s.EndDate >= today)
+                .Where(s => s.IsActive)
                 .FirstOrDefaultAsync();
 
             ViewData["CurrentSemesterName"] = currentSemester != null ? currentSemester.SemesterName : "Chưa thiết lập";

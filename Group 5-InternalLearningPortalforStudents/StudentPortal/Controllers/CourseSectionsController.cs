@@ -23,14 +23,13 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchString, int? semesterId, int? facultyId, int? departmentId, int? pageNumber)
+        public async Task<IActionResult> Index(string searchString, int? semesterId, int? facultyId, int? departmentId, int? assignStatus, int? pageNumber)
         {
-
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentSemester"] = semesterId;
             ViewData["CurrentFaculty"] = facultyId;
             ViewData["CurrentDepartment"] = departmentId;
-
+            ViewData["CurrentAssignStatus"] = assignStatus;
 
             var sections = _context.CoursesSections
                 .Include(c => c.Semester)
@@ -38,34 +37,32 @@ namespace StudentPortal.Controllers
                 .Include(c => c.Course).ThenInclude(co => co.Department).ThenInclude(d => d.Faculty)
                 .AsQueryable();
 
-
             if (!string.IsNullOrEmpty(searchString))
             {
                 sections = sections.Where(s => s.Course.CourseName.Contains(searchString)
                                             || s.Course.CourseCode.Contains(searchString)
                                             || s.Room.Contains(searchString));
             }
+            if (semesterId.HasValue) sections = sections.Where(s => s.SemesterId == semesterId);
+            if (facultyId.HasValue) sections = sections.Where(s => s.Course.Department.FacultyId == facultyId);
+            if (departmentId.HasValue) sections = sections.Where(s => s.Course.DepartmentId == departmentId);
 
-            if (semesterId.HasValue)
-            {
-                sections = sections.Where(s => s.SemesterId == semesterId);
-            }
 
-            if (facultyId.HasValue)
+            if (assignStatus.HasValue)
             {
-                sections = sections.Where(s => s.Course.Department.FacultyId == facultyId);
-            }
-
-            if (departmentId.HasValue)
-            {
-                sections = sections.Where(s => s.Course.DepartmentId == departmentId);
+                if (assignStatus == 1)
+                {
+                    sections = sections.Where(s => s.LecturerId == null || s.LecturerId == 0);
+                }
+                else if (assignStatus == 2)
+                {
+                    sections = sections.Where(s => s.LecturerId != null && s.LecturerId != 0);
+                }
             }
 
             sections = sections.OrderByDescending(c => c.CourseSectionId);
 
-
             ViewBag.Semesters = new SelectList(_context.Semesters, "SemesterId", "SemesterName", semesterId);
-
             ViewBag.Faculties = new SelectList(_context.Faculties, "FacultyId", "FacultyName", facultyId);
 
             var departmentsQuery = _context.Departments.AsQueryable();
@@ -106,10 +103,36 @@ namespace StudentPortal.Controllers
         public IActionResult Create()
         {
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName");
-            var lecturers = _context.Lecturers.Include(l => l.User).Select(l => new { l.LecturerId, l.User.FullName });
-            ViewData["LecturerId"] = new SelectList(lecturers, "LecturerId", "FullName");
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName");
+            ViewData["LecturerId"] = new SelectList(new List<string>(), "LecturerId", "FullName");
+
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLecturersByCourse(int courseId)
+        {
+            // Tìm môn học -> Ngành -> Khoa
+            var course = await _context.Courses
+                .Include(c => c.Department)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course == null) return Json(new List<object>());
+
+            int targetFacultyId = course.Department.FacultyId;
+
+            // Lấy danh sách GV thuộc Khoa đó
+            var lecturers = await _context.Lecturers
+                .Include(l => l.User)
+                .Where(l => l.FacultyId == targetFacultyId && !l.IsDeleted && l.User.UserName != "system")
+                .Select(l => new
+                {
+                    id = l.LecturerId,
+                    name = l.User.FullName
+                })
+                .ToListAsync();
+
+            return Json(lecturers);
         }
 
         [HttpPost]
@@ -117,28 +140,21 @@ namespace StudentPortal.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("CourseSectionId,Room,Capacity,Days,Sessions,CourseId,LecturerId,SemesterId")] CourseSection courseSection)
         {
-            // 1. Clean ModelState
             ModelState.Remove("DayStart");
             ModelState.Remove("DayEnd");
             ModelState.Remove("Course");
             ModelState.Remove("Lecturer");
             ModelState.Remove("Semester");
 
-            // 2. Validation Custom
             if (courseSection.Days == ClassDays.None)
-            {
                 ModelState.AddModelError("Days", "Vui lòng chọn ít nhất một ngày học.");
-            }
-            if (courseSection.Sessions == StudySessions.None)
-            {
-                ModelState.AddModelError("Sessions", "Vui lòng chọn ít nhất một ca học.");
-            }
-            if (string.IsNullOrEmpty(courseSection.Room))
-            {
-                ModelState.AddModelError("Room", "Vui lòng nhập phòng học.");
-            }
 
-            // 3. Xử lý Semester
+            if (courseSection.Sessions == StudySessions.None)
+                ModelState.AddModelError("Sessions", "Vui lòng chọn ít nhất một ca học.");
+
+            if (string.IsNullOrEmpty(courseSection.Room))
+                ModelState.AddModelError("Room", "Vui lòng nhập phòng học.");
+
             var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
             if (semester != null)
             {
@@ -152,15 +168,11 @@ namespace StudentPortal.Controllers
 
             if (ModelState.IsValid)
             {
-                var existingSections = _context.CoursesSections
-                                               .Where(x => x.SemesterId == courseSection.SemesterId)
-                                               .AsEnumerable();
-
-                bool roomConflict = existingSections.Any(x =>
-                    x.Room == courseSection.Room &&
-                    (x.Days & courseSection.Days) != ClassDays.None &&
-                    (x.Sessions & courseSection.Sessions) != StudySessions.None
-                );
+                bool roomConflict = await _context.CoursesSections
+                    .AnyAsync(x => x.SemesterId == courseSection.SemesterId &&
+                                   x.Room == courseSection.Room &&
+                                   (x.Days & courseSection.Days) != ClassDays.None &&
+                                   (x.Sessions & courseSection.Sessions) != StudySessions.None);
 
                 if (roomConflict)
                 {
@@ -169,11 +181,11 @@ namespace StudentPortal.Controllers
 
                 if (courseSection.LecturerId != 0)
                 {
-                    bool lecturerConflict = existingSections.Any(x =>
-                        x.LecturerId == courseSection.LecturerId &&
-                        (x.Days & courseSection.Days) != ClassDays.None &&
-                        (x.Sessions & courseSection.Sessions) != StudySessions.None
-                    );
+                    bool lecturerConflict = await _context.CoursesSections
+                        .AnyAsync(x => x.SemesterId == courseSection.SemesterId &&
+                                       x.LecturerId == courseSection.LecturerId &&
+                                       (x.Days & courseSection.Days) != ClassDays.None &&
+                                       (x.Sessions & courseSection.Sessions) != StudySessions.None);
 
                     if (lecturerConflict)
                     {
@@ -190,36 +202,53 @@ namespace StudentPortal.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.CourseId = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-            ViewBag.SemesterId = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
 
-            // 2. Giảng viên (Lấy list sạch)
-            var dbLecturers = _context.Lecturers
-                                      .Include(l => l.User)
-                                      .Where(l => l.User.UserName != "system")
-                                      .Select(l => new {
-                                          LecturerId = l.LecturerId,
-                                          FullName = l.User.FullName
-                                      })
-                                      .ToList();
+            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
+            ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
 
-            ViewBag.LecturerId = new SelectList(dbLecturers, "LecturerId", "FullName", courseSection.LecturerId);
+            var dbLecturers = await _context.Lecturers
+                .Include(l => l.User)
+                .Where(l => l.User.UserName != "system")
+                .Select(l => new {
+                    LecturerId = l.LecturerId,
+                    FullName = l.User.FullName
+                })
+                .ToListAsync(); 
+
+            ViewData["LecturerId"] = new SelectList(dbLecturers, "LecturerId", "FullName", courseSection.LecturerId);
 
             return View(courseSection);
         }
+
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var courseSection = await _context.CoursesSections.FindAsync(id);
+            var courseSection = await _context.CoursesSections
+                .Include(cs => cs.Course)
+                    .ThenInclude(c => c.Department) 
+                .FirstOrDefaultAsync(m => m.CourseSectionId == id);
+
             if (courseSection == null) return NotFound();
 
+
+            int targetFacultyId = courseSection.Course?.Department?.FacultyId ?? 0;
+
+            var lecturersQuery = _context.Lecturers
+                .Include(l => l.User)
+                .Where(l => l.User.UserName != "system" && !l.IsDeleted) 
+                .Where(l => l.FacultyId == targetFacultyId || l.LecturerId == courseSection.LecturerId) 
+                .Select(l => new
+                {
+                    l.LecturerId,
+                    l.User.FullName
+                });
+
+            ViewBag.LecturerId = new SelectList(await lecturersQuery.ToListAsync(), "LecturerId", "FullName", courseSection.LecturerId);
+
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
-            // Đã sửa: Lọc bỏ system
-            var lecturers = _context.Lecturers.Include(l => l.User).Where(l => l.User.UserName != "system").Select(l => new { l.LecturerId, l.User.FullName });
-            ViewBag.LecturerId = new SelectList(lecturers, "LecturerId", "FullName", courseSection.LecturerId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName", courseSection.SemesterId);
 
             return View(courseSection);

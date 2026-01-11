@@ -3,155 +3,162 @@
 
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Mở Lớp Học Phần";
 }
 
-<h1>Mở Lớp Học Phần</h1>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="SemesterId" class="control-label font-weight-bold">Học kỳ áp dụng</label>
-                <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
-                <small class="text-muted">Ngày bắt đầu và kết thúc sẽ tự động lấy theo học kỳ.</small>
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="glass-panel">
+            <div class="panel-title border-bottom pb-3 mb-3 text-white">
+                <i class="fas fa-plus-circle mr-2"></i> Mở Lớp Học Phần Mới
             </div>
 
-            <div class="form-group">
-                <label asp-for="CourseId" class="control-label font-weight-bold">Môn học</label>
-                <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
-            </div>
+            <form asp-action="Create" id="createForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="LecturerId" class="control-label font-weight-bold">Giảng viên phụ trách</label>
-                <select asp-for="LecturerId" class="form-control" asp-items="ViewBag.LecturerId">
-                    <option value="0">--- Chưa phân công ---</option>
-                </select>
-                <span asp-validation-for="LecturerId" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-4">
+                    <label asp-for="SemesterId" class="control-label font-weight-bold text-warning">Học kỳ áp dụng</label>
+                    <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
+                    <small class="text-white-50 font-italic">* Ngày bắt đầu và kết thúc sẽ tự động lấy theo học kỳ.</small>
+                </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Room" class="control-label font-weight-bold">Tên phòng</label>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="CourseId" class="control-label font-weight-bold text-white">Môn học</label>
+                        <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId" id="ddlCourse">
+                            <option value="">-- Chọn môn học --</option>
+                        </select>
+                        <span asp-validation-for="CourseId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label asp-for="LecturerId" class="control-label font-weight-bold text-white">Giảng viên phụ trách</label>
+                        <select asp-for="LecturerId" class="form-control" id="ddlLecturer">
+                            <option value="0">--- Vui lòng chọn môn học trước ---</option>
+                        </select>
+                        <span asp-validation-for="LecturerId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="Room" class="control-label font-weight-bold text-white">Tên phòng</label>
                         <input asp-for="Room" class="form-control" placeholder="Ví dụ: A201" />
                         <span asp-validation-for="Room" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Capacity" class="control-label font-weight-bold">Sĩ số</label>
-                        <input asp-for="Capacity" class="form-control" value="40" />
+                    <div class="col-md-6 form-group">
+                        <label asp-for="Capacity" class="control-label font-weight-bold text-white">Sĩ số tối đa</label>
+                        <input asp-for="Capacity" class="form-control" value="40" type="number" min="1" />
                         <span asp-validation-for="Capacity" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label class="control-label font-weight-bold">Buổi học</label>
-                <div class="card p-2" style="background-color: transparent; border: 1px solid #ced4da;">
-                    <div class="d-flex flex-wrap">
-                        @foreach (ClassDays day in Enum.GetValues(typeof(ClassDays)))
-                        {
-                            if (day == ClassDays.None) continue;
+                <div class="form-group mt-3">
+                    <label class="control-label font-weight-bold text-white">Thứ trong tuần</label>
+                    <div class="card p-3" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex flex-wrap">
+                            @foreach (ClassDays day in Enum.GetValues(typeof(ClassDays)))
+                            {
+                                if (day == ClassDays.None) continue;
+                                <div class="custom-control custom-checkbox mr-4 mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="day_@day" name="Days" value="@day">
+                                    <label class="custom-control-label text-white" for="day_@day">
+                                        @switch (day)
+                                        {
+                                            case ClassDays.Monday:
+                                                <text>Thứ 2</text>
+                                                ; break;
+                                            case ClassDays.Tuesday:
 
-                            <div class="custom-control custom-checkbox mr-3">
-                                <input type="checkbox" class="custom-control-input" id="day_@day" name="Days" value="@day">
-                                <label class="custom-control-label" for="day_@day">
-                                    @switch (day)
-                                    {
-                                        case ClassDays.Monday:
-                                            <text>Thứ 2</text>
-                                            ; break;
-                                        case ClassDays.Tuesday:
+                                                <text>Thứ 3</text>
+                                                ; break;
+                                            case ClassDays.Wednesday:
 
-                                            <text>Thứ 3</text>
-                                            ; break;
-                                        case ClassDays.Wednesday:
+                                                <text>Thứ 4</text>
+                                                ; break;
+                                            case ClassDays.Thursday:
 
-                                            <text>Thứ 4</text>
-                                            ; break;
-                                        case ClassDays.Thursday:
+                                                <text>Thứ 5</text>
+                                                ; break;
+                                            case ClassDays.Friday:
 
-                                            <text>Thứ 5</text>
-                                            ; break;
-                                        case ClassDays.Friday:
+                                                <text>Thứ 6</text>
+                                                ; break;
+                                            case ClassDays.Saturday:
 
-                                            <text>Thứ 6</text>
-                                            ; break;
-                                        case ClassDays.Saturday:
+                                                <text>Thứ 7</text>
+                                                ; break;
+                                            case ClassDays.Sunday:
 
-                                            <text>Thứ 7</text>
-                                            ; break;
-                                        case ClassDays.Sunday:
+                                                <text>CN</text>
+                                                ; break;
+                                            default:
 
-                                            <text>CN</text>
-                                            ; break;
-                                        default:
-
-                                            @day
-                                            ; break;
-                                    }
-                                </label>
-                            </div>
-                        }
+                                                @day
+                                                ; break;
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
+                    <span class="text-danger" id="daysError"></span>
                 </div>
-                <span asp-validation-for="Days" class="text-danger"></span>
-            </div>
 
-            <div class="form-group">
-                <label class="control-label font-weight-bold">Số ca (Chọn nhiều)</label>
-                <div class="card p-2" style="background-color: transparent; border: 1px solid #ced4da;">
-                    <div class="d-flex flex-wrap">
-                        @foreach (StudySessions session in Enum.GetValues(typeof(StudySessions)))
-                        {
-                            if (session == StudySessions.None) continue;
+                <div class="form-group">
+                    <label class="control-label font-weight-bold text-white">Ca học (Chọn nhiều)</label>
+                    <div class="card p-3" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex flex-wrap">
+                            @foreach (StudySessions session in Enum.GetValues(typeof(StudySessions)))
+                            {
+                                if (session == StudySessions.None) continue;
+                                <div class="custom-control custom-checkbox mr-3 mb-2" style="min-width: 160px;">
+                                    <input type="checkbox" class="custom-control-input" id="session_@session" name="Sessions" value="@session">
+                                    <label class="custom-control-label text-white" for="session_@session">
+                                        @switch (session)
+                                        {
+                                            case StudySessions.Ca1:
+                                                <text>Ca 1 (07:00-09:30)</text>
+                                                ; break;
+                                            case StudySessions.Ca2:
 
-                            <div class="custom-control custom-checkbox mr-3 mb-2" style="min-width: 150px;">
-                                <input type="checkbox" class="custom-control-input" id="session_@session" name="Sessions" value="@session">
-                                <label class="custom-control-label" for="session_@session">
-                                    @switch (session)
-                                    {
-                                        case StudySessions.Ca1:
-                                            <text>Ca 1 (07:00-09:30)</text>
-                                            ; break;
-                                        case StudySessions.Ca2:
+                                                <text>Ca 2 (09:30-12:00)</text>
+                                                ; break;
+                                            case StudySessions.Ca3:
 
-                                            <text>Ca 2 (09:30-12:00)</text>
-                                            ; break;
-                                        case StudySessions.Ca3:
+                                                <text>Ca 3 (12:30-15:00)</text>
+                                                ; break;
+                                            case StudySessions.Ca4:
 
-                                            <text>Ca 3 (12:30-15:00)</text>
-                                            ; break;
-                                        case StudySessions.Ca4:
+                                                <text>Ca 4 (15:00-17:30)</text>
+                                                ; break;
+                                            case StudySessions.Ca5:
 
-                                            <text>Ca 4 (15:00-17:30)</text>
-                                            ; break;
-                                        case StudySessions.Ca5:
+                                                <text>Ca 5 (17:30-20:00)</text>
+                                                ; break;
+                                            default:
 
-                                            <text>Ca 5 (17:30-20:00)</text>
-                                            ; break;
-                                        default:
-
-                                            @session
-                                            ; break;
-                                    }
-                                </label>
-                            </div>
-                        }
+                                                @session
+                                                ; break;
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
+                    <span class="text-danger" id="sessionsError"></span>
                 </div>
-                <span asp-validation-for="Sessions" class="text-danger"></span>
-            </div>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Tạo lớp học phần" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ml-2">Quay lại</a>
-            </div>
-        </form>
+                <div class="form-group text-right mt-4 pt-3 border-top border-secondary">
+                    <a asp-action="Index" class="btn btn-outline-light mr-2">
+                        <i class="fas fa-times mr-1"></i> Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn btn-success font-weight-bold px-4">
+                        <i class="fas fa-save mr-2"></i> Lưu Lớp Học
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -159,4 +166,112 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            // --- HÀM DÙNG CHUNG: LOAD GIẢNG VIÊN ---
+            function loadLecturers(courseId, selectedId) {
+                var lecturerSelect = $('#ddlLecturer');
+
+                // 1. Clear và hiện "Đang tải"
+                lecturerSelect.empty();
+                lecturerSelect.append('<option value="0">--- Đang tải danh sách... ---</option>');
+
+                if (!courseId) {
+                    lecturerSelect.empty();
+                    lecturerSelect.append('<option value="0">--- Vui lòng chọn môn học trước ---</option>');
+                    return;
+                }
+
+                // 2. Gọi AJAX
+                $.ajax({
+                    url: '/CourseSections/GetLecturersByCourse', // Đảm bảo URL này đúng với Controller của bạn
+                    type: 'GET',
+                    data: { courseId: courseId },
+        success: function (data) {
+            // 1. IN RA CONSOLE ĐỂ KIỂM TRA (Nhấn F12 -> Console để xem)
+            console.log("Dữ liệu từ Server:", data);
+
+            var lecturerSelect = $('#ddlLecturer'); // Đảm bảo đúng ID select của bạn
+            lecturerSelect.empty();
+
+            if (data.length === 0) {
+                lecturerSelect.append('<option value="0">--- Khoa này chưa có GV ---</option>');
+            } else {
+                lecturerSelect.append('<option value="0">--- Chưa phân công ---</option>');
+
+                $.each(data, function (index, item) {
+                    // 2. TỰ ĐỘNG BẮT TÊN THUỘC TÍNH (Dù server trả về kiểu nào cũng nhận)
+                    // Ưu tiên lấy lecturerId, nếu không có thì lấy id, không có nữa thì lấy LecturerId (viết hoa)
+                    var id = item.lecturerId || item.id || item.LecturerId || item.ID;
+
+                    // Ưu tiên lấy fullName, nếu không có thì lấy name, full_name, v.v.
+                    var name = item.fullName || item.name || item.FullName || item.Name;
+
+                    lecturerSelect.append($('<option>', {
+                        value: id,
+                        text: name
+                    }));
+                });
+
+                // Chọn lại giá trị cũ nếu có
+                if (selectedId && selectedId != 0) {
+                    lecturerSelect.val(selectedId);
+                }
+            }
+        },
+                    error: function () {
+                        lecturerSelect.empty();
+                        lecturerSelect.append('<option value="0">--- Lỗi tải dữ liệu ---</option>');
+                    }
+                });
+            }
+
+            // --- SỰ KIỆN 1: KHI NGƯỜI DÙNG THAY ĐỔI MÔN HỌC ---
+            $('#ddlCourse').change(function () {
+                var courseId = $(this).val();
+                loadLecturers(courseId, null); // null vì lúc này người dùng mới chọn lại môn, chưa chọn GV
+            });
+
+            // --- SỰ KIỆN 2: KHI TRANG VỪA LOAD (FIX LỖI CỦA BẠN) ---
+            // Lấy ID môn học hiện tại (nếu form reload do lỗi, server sẽ điền sẵn value này)
+            var initialCourseId = $('#ddlCourse').val();
+            // Lấy ID giảng viên từ Model (Razor render ra số)
+            var initialLecturerId = '@(Model?.LecturerId ?? 0)';
+
+            // Nếu có môn học được chọn sẵn, kích hoạt tải giảng viên ngay
+            if (initialCourseId) {
+                loadLecturers(initialCourseId, initialLecturerId);
+            }
+
+
+            // --- CÁC PHẦN VALIDATE CHECKBOX (GIỮ NGUYÊN) ---
+            function validateCheckboxGroup(groupName, errorId, errorMessage) {
+                var checkedCount = $('input[name="' + groupName + '"]:checked').length;
+                if (checkedCount === 0) {
+                    $('#' + errorId).text(errorMessage);
+                    return false;
+                } else {
+                    $('#' + errorId).text('');
+                    return true;
+                }
+            }
+
+            $('#createForm').submit(function (e) {
+                var isValidDays = validateCheckboxGroup('Days', 'daysError', '⚠️ Vui lòng chọn ít nhất một ngày học.');
+                var isValidSessions = validateCheckboxGroup('Sessions', 'sessionsError', '⚠️ Vui lòng chọn ít nhất một ca học.');
+
+                if (!isValidDays || !isValidSessions) {
+                    e.preventDefault();
+                }
+            });
+
+            $('input[name="Days"]').change(function () {
+                validateCheckboxGroup('Days', 'daysError', '');
+            });
+            $('input[name="Sessions"]').change(function () {
+                validateCheckboxGroup('Sessions', 'sessionsError', '');
+            });
+        });
+    </script>
 }

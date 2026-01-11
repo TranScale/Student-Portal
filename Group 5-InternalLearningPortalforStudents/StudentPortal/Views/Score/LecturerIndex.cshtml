@@ -6,12 +6,12 @@
 }
 
 <style>
-    /* --- STYLE CHUNG CHO TRANG NÀY (Giống Thời khóa biểu) --- */
+    /* --- STYLE GIỮ NGUYÊN --- */
 
     /* 1. Thanh công cụ (Filter Bar) phía trên */
     .filter-toolbar {
-        background-color: rgba(0, 0, 0, 0.2); /* Nền tối mờ */
-        border-radius: 15px; /* Bo tròn mạnh */
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
         padding: 15px 20px;
         margin-bottom: 20px;
         display: flex;
@@ -19,40 +19,27 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Style cho ô chọn (Select Box) */
-    .custom-select-dark {
-        background-color: rgba(255, 255, 255, 0.1) !important; /* Nền kính */
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: #fff !important;
-        border-radius: 8px;
-        height: 45px;
-        padding-left: 15px;
-    }
-
-        .custom-select-dark:focus {
-            background-color: rgba(255, 255, 255, 0.2) !important;
-            box-shadow: none;
-            border-color: rgba(255, 255, 255, 0.3) !important;
-        }
-
-        /* Chỉnh màu option bên trong khi xổ xuống */
-        .custom-select-dark option {
-            background-color: #2c3e50;
-            color: white;
-        }
-
-    /* Icon bên trái input */
+    /* Icon bên trái text */
     .input-icon {
         color: #fff;
-        margin-right: 10px;
-        opacity: 0.7;
-        font-size: 1.2rem;
+        margin-right: 15px;
+        opacity: 0.9;
+        font-size: 1.5rem; /* To hơn xíu để làm điểm nhấn */
     }
 
-    /* 2. Card chứa bảng dữ liệu (Main Content) */
+    /* Text hiển thị học kỳ */
+    .semester-info-text {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* 2. Card chứa bảng dữ liệu */
     .glass-card {
-        background-color: rgba(0, 0, 0, 0.2); /* Nền tối trong suốt giống hình */
-        border-radius: 4px; /* Bo góc ít hơn toolbar giống hình */
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.05);
         color: #fff;
         padding-bottom: 20px;
@@ -77,41 +64,43 @@
     }
 
         .table-dark-custom thead th {
-            background-color: rgba(255, 255, 255, 0.05); /* Header bảng sáng hơn xíu */
+            background-color: rgba(255, 255, 255, 0.05);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             border-top: none;
             padding: 12px 15px;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.8rem;
-            color: #ccc; /* Màu chữ header hơi xám */
+            color: #ccc;
         }
 
         .table-dark-custom tbody td {
             padding: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05); /* Đường kẻ rất mờ */
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             vertical-align: middle;
             font-size: 0.95rem;
         }
 
         .table-dark-custom tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.05); /* Hiệu ứng hover nhẹ */
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
     /* Badge & Button */
     .btn-action-purple {
-        background: linear-gradient(45deg, #8e44ad, #9b59b6); /* Tím giống theme */
+        background: linear-gradient(45deg, #8e44ad, #9b59b6);
         border: none;
         color: white;
         padding: 6px 15px;
         border-radius: 4px;
         font-size: 0.85rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.3s;
     }
 
         .btn-action-purple:hover {
             background: linear-gradient(45deg, #71368a, #8e44ad);
             color: white;
+            transform: translateY(-1px);
         }
 
     .badge-room {
@@ -134,39 +123,25 @@
         display: block;
         margin-top: 2px;
     }
-
 </style>
 
 <div class="container-fluid" style="padding-top: 20px;">
 
-    <form method="get" asp-action="Index">
-        <div class="filter-toolbar">
-            <div class="d-flex align-items-center flex-grow-1">
-                <i class="fa fa-calendar-alt input-icon"></i>
-                <div style="flex-grow: 1; max-width: 400px;">
-                    <select class="form-control custom-select-dark"
-                            name="semesterId"
-                            asp-items="@(ViewData["SemesterList"] as SelectList)"
-                            onchange="this.form.submit()">
-                    </select>
+    <div class="filter-toolbar">
+        <div class="d-flex align-items-center">
+            <i class="fa fa-calendar-check input-icon"></i>
+            <div>
+                <div style="font-size: 0.85rem; opacity: 0.7;">Học kỳ đang diễn ra</div>
+                <div class="semester-info-text">
+                    @ViewBag.CurrentSemesterName
                 </div>
             </div>
-
-            <div class="text-white ml-3 d-none d-md-block" style="opacity: 0.8;">
-                <i class="fa fa-info-circle mr-1"></i> Đang xem: @ViewBag.CurrentSemesterName
-            </div>
         </div>
-    </form>
+    </div>
 
     <div class="glass-card">
         <div class="glass-header">
             <span><i class="fa fa-list mr-2"></i> Danh sách lớp học phần</span>
-
-            <div>
-                <button class="btn btn-sm btn-outline-light border-0" style="opacity: 0.5"><i class="fa fa-chevron-left"></i></button>
-                <span class="mx-2" style="font-size: 0.9rem; opacity: 0.8">Hôm nay</span>
-                <button class="btn btn-sm btn-outline-light border-0" style="opacity: 0.5"><i class="fa fa-chevron-right"></i></button>
-            </div>
         </div>
 
         <div class="table-responsive">
@@ -213,7 +188,9 @@
                     {
                         <tr>
                             <td colspan="6" class="text-center py-5">
-                                <span style="opacity: 0.5;">Không có dữ liệu lớp học phần.</span>
+                                <i class="fa fa-folder-open mb-3" style="font-size: 2rem; opacity: 0.5;"></i>
+                                <br />
+                                <span style="opacity: 0.5;">Không tìm thấy lớp học phần nào trong học kỳ này.</span>
                             </td>
                         </tr>
                     }
@@ -228,12 +205,20 @@
 @section Scripts {
     <script>
         function openGradeModal(sectionId) {
+            // Hiệu ứng loading con trỏ chuột
             $('body').css('cursor', 'wait');
-            $.get('/Score/EnterGrades', { sectionId: sectionId }, function (data) {
-                $('body').css('cursor', 'default');
-                $('#modalContainer').html(data);
-                $('#gradeModal').modal('show');
-            });
+
+            $.get('/Score/EnterGrades', { sectionId: sectionId })
+                .done(function (data) {
+                    $('#modalContainer').html(data);
+                    $('#gradeModal').modal('show'); // Đảm bảo ID modal khớp với PartialView của bạn
+                })
+                .fail(function() {
+                    alert("Không thể tải dữ liệu bảng điểm. Vui lòng thử lại.");
+                })
+                .always(function() {
+                    $('body').css('cursor', 'default');
+                });
         }
     </script>
 }

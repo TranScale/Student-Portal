@@ -132,6 +132,10 @@
                     <tbody>
                         @for (int session = 1; session <= 5; session++)
                         {
+                            // Tính giá trị Bit tương ứng với Ca học hiện tại
+                            // Ca 1 = 1, Ca 2 = 2, Ca 3 = 4, Ca 4 = 8, Ca 5 = 16
+                            int currentSessionBit = 1 << (session - 1);
+
                             <tr>
                                 <td class="session-col">
                                     <span class="session-name">@session</span>
@@ -140,7 +144,12 @@
                                 @for (int i = 0; i < 7; i++)
                                 {
                                     DateTime loopD = startOfWeek.AddDays(i);
-                                    var item = scheduleList.FirstOrDefault(s => s.ScheduleDate.Date == loopD.Date && (int)s.CourseSection.Sessions == session);
+
+                                    // SỬA Ở ĐÂY: Dùng phép toán AND Bitwise để kiểm tra
+                                    var item = scheduleList.FirstOrDefault(s =>
+                                    s.ScheduleDate.Date == loopD.Date &&
+                                    ((int)s.CourseSection.Sessions & currentSessionBit) != 0
+                                    );
                                     <td>
                                         @if (item != null)
                                         {
