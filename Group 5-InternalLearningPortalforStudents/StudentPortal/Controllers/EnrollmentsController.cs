@@ -45,23 +45,44 @@ namespace StudentPortal.Controllers
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        [Authorize(Roles = "Student")] // Đổi thành Student
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> StudentEnrollment()
         {
             var student = await GetCurrentStudentAsync();
             if (student == null) return RedirectToAction("Login", "Account");
 
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
-            if (activeSemester == null)
+            DateTime today = DateTime.Today;
+
+            // 1. Lấy TẤT CẢ các học kỳ đang Active
+            var activeSemesters = await _context.Semesters
+                .Where(s => s.IsActive)
+                .ToListAsync();
+
+            if (!activeSemesters.Any())
             {
                 ViewData["Message"] = "Hiện chưa có học kỳ nào được kích hoạt.";
                 return View();
             }
 
-            // --- 1. LOGIC TÍNH NGÀY & KHÓA (GIỐNG GIẢNG VIÊN) ---
-            DateTime today = DateTime.Today;
-            DateTime openDate = activeSemester.StartDate.AddDays(-14);
-            DateTime closeDate = activeSemester.StartDate.AddDays(-7);
+            // --- LOGIC MỚI: ƯU TIÊN HỌC KỲ ĐANG MỞ ĐĂNG KÝ ---
+
+            // Tìm trong list active, có ông nào đang trong thời gian cho phép đăng ký không?
+            // (Từ OpenDate đến CloseDate)
+            var targetSemester = activeSemesters.FirstOrDefault(s =>
+                today >= s.StartDate.AddDays(-14) &&
+                today <= s.StartDate.AddDays(-7)
+            );
+
+            // Nếu KHÔNG có học kỳ nào đang mở cổng, thì lấy học kỳ có ngày bắt đầu mới nhất 
+            // (để hiển thị thông báo "Sắp mở" hoặc "Vừa hết hạn" của kỳ đó)
+            if (targetSemester == null)
+            {
+                targetSemester = activeSemesters.OrderByDescending(s => s.StartDate).FirstOrDefault();
+            }
+
+            // --- 2. TÍNH TOÁN TRẠNG THÁI KHÓA (Dựa trên targetSemester đã chọn) ---
+            DateTime openDate = targetSemester.StartDate.AddDays(-14);
+            DateTime closeDate = targetSemester.StartDate.AddDays(-7);
 
             bool isLocked = true;
             string lockReason = "";
@@ -69,46 +90,47 @@ namespace StudentPortal.Controllers
             if (today < openDate)
             {
                 isLocked = true;
-                lockReason = $"Chưa đến đợt đăng ký. Cổng sẽ mở từ {openDate:dd/MM/yyyy} đến {closeDate:dd/MM/yyyy}.";
+                lockReason = $"Chưa đến đợt đăng ký {targetSemester.SemesterName}. Cổng sẽ mở từ {openDate:dd/MM/yyyy}.";
             }
             else if (today > closeDate)
             {
                 isLocked = true;
-                lockReason = $"Đã hết hạn đăng ký (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ phòng đào tạo.";
+                lockReason = $"Đã hết hạn đăng ký {targetSemester.SemesterName} (Hạn chót: {closeDate:dd/MM/yyyy}).";
             }
             else
             {
-                isLocked = false; // Trong thời gian cho phép
+                isLocked = false; // Đang trong "Khung giờ vàng"
             }
 
+            // Giữ nguyên các Key ViewData để không vỡ giao diện
             ViewData["IsLocked"] = isLocked;
             ViewData["LockReason"] = lockReason;
-            ViewData["SemesterName"] = activeSemester.SemesterName;
+            ViewData["SemesterName"] = targetSemester.SemesterName;
 
-            // --- 2. LẤY DANH SÁCH ĐÃ ĐĂNG KÝ (LUÔN CHẠY - QUAN TRỌNG) ---
-            // Phần này phải để ngoài if(isLocked) để sinh viên luôn thấy môn mình đã chọn
+            // --- 3. LẤY MÔN ĐÃ ĐĂNG KÝ (CHỈ CỦA HỌC KỲ ĐANG ĐƯỢC CHỌN) ---
             var registeredList = await _context.Enrollments
                 .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
-                .Where(e => e.StudentId == student.StudentId && e.CourseSection.SemesterId == activeSemester.SemesterId)
+                // QUAN TRỌNG: Filter theo targetSemester.SemesterId
+                .Where(e => e.StudentId == student.StudentId && e.CourseSection.SemesterId == targetSemester.SemesterId)
                 .ToListAsync();
 
-            // --- 3. LẤY DANH SÁCH MÔN MỞ (CHỈ CHẠY KHI KHÔNG KHÓA) ---
+            // --- 4. LẤY MÔN CÓ THỂ ĐĂNG KÝ (CHỈ CỦA HỌC KỲ ĐANG ĐƯỢC CHỌN) ---
             List<CourseSection> availableList = new List<CourseSection>();
 
             if (!isLocked)
             {
-                // Lấy danh sách ID các lớp đã đăng ký để loại trừ
                 var registeredSectionIds = registeredList.Select(r => r.CourseSectionId).ToList();
 
                 availableList = await _context.CoursesSections
                     .Include(cs => cs.Course)
-                    .Where(cs => cs.SemesterId == activeSemester.SemesterId
-                                 && !registeredSectionIds.Contains(cs.CourseSectionId)) // Loại bỏ lớp đã đăng ký
+                    // QUAN TRỌNG: Filter theo targetSemester.SemesterId
+                    .Where(cs => cs.SemesterId == targetSemester.SemesterId
+                                 && !registeredSectionIds.Contains(cs.CourseSectionId))
                     .ToListAsync();
             }
 
-            ViewData["RegisteredList"] = registeredList; // List<Enrollment>
-            ViewData["AvailableList"] = availableList;   // List<CourseSection>
+            ViewData["RegisteredList"] = registeredList;
+            ViewData["AvailableList"] = availableList;
 
             return View();
         }
@@ -250,21 +272,37 @@ namespace StudentPortal.Controllers
             var lecturer = await GetCurrentLecturerAsync();
             if (lecturer == null) return RedirectToAction("Login", "Account");
 
-            var activeSemester = await _context.Semesters.FirstOrDefaultAsync(s => s.IsActive);
-            if (activeSemester == null)
+            DateTime today = DateTime.Today;
+
+            // 1. Lấy TẤT CẢ các học kỳ đang Active (Giống bên Sinh viên)
+            var activeSemesters = await _context.Semesters
+                .Where(s => s.IsActive)
+                .ToListAsync();
+
+            if (!activeSemesters.Any())
             {
-                ViewData["Message"] = "Hiện chưa có học kỳ nào mở.";
+                ViewData["Message"] = "Hiện chưa có học kỳ nào được kích hoạt.";
                 return View();
             }
 
-            // --- LOGIC MỚI: QUY ĐỊNH THỜI GIAN (GIỐNG SINH VIÊN) ---
-            DateTime today = DateTime.Today;
+            // --- LOGIC CHỌN HỌC KỲ: ƯU TIÊN HỌC KỲ ĐANG MỞ ĐĂNG KÝ ---
 
-            // Ngày mở: Trước 14 ngày
-            DateTime openDate = activeSemester.StartDate.AddDays(-14);
+            // Tìm học kỳ đang trong giai đoạn mở (Trước 14 ngày -> Trước 7 ngày)
+            var targetSemester = activeSemesters.FirstOrDefault(s =>
+                today >= s.StartDate.AddDays(-14) &&
+                today <= s.StartDate.AddDays(-7)
+            );
 
-            // Ngày đóng: Trước 7 ngày
-            DateTime closeDate = activeSemester.StartDate.AddDays(-7);
+            // Nếu KHÔNG có học kỳ nào đang mở cổng, thì lấy học kỳ có ngày bắt đầu mới nhất 
+            // (để hiển thị thông báo "Sắp mở" hoặc "Vừa hết hạn")
+            if (targetSemester == null)
+            {
+                targetSemester = activeSemesters.OrderByDescending(s => s.StartDate).FirstOrDefault();
+            }
+
+            // --- 2. TÍNH TOÁN TRẠNG THÁI KHÓA (Dựa trên targetSemester đã chọn) ---
+            DateTime openDate = targetSemester.StartDate.AddDays(-14);
+            DateTime closeDate = targetSemester.StartDate.AddDays(-7);
 
             bool isLocked = true;
             string lockReason = "";
@@ -272,35 +310,39 @@ namespace StudentPortal.Controllers
             if (today < openDate)
             {
                 isLocked = true;
-                lockReason = $"Chưa đến đợt đăng ký giảng dạy. Cổng sẽ mở từ {openDate:dd/MM/yyyy} đến {closeDate:dd/MM/yyyy}.";
+                lockReason = $"Chưa đến đợt đăng ký giảng dạy {targetSemester.SemesterName}. Cổng sẽ mở từ {openDate:dd/MM/yyyy} đến {closeDate:dd/MM/yyyy}.";
             }
             else if (today > closeDate)
             {
                 isLocked = true;
-                lockReason = $"Đã hết hạn đăng ký giảng dạy (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ Phòng Đào Tạo.";
+                lockReason = $"Đã hết hạn đăng ký giảng dạy {targetSemester.SemesterName} (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ Phòng Đào Tạo.";
             }
             else
             {
                 isLocked = false; // Trong "Tuần lễ vàng"
             }
 
+            // Truyền thông tin trạng thái ra View
             ViewData["IsLocked"] = isLocked;
             ViewData["LockReason"] = lockReason;
-            ViewData["SemesterName"] = activeSemester.SemesterName;
+            ViewData["SemesterName"] = targetSemester.SemesterName;
 
+            // --- 3. LẤY LỚP ĐÃ ĐĂNG KÝ GIẢNG DẠY (CHỈ CỦA HỌC KỲ ĐANG CHỌN) ---
             var myClasses = await _context.CoursesSections
                 .Include(cs => cs.Course)
-                .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
+                // Filter theo targetSemester.SemesterId
+                .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == targetSemester.SemesterId)
                 .ToListAsync();
 
-            // 2. Lớp CÒN TRỐNG (Available) -> CHỈ LẤY KHI KHÔNG BỊ KHÓA
+            // --- 4. LẤY LỚP CÒN TRỐNG (CHỈ CỦA HỌC KỲ ĐANG CHỌN) ---
             List<CourseSection> availableClasses = new List<CourseSection>();
 
             if (!isLocked)
             {
                 availableClasses = await _context.CoursesSections
                     .Include(cs => cs.Course)
-                    .Where(cs => cs.SemesterId == activeSemester.SemesterId && cs.LecturerId == 0) // LecturerId = 0 là chưa có ai dạy
+                    // Filter theo targetSemester.SemesterId và LecturerId = 0 (chưa có ai dạy)
+                    .Where(cs => cs.SemesterId == targetSemester.SemesterId && cs.LecturerId == 0)
                     .ToListAsync();
             }
 

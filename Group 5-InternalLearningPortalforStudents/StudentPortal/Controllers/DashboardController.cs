@@ -119,7 +119,15 @@ namespace StudentPortal.Controllers
                 totalGPA = Math.Round(totalGPA, 2);
             }
 
-            ViewData["TotalScore"] = totalGPA;
+            if(totalGPA == 0)
+            {
+                ViewData["TotalScore"] = "";
+            }
+            else
+            {
+                ViewData["TotalScore"] = totalGPA;
+            }
+     
             ViewData["TotalCredits"] = totalCredits;
 
             return View();
@@ -212,7 +220,7 @@ namespace StudentPortal.Controllers
                 var listEnrollment = await _context.Enrollments
                     .Include(e => e.CourseSection)
                     .ThenInclude(cs => cs.Course)
-                    .Where(e => e.StudentId == currentStudent.StudentId && e.Status == EnrollmentStatus.Finished)
+                    .Where(e => e.StudentId == currentStudent.StudentId)
                     .ToListAsync();
 
                 int totalCredits = listEnrollment.Sum(e => e.CourseSection?.Course?.CourseCredit ?? 0);
@@ -237,7 +245,14 @@ namespace StudentPortal.Controllers
                     totalGPA = Math.Round(totalGPA, 2);
                 }
 
-                ViewData["TotalScore"] = totalGPA;
+                if (totalGPA == 0)
+                {
+                    ViewData["TotalScore"] = "";
+                }
+                else
+                {
+                    ViewData["TotalScore"] = totalGPA;
+                }
                 ViewData["TotalCredits"] = totalCredits;
                 ViewData["CourseList"] = listEnrollment;
                 return View(currentStudent);
@@ -261,23 +276,38 @@ namespace StudentPortal.Controllers
 
                 if (lecturer == null) return View("Error");
 
+                // --- Giữ nguyên thông tin cá nhân ---
                 ViewData["Name"] = lecturer.User.FullName;
                 ViewData["Faculty"] = lecturer.Faculty?.FacultyName ?? "Khoa";
                 ViewData["City"] = lecturer.User.City ?? "Chưa có thông tin";
                 ViewData["Email"] = lecturer.User.Email;
                 ViewData["PhoneNumber"] = lecturer.User.PhoneNumber ?? "Chưa có thông tin";
 
-                var uniqueCourses = await _context.CoursesSections
+                // --- XỬ LÝ THỐNG KÊ MỚI ---
+
+                // 1. Lấy tất cả lớp mà giảng viên dạy (kèm thông tin môn học)
+                var allSections = await _context.CoursesSections
+                    .Include(cs => cs.Course)
                     .Where(cs => cs.LecturerId == lecturer.LecturerId)
-                    .Select(cs => cs.Course) 
-                    .Distinct()              
                     .ToListAsync();
 
-                int totalClassCount = await _context.CoursesSections
-                    .CountAsync(cs => cs.LecturerId == lecturer.LecturerId);
+                // 2. Tính tổng số lớp (Số dòng trong bảng phân công)
+                int totalClassCount = allSections.Count;
 
-                ViewData["TotalClass"] = totalClassCount; 
-                ViewData["CourseList"] = uniqueCourses;   
+                // 3. Group theo Môn học để đếm số lần dạy từng môn
+                // Kết quả là một List chứa các cặp (Môn học, Số lượng)
+                var courseStats = allSections
+                    .GroupBy(cs => cs.Course)
+                    .Select(g => (Course: g.Key, Count: g.Count()))
+                    .ToList();
+
+                // 4. Tính tổng số môn (Số lượng nhóm sau khi group)
+                int totalSubjectCount = courseStats.Count;
+
+                // Truyền dữ liệu sang View
+                ViewData["TotalClass"] = totalClassCount;
+                ViewData["TotalSubjects"] = totalSubjectCount; // Số môn
+                ViewData["CourseStats"] = courseStats;         // Danh sách (Môn, Số lần)
 
                 return View(lecturer);
             }

@@ -29,7 +29,6 @@ namespace StudentPortal.Models
         public string? FilePath { get; set; }
 
 
-        //Quan hệ người sở hữu
         [Required]
         public int UserId { get; set; }
         public User? User { get; set; }

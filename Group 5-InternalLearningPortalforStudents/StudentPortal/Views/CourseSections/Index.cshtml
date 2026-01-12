@@ -45,7 +45,6 @@
                 <label class="text-white small font-weight-bold">Trạng thái GV</label>
                 <select name="assignStatus" class="form-control bg-transparent text-white border-secondary" onchange="this.form.submit()">
                     <option value="">-- Tất cả --</option>
-                    @* Logic kiểm tra selected *@
                     <!option value="1" @(ViewData["CurrentAssignStatus"] as int? == 1 ? "selected" : "") class="text-warning font-weight-bold">⚠️ Chưa có GV</!option>
                     <!option value="2" @(ViewData["CurrentAssignStatus"] as int? == 2 ? "selected" : "") class="text-success">✅ Đã có GV</!option>
                 </select>
@@ -85,6 +84,7 @@
                     <th>Giảng viên</th>
                     <th>Lịch học</th>
                     <th class="text-center">Sĩ số</th>
+                    <th class="text-center">Còn lại</th>
                     <th class="text-right">Hành động</th>
                 </tr>
             </thead>
@@ -92,7 +92,7 @@
                 @if (Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-white-50 py-4">
+                        <td colspan="8" class="text-center text-white-50 py-4">
                             <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                             Không tìm thấy dữ liệu phù hợp
                         </td>
@@ -101,6 +101,10 @@
 
                 @foreach (var item in Model)
                 {
+                    int capacity = item.Capacity;
+                    int registered = item.Enrollments != null ? item.Enrollments.Count : 0;
+                    int remaining = capacity - registered;
+
                     <tr>
                         <td>
                             <span class="badge badge-info p-2 text-white">@item.Semester?.SemesterName</span>
@@ -133,7 +137,22 @@
                         </td>
 
                         <td class="text-center font-weight-bold text-white">
-                            @item.Capacity
+                            @capacity
+                        </td>
+
+                        <td class="text-center">
+                            @if (remaining <= 0)
+                            {
+                                <div class="font-weight-bold text-danger">0 (Full)</div>
+                            }
+                            else
+                            {
+                                <div class="font-weight-bold text-success">@remaining</div>
+                            }
+
+                            <div class="small text-white-50" style="font-size: 0.75rem;">
+                                (@registered đã ĐK)
+                            </div>
                         </td>
 
                         <td class="text-right">
@@ -170,7 +189,8 @@
                            asp-route-searchString="@ViewData["CurrentFilter"]"
                            asp-route-semesterId="@ViewData["CurrentSemester"]"
                            asp-route-facultyId="@ViewData["CurrentFaculty"]"
-                           asp-route-departmentId="@ViewData["CurrentDepartment"]">
+                           asp-route-departmentId="@ViewData["CurrentDepartment"]"
+                           asp-route-assignStatus="@ViewData["CurrentAssignStatus"]">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
@@ -188,7 +208,8 @@
                            asp-route-searchString="@ViewData["CurrentFilter"]"
                            asp-route-semesterId="@ViewData["CurrentSemester"]"
                            asp-route-facultyId="@ViewData["CurrentFaculty"]"
-                           asp-route-departmentId="@ViewData["CurrentDepartment"]">
+                           asp-route-departmentId="@ViewData["CurrentDepartment"]"
+                           asp-route-assignStatus="@ViewData["CurrentAssignStatus"]">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
@@ -200,12 +221,10 @@
 
 @section Scripts {
     <style>
-        /* Bắt buộc các lựa chọn trong thẻ select phải có nền trắng chữ đen */
         select.form-control option {
-            color: #333333 !important; /* Chữ đen đậm */
+            color: #333333 !important;
         }
 
-        /* (Tùy chọn) Nếu bạn muốn lúc chưa bấm nó cũng nền trắng chữ đen cho dễ nhìn */
         select.form-control {
             background-color: #ffffff !important;
             color: #333333 !important;
@@ -213,7 +232,6 @@
     </style>
 
     <script>
-        // Đoạn script reload khi chọn Khoa (như code trước đã gửi)
         function submitForm() {
             document.forms[0].submit();
         }

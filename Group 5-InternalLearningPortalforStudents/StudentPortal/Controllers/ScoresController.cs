@@ -21,7 +21,7 @@ namespace StudentPortal.Controllers
         }
 
         // 1. TRANG CHỦ (Điều hướng)
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? semesterId)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
@@ -32,31 +32,52 @@ namespace StudentPortal.Controllers
                 var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.UserId == user.Id);
                 if (lecturer == null) return View("Error");
 
-                // 1. Chỉ lấy duy nhất Học kỳ đang Active
-                var activeSemester = await _context.Semesters
-                    .FirstOrDefaultAsync(s => s.IsActive);
+                // 1. Lấy TẤT CẢ học kỳ đang kích hoạt (IsActive = true)
+                // Sắp xếp theo ngày bắt đầu giảm dần (mới nhất lên đầu)
+                var activeSemesters = await _context.Semesters
+                    .Where(s => s.IsActive)
+                    .OrderByDescending(s => s.StartDate)
+                    .ToListAsync();
 
-                // Nếu không có học kỳ nào đang kích hoạt
-                if (activeSemester == null)
+                if (!activeSemesters.Any())
                 {
-                    ViewBag.CurrentSemesterName = "Hiện không có học kỳ nào đang diễn ra";
+                    ViewBag.ActiveSemesters = new SelectList(new List<string>()); // Empty list
                     return View("LecturerIndex", new List<CourseSection>());
                 }
 
-                // 2. Lưu tên học kỳ để hiển thị
-                ViewBag.CurrentSemesterName = $"{activeSemester.SemesterName} - {activeSemester.AcademicYear}";
+                // 2. Xác định học kỳ được chọn
+                // Nếu semesterId có value (người dùng chọn) -> dùng nó
+                // Nếu null -> mặc định lấy cái đầu tiên trong list
+                int selectedSemesterId = semesterId ?? activeSemesters.First().SemesterId;
 
-                // 3. Lấy danh sách lớp CHỈ thuộc học kỳ Active này
+                // Kiểm tra xem ID gửi lên có hợp lệ trong list active không (đề phòng user sửa url)
+                if (!activeSemesters.Any(s => s.SemesterId == selectedSemesterId))
+                {
+                    selectedSemesterId = activeSemesters.First().SemesterId;
+                }
+
+                // 3. Tạo SelectList cho Dropdown
+                // Text hiển thị dạng: "Học kỳ 1 - 2024-2025"
+                ViewBag.ActiveSemesters = new SelectList(activeSemesters.Select(s => new
+                {
+                    Id = s.SemesterId,
+                    Name = $"{s.SemesterName} - {s.AcademicYear}"
+                }), "Id", "Name", selectedSemesterId);
+
+                ViewBag.SelectedSemesterId = selectedSemesterId; // Lưu lại để dùng nếu cần
+
+                // 4. Lấy danh sách lớp dựa trên LecturerId VÀ SelectedSemesterId
                 var sections = await _context.CoursesSections
                     .Include(cs => cs.Course)
-                    .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == activeSemester.SemesterId)
-                    .OrderBy(cs => cs.Course.CourseName) // Sắp xếp cho đẹp
+                    .Where(cs => cs.LecturerId == lecturer.LecturerId
+                              && cs.SemesterId == selectedSemesterId)
+                    .OrderBy(cs => cs.Course.CourseName)
                     .ToListAsync();
 
                 return View("LecturerIndex", sections);
             }
 
-            // --- TRƯỜNG HỢP: SINH VIÊN ---
+            // --- TRƯỜNG HỢP: SINH VIÊN (Giữ nguyên) ---
             if (User.IsInRole("Student"))
             {
                 return RedirectToAction(nameof(StudentScore));

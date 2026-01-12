@@ -2,15 +2,52 @@
 @{
     Layout = "~/Views/Shared/_LecturerLayout.cshtml";
     ViewData["Title"] = "Thông tin cá nhân";
-    var listCourses = ViewData["CourseList"] as List<StudentPortal.Models.Course>;
+
+    // --- QUAN TRỌNG: Đổi cách lấy dữ liệu sang dạng Tuple (Môn học, Số lượng) ---
+    var listStats = ViewData["CourseStats"] as List<(StudentPortal.Models.Course Course, int Count)>;
 }
 
 <style>
     .nav-link {
         cursor: pointer;
     }
+
+    /* --- CẤU HÌNH SCROLL CHO BẢNG --- */
+    .custom-table-scroll {
+        max-height: 165px;
+        overflow-y: auto;
+        display: block;
+        width: 100%;
+    }
+
+        .custom-table-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-table-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+            .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+        .custom-table-scroll table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #343a40; /* Màu nền header tối */
+            color: #ffffff; /* Chữ trắng */
+            z-index: 1;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.5);
+        }
 </style>
 
+@* --- HEADER PROFILE --- *@
 <div class="row mt-3">
     <div class="col-lg-12">
         <div class="card">
@@ -58,6 +95,7 @@
 </div>
 
 <div class="row">
+    @* --- CỘT TRÁI: THÔNG TIN LIÊN HỆ --- *@
     <div class="col-lg-4 mt-3">
         <div class="card">
             <div class="card-body">
@@ -86,8 +124,12 @@
         </div>
     </div>
 
+    @* --- CỘT PHẢI: THỐNG KÊ & BẢNG --- *@
     <div class="col-lg-8">
+
+        @* --- 1. KHU VỰC THỐNG KÊ (Đã sửa lại layout) --- *@
         <div class="row mt-3">
+            @* Thẻ 1: Số lớp (Màu Xám) *@
             <div class="col-12 col-lg-6">
                 <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
                     <div class="card-body">
@@ -96,13 +138,30 @@
                                 <p class="mb-0 text-white">Số lớp đã dạy</p>
                                 <h4 class="mb-0 text-white mt-2">@ViewData["TotalClass"]</h4>
                             </div>
+                            <div class="ml-auto font-35 text-white"><i class="fa fa-users"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Thẻ 2: Số môn (Màu Xanh Ngọc) *@
+            <div class="col-12 col-lg-6">
+                <div class="card text-white" style="border: 1px solid rgba(255,255,255,0.15);">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-white">Số môn đã dạy</p>
+                                <h4 class="mb-0 text-white mt-2">@ViewData["TotalSubjects"]</h4>
+                            </div>
                             <div class="ml-auto font-35 text-white"><i class="fa fa-book"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        @* --- Hết khu vực thống kê --- *@
 
+        @* --- 2. BẢNG DỮ LIỆU --- *@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Danh sách các môn học (Giảng dạy)</h5>
@@ -114,27 +173,35 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Mã học phần</th>
                                 <th scope="col">Tên môn học</th>
+                                <th scope="col" class="text-center">Số lần dạy</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (listCourses != null && listCourses.Any())
+                            @if (listStats != null && listStats.Any())
                             {
                                 int STT = 1;
-                                foreach (var item in listCourses)
+                                foreach (var item in listStats)
                                 {
                                     <tr>
                                         <th scope="row">@(STT++)</th>
 
-                                        <td>@item.CourseCode</td>
+                                        @* Truy xuất vào item.Course *@
+                                        <td>@item.Course.CourseCode</td>
+                                        <td>@item.Course.CourseName</td>
 
-                                        <td>@item.CourseName</td>
+                                        @* Truy xuất vào item.Count *@
+                                        <td class="text-center">
+                                            <span style="font-size: 0.9em;">
+                                                @item.Count
+                                            </span>
+                                        </td>
                                     </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
-                                    <td colspan="3" class="text-center">Giảng viên chưa đăng ký môn học nào.</td>
+                                    <td colspan="4" class="text-center">Giảng viên chưa đăng ký môn học nào.</td>
                                 </tr>
                             }
                         </tbody>
@@ -145,110 +212,53 @@
     </div>
 </div>
 
-<style>
-    .nav-link {
-        cursor: pointer;
-    }
-
-    /* --- CẤU HÌNH SCROLL CHO BẢNG --- */
-    .custom-table-scroll {
-        /* Header (~50px) + 2 dòng (mỗi dòng ~55px) = ~160px */
-        /* Giảm xuống 165px để chỉ hiện 2 dòng, dòng thứ 3 sẽ bị che và hiện scroll */
-        max-height: 165px;
-        overflow-y: auto; /* Tự động hiện thanh cuộn dọc khi vượt quá chiều cao */
-        display: block; /* Đảm bảo div hoạt động như một khối hộp */
-        width: 100%;
-    }
-
-        /* Tùy chỉnh thanh cuộn cho đẹp (chỉ chạy trên Chrome/Safari/Edge) */
-        .custom-table-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-table-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .custom-table-scroll::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
-        }
-
-            .custom-table-scroll::-webkit-scrollbar-thumb:hover {
-                background: #555;
-            }
-
-        /* --- (Quan trọng) Cố định tiêu đề bảng khi cuộn --- */
-        .custom-table-scroll table thead th {
-            position: sticky;
-            top: 0;
-            /* SỬA DÒNG NÀY: Đổi từ #fff (trắng) sang màu tối (ví dụ #2c3e50 hoặc #343a40) */
-            background-color: #343a40;
-            /* THÊM DÒNG NÀY: Để chữ tiêu đề có màu trắng cho dễ đọc */
-            color: #ffffff;
-            z-index: 1;
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.5);
-        }
-</style>
-
 @section Scripts {
-<script>
-    // --- PHẦN 1: CẤU HÌNH XEM TRƯỚC ẢNH (QUAN TRỌNG) ---
-    // Dùng $(document).on(...) để "đón lõng" sự kiện, kể cả khi Modal chưa hiện ra
-    $(document).on('change', '#avatarFile', function (e) {
-        if (e.target.files && e.target.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                // SỬA DÒNG NÀY: Trỏ vào ID mới bên trong Modal
-                $('#avatarPreviewModal').attr('src', e.target.result);
+    <script>
+        // --- Code JS giữ nguyên ---
+        $(document).on('change', '#avatarFile', function (e) {
+            if (e.target.files && e.target.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#avatarPreviewModal').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(e.target.files[0]);
             }
+        });
 
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
+        function openProfileModal() {
+            $.get('/Dashboard/EditLecturerProfile', function (data) {
+                $('#modal-placeholder').html(data);
+                $('#profileModal').modal('show');
 
-    // --- PHẦN 2: HÀM MỞ MODAL VÀ XỬ LÝ LƯU ---
-    function openProfileModal() {
-        $.get('/Dashboard/EditLecturerProfile', function (data) {
-            $('#modal-placeholder').html(data);
-            $('#profileModal').modal('show');
+                $('#editProfileForm').off('submit').on('submit', function (e) {
+                    e.preventDefault();
+                    var form = $(this)[0];
+                    var formData = new FormData(form);
+                    var btn = $(this).find('button[type="submit"]');
+                    btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
 
-            // Xử lý nút LƯU (Submit form)
-            $('#editProfileForm').off('submit').on('submit', function (e) {
-                e.preventDefault();
-
-                var form = $(this)[0];
-                var formData = new FormData(form);
-
-                // Hiển thị loading hoặc disable nút lưu nếu cần
-                var btn = $(this).find('button[type="submit"]');
-                btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        if (response.success) {
-                            $('#profileModal').modal('hide');
-                            location.reload(); // Reload trang để cập nhật hết
-                        } else {
-                            // Nếu lỗi validate, hiện lại form
-                            $('#modal-placeholder').html(response);
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.success) {
+                                $('#profileModal').modal('hide');
+                                location.reload();
+                            } else {
+                                $('#modal-placeholder').html(response);
+                                btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Lưu thông tin');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert("Lỗi hệ thống: " + error);
                             btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Lưu thông tin');
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        alert("Lỗi hệ thống: " + error);
-                        btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Lưu thông tin');
-                    }
+                    });
                 });
             });
-        });
-    }
-</script>
-
+        }
+    </script>
 }

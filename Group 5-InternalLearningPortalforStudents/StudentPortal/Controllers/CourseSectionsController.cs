@@ -33,6 +33,7 @@ namespace StudentPortal.Controllers
 
             var sections = _context.CoursesSections
                 .Include(c => c.Semester)
+                .Include(c => c.Enrollments)
                 .Include(c => c.Lecturer).ThenInclude(l => l.User)
                 .Include(c => c.Course).ThenInclude(co => co.Department).ThenInclude(d => d.Faculty)
                 .AsQueryable();

@@ -31,8 +31,22 @@
     </div>
 }
 
-<div class="row">
-    <div class="col-md-6">
+<div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+    <div class="card-body">
+        <div class="form-group mb-0">
+            <label class="font-weight-bold text-white">Bước 1: Chọn đối tượng muốn Import</label>
+            <select id="roleSelector" class="form-control" style="background-color: #161925; color: white; border: 1px solid #4e73df;">
+                <option value="">-- Vui lòng chọn --</option>
+                <option value="student">Sinh viên</option>
+                <option value="lecturer">Giảng viên</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="importContainer" style="display: none;">
+
+    <div id="studentSection" class="import-section" style="display: none;">
         <div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid #4e73df; color: #fff;">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #161925; border-bottom: 1px solid #4e73df;">
                 <h6 class="m-0 font-weight-bold text-primary">Import Sinh viên</h6>
@@ -61,7 +75,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div id="lecturerSection" class="import-section" style="display: none;">
         <div class="card shadow mb-4" style="background-color: #1e2130; border: 1px solid #1cc88a; color: #fff;">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #161925; border-bottom: 1px solid #1cc88a;">
                 <h6 class="m-0 font-weight-bold text-success">Import Giảng viên</h6>
@@ -89,4 +103,44 @@
             </div>
         </div>
     </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Hàm xử lý hiển thị form
+            function toggleForms(role) {
+                // Ẩn tất cả trước
+                $('#importContainer').hide();
+                $('.import-section').hide();
+
+                if (role === 'student') {
+                    $('#importContainer').fadeIn();
+                    $('#studentSection').fadeIn();
+                } else if (role === 'lecturer') {
+                    $('#importContainer').fadeIn();
+                    $('#lecturerSection').fadeIn();
+                }
+            }
+
+            // 2. Lắng nghe sự kiện thay đổi dropdown
+            $('#roleSelector').change(function () {
+                var selectedRole = $(this).val();
+                toggleForms(selectedRole);
+            });
+
+            // 3. Kiểm tra URL Parameter khi trang vừa load
+            // Lấy params từ URL (ví dụ: ?role=student)
+            const urlParams = new URLSearchParams(window.location.search);
+            const roleParam = urlParams.get('role');
+
+            if (roleParam) {
+                // Set giá trị cho dropdown
+                $('#roleSelector').val(roleParam);
+                // Kích hoạt hàm hiển thị
+                toggleForms(roleParam);
+            }
+        });
+    </script>
+}

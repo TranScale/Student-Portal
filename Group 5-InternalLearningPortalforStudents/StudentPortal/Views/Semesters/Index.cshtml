@@ -7,18 +7,37 @@
 }
 
 <style>
-    /* Nút kích hoạt (khi chưa active) */
-    .btn-set-active {
+    /* Nút kích hoạt (khi chưa active - màu xám) */
+    .btn-set-inactive {
         color: #adb5bd;
         border: 1px solid rgba(255,255,255,0.2);
+        background: transparent;
+        transition: all 0.2s;
+    }
+
+        .btn-set-inactive:hover {
+            background-color: #0d6efd; /* Hover thành màu xanh dương */
+            color: white;
+            border-color: #0d6efd;
+        }
+
+    /* Nút đang kích hoạt (màu xanh lá) */
+    .btn-set-active {
+        background-color: rgba(40, 167, 69, 0.8);
+        color: white;
+        border: 1px solid #28a745;
         transition: all 0.2s;
     }
 
         .btn-set-active:hover {
-            background-color: #0d6efd;
-            color: white;
-            border-color: #0d6efd;
+            background-color: #dc3545; /* Hover thành màu đỏ để báo hiệu tắt */
+            border-color: #dc3545;
         }
+
+            /* Khi hover vào nút đang active, đổi icon và text (dùng CSS trick hoặc JS, ở đây dùng simple CSS hover effect opacity) */
+            .btn-set-active:hover i {
+                /* Có thể custom thêm nếu muốn */
+            }
 
     /* Dòng đang được kích hoạt */
     .row-active {
@@ -41,7 +60,7 @@
     }
 
         .filter-select option {
-            background-color: #1e2130; /* Màu nền option để không bị trắng */
+            background-color: #1e2130;
             color: white;
         }
 
@@ -53,11 +72,25 @@
         }
 </style>
 
-@if (TempData["Success"] != null)
+@if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #fff;">
-        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <i class="fas fa-check-circle mr-2"></i> @TempData["SuccessMessage"]
         <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    </div>
+}
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-info-circle mr-2"></i> @TempData["InfoMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
 }
 
@@ -70,12 +103,12 @@
 
 <form asp-action="AutoUpdateCurrentSemester" method="post" style="display:inline;">
     @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-warning" onclick="return confirm('Hệ thống sẽ dựa vào ngày hiện tại để Active học kỳ tương ứng. Bạn có chắc không?');">
+    <button type="submit" class="btn btn-warning" onclick="return confirm('Hệ thống sẽ dựa vào ngày hiện tại để Active các học kỳ phù hợp. Bạn có chắc không?');">
         <i class="fa fa-refresh"></i> Cập nhật tự động theo ngày
     </button>
 </form>
 
-<div class="glass-panel mb-4 p-3">
+<div class="glass-panel mb-4 p-3 mt-3">
     <form asp-action="Index" method="get">
         <div class="row align-items-end">
             <div class="col-md-4 mb-2">
@@ -109,7 +142,7 @@
                     <th>Tên học kỳ</th>
                     <th>Năm học</th>
                     <th>Thời gian</th>
-                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center" style="width: 180px;">Trạng thái</th>
                     <th class="text-right">Hành động</th>
                 </tr>
             </thead>
@@ -146,23 +179,28 @@
                         </td>
 
                         <td class="text-center">
-                            @if (item.IsActive)
-                            {
-                                <span class="badge badge-success p-2">
-                                    <i class="fas fa-check-circle mr-1"></i> Đang diễn ra
-                                </span>
-                            }
-                            else
-                            {
-                                <form asp-action="SetCurrent" asp-route-id="@item.SemesterId" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-set-active rounded-pill px-3"
-                                            title="Kích hoạt học kỳ này"
-                                            onclick="return confirm('Bạn có chắc muốn thiết lập @item.SemesterName làm học kỳ hiện tại?');">
-                                        <i class="fas fa-sync-alt mr-1"></i> Thiết lập
+                            <form asp-action="ToggleStatus" asp-route-id="@item.SemesterId" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+
+                                @if (item.IsActive)
+                                {
+                                    @* TRẠNG THÁI ON: Hiện nút Xanh -> Bấm để Tắt *@
+                                    <button type="submit" class="btn btn-sm btn-set-active rounded-pill px-3 shadow-sm"
+                                            title="Đang hoạt động. Nhấn để tắt."
+                                            onclick="return confirm('Bạn có muốn TẮT trạng thái hoạt động của @item.SemesterName?');">
+                                        <i class="fas fa-check-circle mr-1"></i> Đang diễn ra
                                     </button>
-                                </form>
-                            }
+                                }
+                                else
+                                {
+                                    @* TRẠNG THÁI OFF: Hiện nút Xám -> Bấm để Bật *@
+                                    <button type="submit" class="btn btn-sm btn-set-inactive rounded-pill px-3"
+                                            title="Học kỳ đang đóng. Nhấn để kích hoạt."
+                                            onclick="return confirm('Bạn có muốn KÍCH HOẠT @item.SemesterName?');">
+                                        <i class="fas fa-power-off mr-1"></i> Kích hoạt
+                                    </button>
+                                }
+                            </form>
                         </td>
 
                         <td class="text-right">

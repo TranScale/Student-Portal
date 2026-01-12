@@ -6,7 +6,7 @@
 }
 
 <style>
-    /* --- STYLE GIỮ NGUYÊN --- */
+    /* --- STYLE GIỮ NGUYÊN TỪ CŨ --- */
 
     /* 1. Thanh công cụ (Filter Bar) phía trên */
     .filter-toolbar {
@@ -24,16 +24,7 @@
         color: #fff;
         margin-right: 15px;
         opacity: 0.9;
-        font-size: 1.5rem; /* To hơn xíu để làm điểm nhấn */
-    }
-
-    /* Text hiển thị học kỳ */
-    .semester-info-text {
-        color: #fff;
-        font-size: 1.1rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 1.5rem;
     }
 
     /* 2. Card chứa bảng dữ liệu */
@@ -123,18 +114,61 @@
         display: block;
         margin-top: 2px;
     }
+
+    /* --- STYLE MỚI: CHO DROPDOWN SELECT --- */
+    .semester-select {
+        background-color: transparent; /* Nền trong suốt */
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.3); /* Chỉ hiện gạch chân mờ */
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        padding: 5px 30px 5px 0;
+        outline: none;
+        width: 100%;
+        min-width: 250px;
+        /* Icon mũi tên tùy chỉnh (màu trắng) */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0 center;
+        background-size: 1em;
+    }
+
+        /* Style cho các option bên trong (tránh bị nền trắng mặc định của trình duyệt) */
+        .semester-select option {
+            background-color: #2c3e50; /* Màu nền tối khớp theme */
+            color: #fff;
+            padding: 10px;
+        }
+
+        .semester-select:focus {
+            border-bottom: 1px solid rgba(255,255,255,0.8);
+        }
 </style>
 
 <div class="container-fluid" style="padding-top: 20px;">
 
     <div class="filter-toolbar">
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center w-100">
             <i class="fa fa-calendar-check input-icon"></i>
-            <div>
-                <div style="font-size: 0.85rem; opacity: 0.7;">Học kỳ đang diễn ra</div>
-                <div class="semester-info-text">
-                    @ViewBag.CurrentSemesterName
+            <div style="flex-grow: 1;">
+                <div style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 2px;">
+                    Chọn học kỳ làm việc
                 </div>
+
+                <form asp-action="Index" method="get" id="semesterFilterForm">
+                    <select name="semesterId"
+                            class="semester-select"
+                            asp-items="ViewBag.ActiveSemesters"
+                            onchange="document.getElementById('semesterFilterForm').submit()">
+                    </select>
+                </form>
             </div>
         </div>
     </div>
@@ -211,7 +245,7 @@
             $.get('/Score/EnterGrades', { sectionId: sectionId })
                 .done(function (data) {
                     $('#modalContainer').html(data);
-                    $('#gradeModal').modal('show'); // Đảm bảo ID modal khớp với PartialView của bạn
+                    $('#gradeModal').modal('show'); // Đảm bảo ID modal trong PartialView là 'gradeModal'
                 })
                 .fail(function() {
                     alert("Không thể tải dữ liệu bảng điểm. Vui lòng thử lại.");

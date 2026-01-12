@@ -27,7 +27,7 @@ namespace StudentPortal.Controllers
                 .ToListAsync();
 
             ViewBag.AcademicYears = new SelectList(years, academicYear);
-            ViewData["CurrentYear"] = academicYear; 
+            ViewData["CurrentYear"] = academicYear;
 
             var semesters = _context.Semesters.AsQueryable();
 
@@ -36,37 +36,29 @@ namespace StudentPortal.Controllers
                 semesters = semesters.Where(s => s.AcademicYear == academicYear);
             }
 
+            // Sắp xếp: Active lên đầu, sau đó đến ngày bắt đầu giảm dần
             semesters = semesters.OrderByDescending(s => s.IsActive)
-                                .ThenByDescending(s => s.StartDate);
-
+                               .ThenByDescending(s => s.StartDate);
 
             int pageSize = 10;
             return View(await PaginatedList<Semester>.CreateAsync(semesters.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
-        // KÍCH HOẠT HỌC KỲ
+        // --- [NEW] HÀM BẬT/TẮT TRẠNG THÁI (TOGGLE) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetCurrent(int id)
+        public async Task<IActionResult> ToggleStatus(int id)
         {
-            // 1. Tìm học kỳ được chọn
-            var semesterToActivate = await _context.Semesters.FindAsync(id);
-            if (semesterToActivate == null) return NotFound();
+            var semester = await _context.Semesters.FindAsync(id);
+            if (semester == null) return NotFound();
 
-            // 2. Reset tất cả học kỳ khác về False (Inactive)
-            var allSemesters = await _context.Semesters.ToListAsync();
-            foreach (var sem in allSemesters)
-            {
-                sem.IsActive = false;
-            }
-
-            // 3. Kích hoạt học kỳ được chọn
-            semesterToActivate.IsActive = true;
+            // Đảo ngược trạng thái: True -> False, False -> True
+            semester.IsActive = !semester.IsActive;
 
             await _context.SaveChangesAsync();
 
-            // Gửi thông báo nhỏ ra giao diện (nếu bạn dùng TempData trong _Layout)
-            TempData["SuccessMessage"] = $"Đã kích hoạt {semesterToActivate.SemesterName} là học kỳ hiện tại.";
+            string statusMsg = semester.IsActive ? "được kích hoạt" : "đã dừng kích hoạt";
+            TempData["SuccessMessage"] = $"Học kỳ {semester.SemesterName} {statusMsg}.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -84,14 +76,7 @@ namespace StudentPortal.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Nếu người dùng tích chọn Active ngay lúc tạo
-                if (semester.IsActive)
-                {
-                    // Tắt hết cái cũ đi
-                    var activeSems = await _context.Semesters.Where(s => s.IsActive).ToListAsync();
-                    foreach (var s in activeSems) s.IsActive = false;
-                }
-
+                // [ĐÃ SỬA] Không còn tắt các học kỳ khác khi tạo mới Active
                 _context.Add(semester);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -119,13 +104,7 @@ namespace StudentPortal.Controllers
             {
                 try
                 {
-                    // Nếu người dùng tích chọn Active lúc sửa
-                    if (semester.IsActive)
-                    {
-                        var activeSems = await _context.Semesters.Where(s => s.SemesterId != id && s.IsActive).ToListAsync();
-                        foreach (var s in activeSems) s.IsActive = false;
-                    }
-
+                    // [ĐÃ SỬA] Không còn tắt các học kỳ khác khi Edit Active
                     _context.Update(semester);
                     await _context.SaveChangesAsync();
                 }
@@ -148,45 +127,43 @@ namespace StudentPortal.Controllers
             return View(semester);
         }
 
-        // POST: TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI (Dựa trên ngày hiện tại)
+        // POST: TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI (Theo ngày)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AutoUpdateCurrentSemester()
         {
             var today = DateTime.Today;
-
-            // 1. Lấy danh sách tất cả học kỳ
             var allSemesters = await _context.Semesters.ToListAsync();
 
-            // 2. Xác định học kỳ Active (Đang diễn ra)
-            var activeSemester = allSemesters.FirstOrDefault(s =>
-                s.StartDate.Date <= today && s.EndDate.Date >= today);
+            // [ĐÃ SỬA] Tìm TẤT CẢ các học kỳ thỏa mãn ngày hiện tại (thay vì chỉ 1)
+            var activeSemesters = allSemesters.Where(s =>
+                s.StartDate.Date <= today && s.EndDate.Date >= today).ToList();
 
             bool hasChanges = false;
-            int updatedStudents = 0; // Biến đếm số sinh viên được cập nhật
+            int updatedStudents = 0;
 
-            // --- PHẦN A: CẬP NHẬT TRẠNG THÁI HỌC KỲ (Logic cũ) ---
+            // 1. Cập nhật trạng thái Active cho học kỳ
             foreach (var sem in allSemesters)
             {
-                if (activeSemester != null && sem.SemesterId == activeSemester.SemesterId)
+                // Kiểm tra xem học kỳ này có nằm trong danh sách cần Active không
+                bool shouldBeActive = activeSemesters.Any(s => s.SemesterId == sem.SemesterId);
+
+                if (sem.IsActive != shouldBeActive)
                 {
-                    if (!sem.IsActive) { sem.IsActive = true; hasChanges = true; }
-                }
-                else
-                {
-                    if (sem.IsActive) { sem.IsActive = false; hasChanges = true; }
+                    sem.IsActive = shouldBeActive;
+                    hasChanges = true;
                 }
             }
 
-            // --- PHẦN B: CẬP NHẬT TRẠNG THÁI SINH VIÊN (Logic mới) ---
-
-            // 1. XỬ LÝ KHI HỌC KỲ BẮT ĐẦU (Active)
-            // Chuyển những sinh viên đang "Chờ lớp/Đăng ký" (Pending) sang "Đã duyệt/Đang học" (Approved)
-            if (activeSemester != null)
+            // 2. Logic cập nhật sinh viên (Enrollment) giữ nguyên, 
+            // nhưng áp dụng cho TẤT CẢ activeSemesters
+            if (activeSemesters.Any())
             {
+                var activeIds = activeSemesters.Select(s => s.SemesterId).ToList();
+
                 var pendingEnrollments = await _context.Enrollments
-                    .Where(e => e.CourseSection.SemesterId == activeSemester.SemesterId
-                             && e.Status == EnrollmentStatus.Pending) // Chỉ lấy trạng thái Pending
+                    .Where(e => activeIds.Contains(e.CourseSection.SemesterId)
+                             && e.Status == EnrollmentStatus.Pending)
                     .ToListAsync();
 
                 if (pendingEnrollments.Any())
@@ -200,8 +177,7 @@ namespace StudentPortal.Controllers
                 }
             }
 
-            // 2. XỬ LÝ KHI HỌC KỲ KẾT THÚC (Finished)
-            // Tìm các học kỳ đã qua ngày kết thúc (EndDate < Today)
+            // 3. Xử lý học kỳ kết thúc (Finished)
             var expiredSemesters = allSemesters
                 .Where(s => s.EndDate.Date < today)
                 .Select(s => s.SemesterId)
@@ -209,10 +185,9 @@ namespace StudentPortal.Controllers
 
             if (expiredSemesters.Any())
             {
-                // Lấy những sinh viên vẫn đang treo trạng thái "Approved" ở học kỳ cũ
                 var finishedEnrollments = await _context.Enrollments
                     .Where(e => expiredSemesters.Contains(e.CourseSection.SemesterId)
-                             && e.Status == EnrollmentStatus.Approved) // Chỉ lấy trạng thái Approved cũ
+                             && e.Status == EnrollmentStatus.Approved)
                     .ToListAsync();
 
                 if (finishedEnrollments.Any())
@@ -226,50 +201,35 @@ namespace StudentPortal.Controllers
                 }
             }
 
-            // 3. LƯU DATABASE
             if (hasChanges)
             {
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Cập nhật thành công! Trạng thái học kỳ và {updatedStudents} sinh viên đã được cập nhật.";
+                TempData["SuccessMessage"] = $"Cập nhật tự động thành công! ({updatedStudents} sinh viên được cập nhật).";
             }
             else
             {
-                TempData["InfoMessage"] = "Dữ liệu hiện tại đã chính xác, không có thay đổi nào.";
+                TempData["InfoMessage"] = "Dữ liệu đã đồng bộ theo ngày, không có thay đổi nào.";
             }
 
             return RedirectToAction(nameof(Index));
         }
-
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var semester = await _context.Semesters.FindAsync(id);
-
             if (semester == null) return RedirectToAction(nameof(Index));
 
-            // 1. KIỂM TRA RÀNG BUỘC DỮ LIỆU
-            // Nếu học kỳ đã có lớp học phần -> KHÔNG CHO XÓA
             bool hasCourses = await _context.CoursesSections.AnyAsync(c => c.SemesterId == id);
-
             if (hasCourses)
             {
-                TempData["ErrorMessage"] = $"Không thể xóa {semester.SemesterName} vì đã có lớp học phần được tổ chức trong học kỳ này.";
+                TempData["ErrorMessage"] = $"Không thể xóa {semester.SemesterName} vì đã có lớp học phần.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // 2. Nếu là học kỳ đang kích hoạt (Active) -> Cảnh báo hoặc Reset
-            if (semester.IsActive)
-            {
-                // Tùy chọn: Có thể cấm xóa học kỳ đang Active
-                // Hoặc xóa xong thì không còn học kỳ nào Active nữa
-            }
-
-            // 3. Xóa
             _context.Semesters.Remove(semester);
             await _context.SaveChangesAsync();
-
             TempData["SuccessMessage"] = "Đã xóa học kỳ thành công.";
             return RedirectToAction(nameof(Index));
         }
