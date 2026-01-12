@@ -46,17 +46,16 @@ namespace StudentPortal.Controllers
         }
 
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> StudentEnrollment()
+        // [MỚI] Thêm tham số nhận keyword và ID khoa/ngành
+        public async Task<IActionResult> StudentEnrollment(string searchString, int? facultyId, int? departmentId)
         {
             var student = await GetCurrentStudentAsync();
             if (student == null) return RedirectToAction("Login", "Account");
 
             DateTime today = DateTime.Today;
 
-            // 1. Lấy TẤT CẢ các học kỳ đang Active
-            var activeSemesters = await _context.Semesters
-                .Where(s => s.IsActive)
-                .ToListAsync();
+            // --- 1. LOGIC HỌC KỲ (GIỮ NGUYÊN) ---
+            var activeSemesters = await _context.Semesters.Where(s => s.IsActive).ToListAsync();
 
             if (!activeSemesters.Any())
             {
@@ -64,26 +63,19 @@ namespace StudentPortal.Controllers
                 return View();
             }
 
-            // --- LOGIC MỚI: ƯU TIÊN HỌC KỲ ĐANG MỞ ĐĂNG KÝ ---
-
-            // Tìm trong list active, có ông nào đang trong thời gian cho phép đăng ký không?
-            // (Từ OpenDate đến CloseDate)
             var targetSemester = activeSemesters.FirstOrDefault(s =>
                 today >= s.StartDate.AddDays(-14) &&
                 today <= s.StartDate.AddDays(-7)
             );
 
-            // Nếu KHÔNG có học kỳ nào đang mở cổng, thì lấy học kỳ có ngày bắt đầu mới nhất 
-            // (để hiển thị thông báo "Sắp mở" hoặc "Vừa hết hạn" của kỳ đó)
             if (targetSemester == null)
             {
                 targetSemester = activeSemesters.OrderByDescending(s => s.StartDate).FirstOrDefault();
             }
 
-            // --- 2. TÍNH TOÁN TRẠNG THÁI KHÓA (Dựa trên targetSemester đã chọn) ---
+            // --- 2. TRẠNG THÁI KHÓA (GIỮ NGUYÊN) ---
             DateTime openDate = targetSemester.StartDate.AddDays(-14);
             DateTime closeDate = targetSemester.StartDate.AddDays(-7);
-
             bool isLocked = true;
             string lockReason = "";
 
@@ -99,37 +91,76 @@ namespace StudentPortal.Controllers
             }
             else
             {
-                isLocked = false; // Đang trong "Khung giờ vàng"
+                isLocked = false;
             }
 
-            // Giữ nguyên các Key ViewData để không vỡ giao diện
             ViewData["IsLocked"] = isLocked;
             ViewData["LockReason"] = lockReason;
             ViewData["SemesterName"] = targetSemester.SemesterName;
 
-            // --- 3. LẤY MÔN ĐÃ ĐĂNG KÝ (CHỈ CỦA HỌC KỲ ĐANG ĐƯỢC CHỌN) ---
+            // --- 3. LẤY MÔN ĐÃ ĐĂNG KÝ (GIỮ NGUYÊN) ---
             var registeredList = await _context.Enrollments
                 .Include(e => e.CourseSection).ThenInclude(cs => cs.Course)
-                // QUAN TRỌNG: Filter theo targetSemester.SemesterId
                 .Where(e => e.StudentId == student.StudentId && e.CourseSection.SemesterId == targetSemester.SemesterId)
                 .ToListAsync();
 
-            // --- 4. LẤY MÔN CÓ THỂ ĐĂNG KÝ (CHỈ CỦA HỌC KỲ ĐANG ĐƯỢC CHỌN) ---
+            ViewData["RegisteredList"] = registeredList;
+
+            // =========================================================
+            // [MỚI] PHẦN XỬ LÝ TÌM KIẾM & BỘ LỌC
+            // =========================================================
+
+            // A. Chuẩn bị dữ liệu cho Dropdown Khoa/Ngành
+            ViewData["Faculties"] = new SelectList(await _context.Faculties.ToListAsync(), "FacultyId", "FacultyName", facultyId);
+
+            var departmentsQuery = _context.Departments.AsQueryable();
+            if (facultyId.HasValue)
+            {
+                departmentsQuery = departmentsQuery.Where(d => d.FacultyId == facultyId);
+            }
+            ViewData["Departments"] = new SelectList(await departmentsQuery.ToListAsync(), "DepartmentId", "DepartmentName", departmentId);
+
+            // Lưu lại giá trị đã tìm để hiển thị lại trên View
+            ViewData["CurrentSearch"] = searchString;
+            ViewData["CurrentFaculty"] = facultyId;
+            ViewData["CurrentDept"] = departmentId;
+
+
+            // B. Lọc danh sách lớp khả dụng (Available List)
             List<CourseSection> availableList = new List<CourseSection>();
 
             if (!isLocked)
             {
                 var registeredSectionIds = registeredList.Select(r => r.CourseSectionId).ToList();
 
-                availableList = await _context.CoursesSections
-                    .Include(cs => cs.Course)
-                    // QUAN TRỌNG: Filter theo targetSemester.SemesterId
+                // Khởi tạo Query (chưa chạy ngay)
+                var query = _context.CoursesSections
+                    .Include(cs => cs.Course).ThenInclude(c => c.Department).ThenInclude(d => d.Faculty) // Include sâu để lọc
+                    .Include(cs => cs.Enrollments) // Include để đếm sĩ số còn lại
                     .Where(cs => cs.SemesterId == targetSemester.SemesterId
-                                 && !registeredSectionIds.Contains(cs.CourseSectionId))
-                    .ToListAsync();
+                                 && !registeredSectionIds.Contains(cs.CourseSectionId)); // Loại bỏ lớp đã ĐK
+
+                // [LỌC] Theo tên hoặc mã môn
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(cs => cs.Course.CourseName.Contains(searchString) || cs.Course.CourseCode.Contains(searchString));
+                }
+
+                // [LỌC] Theo Khoa
+                if (facultyId.HasValue)
+                {
+                    query = query.Where(cs => cs.Course.Department.FacultyId == facultyId);
+                }
+
+                // [LỌC] Theo Ngành
+                if (departmentId.HasValue)
+                {
+                    query = query.Where(cs => cs.Course.DepartmentId == departmentId);
+                }
+
+                availableList = await query.ToListAsync();
             }
 
-            ViewData["RegisteredList"] = registeredList;
             ViewData["AvailableList"] = availableList;
 
             return View();
@@ -267,17 +298,16 @@ namespace StudentPortal.Controllers
         }
 
         [Authorize(Roles = "Lecturer")]
-        public async Task<IActionResult> LecturerEnrollment()
+        // [MỚI] Thêm tham số nhận vào từ Form tìm kiếm
+        public async Task<IActionResult> LecturerEnrollment(string searchString, int? facultyId, int? departmentId)
         {
             var lecturer = await GetCurrentLecturerAsync();
             if (lecturer == null) return RedirectToAction("Login", "Account");
 
             DateTime today = DateTime.Today;
 
-            // 1. Lấy TẤT CẢ các học kỳ đang Active (Giống bên Sinh viên)
-            var activeSemesters = await _context.Semesters
-                .Where(s => s.IsActive)
-                .ToListAsync();
+            // --- 1. LOGIC HỌC KỲ & KHÓA (GIỮ NGUYÊN) ---
+            var activeSemesters = await _context.Semesters.Where(s => s.IsActive).ToListAsync();
 
             if (!activeSemesters.Any())
             {
@@ -285,22 +315,16 @@ namespace StudentPortal.Controllers
                 return View();
             }
 
-            // --- LOGIC CHỌN HỌC KỲ: ƯU TIÊN HỌC KỲ ĐANG MỞ ĐĂNG KÝ ---
-
-            // Tìm học kỳ đang trong giai đoạn mở (Trước 14 ngày -> Trước 7 ngày)
             var targetSemester = activeSemesters.FirstOrDefault(s =>
                 today >= s.StartDate.AddDays(-14) &&
                 today <= s.StartDate.AddDays(-7)
             );
 
-            // Nếu KHÔNG có học kỳ nào đang mở cổng, thì lấy học kỳ có ngày bắt đầu mới nhất 
-            // (để hiển thị thông báo "Sắp mở" hoặc "Vừa hết hạn")
             if (targetSemester == null)
             {
                 targetSemester = activeSemesters.OrderByDescending(s => s.StartDate).FirstOrDefault();
             }
 
-            // --- 2. TÍNH TOÁN TRẠNG THÁI KHÓA (Dựa trên targetSemester đã chọn) ---
             DateTime openDate = targetSemester.StartDate.AddDays(-14);
             DateTime closeDate = targetSemester.StartDate.AddDays(-7);
 
@@ -315,38 +339,75 @@ namespace StudentPortal.Controllers
             else if (today > closeDate)
             {
                 isLocked = true;
-                lockReason = $"Đã hết hạn đăng ký giảng dạy {targetSemester.SemesterName} (Hạn chót: {closeDate:dd/MM/yyyy}). Vui lòng liên hệ Phòng Đào Tạo.";
+                lockReason = $"Đã hết hạn đăng ký giảng dạy {targetSemester.SemesterName}.";
             }
             else
             {
-                isLocked = false; // Trong "Tuần lễ vàng"
+                isLocked = false;
             }
 
-            // Truyền thông tin trạng thái ra View
             ViewData["IsLocked"] = isLocked;
             ViewData["LockReason"] = lockReason;
             ViewData["SemesterName"] = targetSemester.SemesterName;
 
-            // --- 3. LẤY LỚP ĐÃ ĐĂNG KÝ GIẢNG DẠY (CHỈ CỦA HỌC KỲ ĐANG CHỌN) ---
+            // --- 2. LẤY LỚP TÔI ĐANG DẠY (GIỮ NGUYÊN) ---
             var myClasses = await _context.CoursesSections
                 .Include(cs => cs.Course)
-                // Filter theo targetSemester.SemesterId
                 .Where(cs => cs.LecturerId == lecturer.LecturerId && cs.SemesterId == targetSemester.SemesterId)
                 .ToListAsync();
+            ViewData["MyClasses"] = myClasses;
 
-            // --- 4. LẤY LỚP CÒN TRỐNG (CHỈ CỦA HỌC KỲ ĐANG CHỌN) ---
+
+            // --- 3. [MỚI] CHUẨN BỊ DỮ LIỆU CHO DROPDOWN KHOA & NGÀNH ---
+
+            // Lấy danh sách Khoa
+            ViewData["Faculties"] = new SelectList(await _context.Faculties.ToListAsync(), "FacultyId", "FacultyName", facultyId);
+
+            // Lấy danh sách Ngành (Nếu đã chọn Khoa thì chỉ lấy Ngành thuộc Khoa đó)
+            var departmentsQuery = _context.Departments.AsQueryable();
+            if (facultyId.HasValue)
+            {
+                departmentsQuery = departmentsQuery.Where(d => d.FacultyId == facultyId);
+            }
+            ViewData["Departments"] = new SelectList(await departmentsQuery.ToListAsync(), "DepartmentId", "DepartmentName", departmentId);
+
+            // Lưu lại giá trị tìm kiếm để hiển thị lại trên View
+            ViewData["CurrentSearch"] = searchString;
+            ViewData["CurrentFaculty"] = facultyId;
+            ViewData["CurrentDept"] = departmentId;
+
+
+            // --- 4. LẤY LỚP CÒN TRỐNG & ÁP DỤNG BỘ LỌC ---
             List<CourseSection> availableClasses = new List<CourseSection>();
 
             if (!isLocked)
             {
-                availableClasses = await _context.CoursesSections
-                    .Include(cs => cs.Course)
-                    // Filter theo targetSemester.SemesterId và LecturerId = 0 (chưa có ai dạy)
-                    .Where(cs => cs.SemesterId == targetSemester.SemesterId && cs.LecturerId == 0)
-                    .ToListAsync();
+                // Khởi tạo Query cơ bản (Chưa chạy)
+                var query = _context.CoursesSections
+                    .Include(cs => cs.Course).ThenInclude(c => c.Department).ThenInclude(d => d.Faculty) // Include sâu để lấy tên Khoa/Ngành
+                    .Where(cs => cs.SemesterId == targetSemester.SemesterId && cs.LecturerId == 0);
+
+                // [MỚI] Lọc theo Tên môn hoặc Mã môn
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(cs => cs.Course.CourseName.Contains(searchString) || cs.Course.CourseCode.Contains(searchString));
+                }
+
+                // [MỚI] Lọc theo Khoa (Dựa vào quan hệ Course -> Department -> Faculty)
+                if (facultyId.HasValue)
+                {
+                    query = query.Where(cs => cs.Course.Department.FacultyId == facultyId);
+                }
+
+                // [MỚI] Lọc theo Ngành
+                if (departmentId.HasValue)
+                {
+                    query = query.Where(cs => cs.Course.DepartmentId == departmentId);
+                }
+
+                availableClasses = await query.ToListAsync();
             }
 
-            ViewData["MyClasses"] = myClasses;
             ViewData["AvailableClasses"] = availableClasses;
 
             return View();

@@ -41,6 +41,10 @@
                 <i class="fas fa-th-large"></i> <span>Dashboard</span>
             </a>
 
+            <a asp-controller="Statistics" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="fas fa-chart-pie"></i></i> <span>Thống kê</span>
+            </a>
+
             <div class="menu-group-header">1. Danh mục & Cấu trúc</div>
 
             <a asp-controller="Semesters" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Semesters" ? "active" : "")">

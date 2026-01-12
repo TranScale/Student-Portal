@@ -371,6 +371,8 @@ namespace StudentPortal.Controllers
         }
 
 
+
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -386,7 +388,7 @@ namespace StudentPortal.Controllers
             if (hasStudents)
             {
                 TempData["Error"] = "Lớp này đang có sinh viên học, không thể xóa!";
-                return RedirectToAction(nameof(Delete), new { id = id });
+                return RedirectToAction(nameof(Index), new { id = id });
             }
 
             DeleteScheduleItems(id);

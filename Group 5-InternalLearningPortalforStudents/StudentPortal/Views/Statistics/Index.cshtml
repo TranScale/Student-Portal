@@ -1,0 +1,417 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thống Kê Quản Trị";
+
+    // --- KHAI BÁO DỮ LIỆU ---
+    var semesters = ViewData["Semesters"] as List<StudentPortal.Models.Semester>;
+    var selectedSemName = ViewData["SelectedSemesterName"] as string;
+    var selectedSemId = ViewData["SelectedSemesterId"] as int?;
+
+    var totalClasses = ViewData["TotalClasses"] ?? 0;
+    var totalStudents = ViewData["TotalStudents"] ?? 0;
+    var activeLecturers = ViewData["ActiveLecturers"] ?? 0;
+    var passRate = ViewData["PassRate"] ?? 0;
+
+    var gradeDist = ViewData["GradeDist"] as List<int> ?? new List<int> { 0, 0, 0, 0, 0 };
+    var topStudents = ViewData["TopStudents"] as IEnumerable<dynamic>;
+    var topLecturers = ViewData["TopLecturers"] as IEnumerable<dynamic>;
+
+    // --- PHẦN TÌM KIẾM (Đã sửa) ---
+    var searchKeyword = ViewData["SearchKeyword"] as string ?? "";
+    // Ép kiểu sang List<dynamic> để đọc được ExpandoObject
+    var searchResults = ViewData["SearchResults"] as List<dynamic>;
+
+    var riskyClasses = ViewData["RiskyClasses"] as List<dynamic>;
+
+    var failCur = (int)(ViewData["FailTrendCurrent"] ?? 0);
+    var failPrev = (int)(ViewData["FailTrendPrev"] ?? 0);
+    var prevSemName = ViewData["PrevSemesterName"] as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="font-weight-bold text-white mb-0">Thống Kê Quản Trị</h2>
+        <div class="text-white-50 small">Báo cáo: <span class="text-warning font-weight-bold">@selectedSemName</span></div>
+    </div>
+    <form method="get" class="d-flex align-items-center">
+        @if (!string.IsNullOrEmpty(searchKeyword))
+        {
+            <input type="hidden" name="keyword" value="@searchKeyword" />
+        }
+        <select class="form-control bg-dark text-white border-secondary shadow-sm" name="semesterId" onchange="this.form.submit()" style="min-width: 220px; background: rgba(0,0,0,0.4) !important;">
+            @if (semesters != null)
+            {
+                foreach (var sem in semesters)
+                {
+                    <option value="@sem.SemesterId" selected="@(selectedSemId == sem.SemesterId)">@sem.SemesterName</option>
+                }
+            }
+        </select>
+    </form>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3"><div class="stat-card border-blue"><i class="fas fa-cubes stat-icon"></i><span class="stat-value c-blue">@totalClasses</span><span class="stat-label">Lớp học phần</span></div></div>
+    <div class="col-xl-3 col-md-6 mb-3"><div class="stat-card border-green"><i class="fas fa-users stat-icon"></i><span class="stat-value c-green">@totalStudents</span><span class="stat-label">Quy mô SV</span></div></div>
+    <div class="col-xl-3 col-md-6 mb-3"><div class="stat-card border-pink"><i class="fas fa-chalkboard-teacher stat-icon"></i><span class="stat-value c-pink">@activeLecturers</span><span class="stat-label">Giảng viên</span></div></div>
+    <div class="col-xl-3 col-md-6 mb-3"><div class="stat-card border-yellow"><i class="fas fa-chart-line stat-icon"></i><span class="stat-value c-yellow">@passRate%</span><span class="stat-label">Tỷ lệ đậu</span></div></div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="glass-panel h-100">
+            <div class="panel-title mb-2 text-uppercase font-weight-bold small"><i class="fas fa-chart-pie mr-2"></i> Phân bổ điểm số</div>
+            <div style="height: 260px; position: relative;"><canvas id="gradePieChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-8 mb-4">
+        <div class="glass-panel h-100">
+            <div class="panel-title mb-2 text-uppercase font-weight-bold small text-info"><i class="fas fa-user-graduate mr-2"></i> Sinh viên tiêu biểu</div>
+            <div class="table-responsive custom-scrollbar" style="height: 260px; overflow-y: auto;">
+                <table class="table-admin table-sm w-100">
+                    <thead>
+                        <tr><th class="sticky-top bg-blur">MSSV</th><th class="sticky-top bg-blur">Họ Tên</th><th class="sticky-top bg-blur text-center">Số môn</th><th class="sticky-top bg-blur text-right">GPA</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (topStudents != null)
+                        {
+                            foreach (var st in topStudents)
+                            {
+                                <tr><td class="text-white-50 font-weight-bold">@st.MSSV</td><td>@st.Name</td><td class="text-center">@st.CourseCount</td><td class="text-right text-success font-weight-bold">@string.Format("{0:0.00}", st.GPA)</td></tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="text-center">Chưa có dữ liệu</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="glass-panel h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="panel-title small text-uppercase font-weight-bold text-danger"><i class="fas fa-level-down-alt mr-2"></i> SV Rớt (F)</div>
+                @if (failCur > failPrev)
+                {
+                    <span class="badge badge-danger">Tăng</span>
+                }
+                else
+                {
+
+                    <span class="badge badge-success">Giảm</span>
+                }
+            </div>
+            <div style="height: 180px;"><canvas id="failTrendChart"></canvas></div>
+            <div class="text-center small text-white-50 mt-1" style="font-size: 0.75rem;">So với @prevSemName</div>
+        </div>
+    </div>
+    <div class="col-lg-8 mb-4">
+        <div class="glass-panel h-100">
+            <div class="panel-title mb-2 text-uppercase font-weight-bold small text-warning"><i class="fas fa-chalkboard-teacher mr-2"></i> Giảng viên tích cực</div>
+            <div class="table-responsive custom-scrollbar" style="height: 195px; overflow-y: auto;">
+                <table class="table-admin table-sm w-100">
+                    <thead><tr><th class="sticky-top bg-blur">Giảng viên</th><th class="sticky-top bg-blur text-center">Số lớp</th><th class="sticky-top bg-blur text-right">Tỷ lệ đậu</th></tr></thead>
+                    <tbody>
+                        @if (topLecturers != null)
+                        {
+                            foreach (var lec in topLecturers)
+                            {
+                                <tr>
+                                    <td class="font-weight-bold">@lec.Name</td>
+                                    <td class="text-center">@lec.ClassCount</td>
+                                    <td class="text-right">
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <div class="progress mr-2" style="height: 4px; width: 50px; background: rgba(255,255,255,0.1)"><div class="progress-bar bg-success" style="width: @lec.PassRate%"></div></div>
+                                            <span>@lec.PassRate%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-panel" style="border-left: 4px solid #e74c3c;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="panel-title mb-0 text-uppercase font-weight-bold text-danger">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Lớp học phần cần lưu ý
+                </div>
+                <small class="text-white-50">Tiêu chí: Tỷ lệ rớt (F) cao nhất & GPA thấp bất thường</small>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table-admin w-100">
+                    <thead>
+                        <tr>
+                            <th class="bg-blur">Môn học</th>
+                            <th class="bg-blur">Giảng viên</th>
+                            <th class="bg-blur text-center">Sĩ số</th>
+                            <th class="bg-blur text-center">GPA TB</th>
+                            <th class="bg-blur text-right">Tỷ lệ rớt (F)</th>
+                            <th class="bg-blur text-right">Đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (riskyClasses != null && riskyClasses.Count > 0)
+                        {
+                            foreach (var cls in riskyClasses)
+                            {
+                                <tr>
+                                    <td class="font-weight-bold text-white">@cls.CourseName</td>
+                                    <td>@cls.LecturerName</td>
+                                    <td class="text-center">@cls.Total</td>
+                                    <td class="text-center">
+                                        @if (cls.AvgGPA < 5.0)
+                                        {
+                                            <span class="text-danger font-weight-bold">@cls.AvgGPA</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="text-white">@cls.AvgGPA</span>
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <div class="progress mr-2" style="height: 6px; width: 80px; background: rgba(255,255,255,0.1)">
+                                                <div class="progress-bar bg-danger" style="width: @cls.FailRate%"></div>
+                                            </div>
+                                            <span class="font-weight-bold text-danger">@cls.FailRate%</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <span class="badge badge-danger">Cảnh báo</span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">
+                                    <i class="fas fa-check-circle text-success mr-2"></i> Không có lớp nào đạt ngưỡng cảnh báo trong kỳ này.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row clearfix mt-2">
+    <div class="col-12">
+        <div class="glass-panel">
+            <div class="panel-title mb-3"><i class="fas fa-search mr-2"></i> Tra cứu hồ sơ nhanh</div>
+
+            <form method="get" action="@Url.Action("Index")">
+                @if (selectedSemId.HasValue)
+                {
+                    <input type="hidden" name="semesterId" value="@selectedSemId" />
+                }
+                <div class="input-group input-group-lg">
+                    <input type="text" name="keyword" value="@searchKeyword" class="form-control bg-transparent border-secondary text-white" placeholder="Nhập tên Sinh viên hoặc Mã số..." required>
+                    <div class="input-group-append"><button type="submit" class="btn btn-primary px-4">Tìm kiếm</button></div>
+                </div>
+            </form>
+
+            @if (searchResults != null && searchResults.Count > 0)
+            {
+                <div class="mt-4 table-responsive custom-scrollbar" style="max-height: 300px; overflow-y: auto;">
+                    <h6 class="text-white-50 mb-3">Kết quả: "<span class="text-white">@searchKeyword</span>"</h6>
+                    <table class="table-admin w-100">
+                        <thead><tr><th class="sticky-top bg-blur">Loại</th><th class="sticky-top bg-blur">Mã số</th><th class="sticky-top bg-blur">Họ tên</th><th class="sticky-top bg-blur">Thông tin</th><th class="sticky-top bg-blur text-right">Hành động</th></tr></thead>
+                        <tbody>
+                            @foreach (var item in searchResults)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (item.Type == "Sinh viên")
+                                        {
+                                            <span class="badge badge-info">@item.Type</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="badge badge-warning">@item.Type</span>
+                                        }
+                                    </td>
+                                    <td class="font-weight-bold text-white">@item.Code</td>
+                                    <td>@item.Name</td>
+                                    <td class="text-white-50">@item.Info</td>
+                                    <td class="text-right">
+                                        @if (item.Type == "Giảng viên")
+                                        {
+                                            @* Nếu là Giảng viên -> Trỏ về LecturersController *@
+                                            <a asp-controller="Lecturers" asp-action="Details" asp-route-id="@item.DetailId" class="btn btn-sm btn-outline-light rounded-pill">Chi tiết</a>
+                                        }
+                                        else
+                                        {
+                                            @* Nếu là Sinh viên (hoặc khác) -> Trỏ về StudentsController *@
+                                            <a asp-controller="Students" asp-action="Details" asp-route-id="@item.DetailId" class="btn btn-sm btn-outline-light rounded-pill">Chi tiết</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                <div class="mt-4 text-center text-muted py-3"><i class="fas fa-search-minus fa-2x mb-2"></i><br />Không tìm thấy kết quả nào.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+    new Chart(document.getElementById('gradePieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['A (Giỏi)', 'B (Khá)', 'C (TB)', 'D (Yếu)', 'F (Rớt)'],
+            datasets: [{ data: @Html.Raw(Json.Serialize(gradeDist)), backgroundColor: ['#2ecc71', '#3498db', '#f1c40f', '#e67e22', '#e74c3c'], borderWidth: 0, cutout: '75%' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, padding: 15, font: {size: 11} } } } }
+    });
+    new Chart(document.getElementById('failTrendChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Kỳ trước', 'Hiện tại'],
+            datasets: [{ label: 'SV Rớt', data: [@failPrev, @failCur], backgroundColor: ['rgba(255,255,255,0.15)', '#e74c3c'], borderRadius: 4, barThickness: 25 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false, grid: {display: false} }, x: { grid: { display: false } } } }
+    });
+</script>
+
+<style>
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .border-blue {
+        border-left: 4px solid #0984e3;
+    }
+
+    .c-blue {
+        color: #0984e3;
+    }
+
+    .border-green {
+        border-left: 4px solid #00b894;
+    }
+
+    .c-green {
+        color: #00b894;
+    }
+
+    .border-pink {
+        border-left: 4px solid #e84393;
+    }
+
+    .c-pink {
+        color: #e84393;
+    }
+
+    .border-yellow {
+        border-left: 4px solid #fdcb6e;
+    }
+
+    .c-yellow {
+        color: #fdcb6e;
+    }
+
+    .stat-icon {
+        position: absolute;
+        right: 15px;
+        top: 20px;
+        font-size: 2.5rem;
+        opacity: 0.1;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+        font-weight: 600;
+    }
+
+    .table-admin th {
+        border-top: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        padding: 8px;
+    }
+
+    .table-admin td {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        padding: 10px 8px;
+        vertical-align: middle;
+    }
+
+    .sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .bg-blur {
+        background: rgba(30, 34, 45, 0.98);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.2);
+        }
+</style>
