@@ -105,6 +105,20 @@
                     int registered = item.Enrollments != null ? item.Enrollments.Count : 0;
                     int remaining = capacity - registered;
 
+                    // --- LOGIC KIỂM TRA KHÓA (Index) ---
+                    bool isSemesterActive = item.Semester != null && item.Semester.IsActive;
+
+                    // Kiểm tra xem có sinh viên nào đã hoàn thành môn học chưa
+                    // Lưu ý: Cần đảm bảo Enum EnrollmentStatus đã có trạng thái Finished
+                    bool hasFinishedStudent = item.Enrollments != null && item.Enrollments.Any(e => e.Status == EnrollmentStatus.Finished);
+
+                    bool isLocked = isSemesterActive || hasFinishedStudent;
+
+                    string lockReason = isSemesterActive
+                    ? "Học kỳ đang diễn ra (Active)"
+                    : "Lớp học đã kết thúc và có sinh viên hoàn thành";
+                    // ------------------------------------
+
                     <tr>
                         <td>
                             <span class="badge badge-info p-2 text-white">@item.Semester?.SemesterName</span>
@@ -159,17 +173,36 @@
                             <a asp-action="Details" asp-route-id="@item.CourseSectionId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a asp-action="Edit" asp-route-id="@item.CourseSectionId" class="btn btn-sm btn-outline-info rounded-circle" title="Sửa">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <form asp-action="Delete" asp-route-id="@item.CourseSectionId" method="post" class="d-inline">
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-danger rounded-circle"
-                                        title="Xóa"
-                                        onclick="return confirm('CẢNH BÁO: Xóa lớp học này sẽ xóa cả lịch học và danh sách sinh viên.\n\nBạn có chắc chắn không?');">
+
+                            @if (isLocked)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle mr-1"
+                                        title="Không thể sửa: @lockReason"
+                                        onclick="alert('CẢNH BÁO: Không thể chỉnh sửa.\nLý do: @lockReason.');">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle"
+                                        title="Không thể xóa: @lockReason"
+                                        onclick="alert('CẢNH BÁO: Không thể xóa.\nLý do: @lockReason.');">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
-                            </form>
+                            }
+                            else
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.CourseSectionId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                                <form asp-action="Delete" asp-route-id="@item.CourseSectionId" method="post" class="d-inline">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger rounded-circle"
+                                            title="Xóa"
+                                            onclick="return confirm('CẢNH BÁO: Xóa lớp học này sẽ xóa cả lịch học và danh sách sinh viên.\n\nBạn có chắc chắn không?');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

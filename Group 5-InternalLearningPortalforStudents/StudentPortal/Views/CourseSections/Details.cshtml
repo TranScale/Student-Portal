@@ -1,4 +1,5 @@
 ﻿@model StudentPortal.Models.CourseSection
+@using StudentPortal.Models
 
 @{
     Layout = "_AdminLayout";
@@ -6,11 +7,30 @@
 
     // Hứng dữ liệu từ Controller và ép kiểu
     var scoreList = ViewData["ScoreList"] as List<StudentPortal.Models.Score>;
+
+    // --- LOGIC KIỂM TRA KHÓA (Details) ---
+    bool isSemesterActive = Model.Semester != null && Model.Semester.IsActive;
+    bool hasFinishedStudent = Model.Enrollments != null && Model.Enrollments.Any(e => e.Status == EnrollmentStatus.Finished);
+
+    bool isLocked = isSemesterActive || hasFinishedStudent;
+
+    string lockReason = isSemesterActive
+                        ? "Học kỳ đang diễn ra (Active)"
+                        : "Lớp học đã có sinh viên Hoàn thành (Finished)";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="glass-panel">
+
+            @if (isLocked)
+            {
+                <div class="alert alert-warning border-warning mb-4" role="alert" style="background-color: rgba(255, 193, 7, 0.2); color: #ffc107;">
+                    <i class="fas fa-lock mr-2"></i>
+                    <strong>Đã khóa chỉnh sửa:</strong> @lockReason.
+                </div>
+            }
+
             <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
                 <h4 class="mb-0 text-white font-weight-bold">Thông tin lớp học</h4>
                 <span class="badge badge-info p-2" style="font-size: 1rem;">@Model.Semester.SemesterName</span>
@@ -61,7 +81,21 @@
                         <i class="fas fa-list-ol"></i> Xem bảng điểm
                     </button>
 
-                    <a asp-action="Edit" asp-route-id="@Model.CourseSectionId" class="btn btn-warning mr-2"><i class="fas fa-edit"></i> Chỉnh sửa</a>
+                    @if (isLocked)
+                    {
+                        // Nút bị khóa
+                        <button type="button" class="btn btn-secondary mr-2"
+                                onclick="alert('CẢNH BÁO: Không thể chỉnh sửa.\nLý do: @lockReason.');">
+                            <i class="fas fa-lock"></i> Đã khóa
+                        </button>
+                    }
+                    else
+                    {
+                        // Nút sửa bình thường
+                        <a asp-action="Edit" asp-route-id="@Model.CourseSectionId" class="btn btn-warning mr-2">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </a>
+                    }
                     <a asp-action="Index" class="btn btn-light"><i class="fas fa-arrow-left"></i> Quay lại</a>
                 </div>
             </div>

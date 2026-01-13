@@ -15,9 +15,6 @@
         // 3. Nếu tìm thấy User và User đó có set ImagePath
         if (currentUser != null && !string.IsNullOrEmpty(currentUser.ImagePath))
         {
-            // Lưu ý: Tùy vào cách bạn lưu trong DB mà chỉnh đường dẫn này
-            // Nếu DB lưu full path (VD: /images/user.jpg) thì để nguyên
-            // Nếu DB chỉ lưu tên file (VD: user.jpg) thì phải thêm prefix thư mục (VD: /uploads/ + ...)
             userAvatar = currentUser.ImagePath;
         }
     }

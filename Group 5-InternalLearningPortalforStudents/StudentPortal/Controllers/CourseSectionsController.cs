@@ -229,18 +229,36 @@ namespace StudentPortal.Controllers
 
             var courseSection = await _context.CoursesSections
                 .Include(cs => cs.Course)
-                    .ThenInclude(c => c.Department) 
+                    .ThenInclude(c => c.Department)
+                .Include(cs => cs.Semester)
+                .Include(cs => cs.Enrollments)
                 .FirstOrDefaultAsync(m => m.CourseSectionId == id);
 
             if (courseSection == null) return NotFound();
 
+            if (courseSection.Semester != null && courseSection.Semester.IsActive)
+            {
+                TempData["Error"] = "Không thể chỉnh sửa học phần thuộc học kỳ đang diễn ra.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (courseSection.Semester != null && !courseSection.Semester.IsActive)
+            {
+                bool hasFinishedStudents = courseSection.Enrollments.Any(e => e.Status == EnrollmentStatus.Finished);
+
+                if (hasFinishedStudents)
+                {
+                    TempData["Error"] = "Không thể chỉnh sửa học phần đã kết thúc và có sinh viên hoàn thành môn học.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
             int targetFacultyId = courseSection.Course?.Department?.FacultyId ?? 0;
 
             var lecturersQuery = _context.Lecturers
                 .Include(l => l.User)
-                .Where(l => l.User.UserName != "system" && !l.IsDeleted) 
-                .Where(l => l.FacultyId == targetFacultyId || l.LecturerId == courseSection.LecturerId) 
+                .Where(l => l.User.UserName != "system" && !l.IsDeleted)
+                .Where(l => l.FacultyId == targetFacultyId || l.LecturerId == courseSection.LecturerId)
                 .Select(l => new
                 {
                     l.LecturerId,
@@ -248,7 +266,6 @@ namespace StudentPortal.Controllers
                 });
 
             ViewBag.LecturerId = new SelectList(await lecturersQuery.ToListAsync(), "LecturerId", "FullName", courseSection.LecturerId);
-
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters.OrderByDescending(s => s.StartDate), "SemesterId", "SemesterName", courseSection.SemesterId);
 
@@ -268,22 +285,26 @@ namespace StudentPortal.Controllers
             ModelState.Remove("Lecturer");
             ModelState.Remove("Semester");
 
-            if (courseSection.Days == ClassDays.None)
-            {
-                ModelState.AddModelError("Days", "Vui lòng chọn ít nhất một ngày học.");
-            }
-            if (courseSection.Sessions == StudySessions.None)
-            {
-                ModelState.AddModelError("Sessions", "Vui lòng chọn ít nhất một ca học.");
-            }
-            if (string.IsNullOrEmpty(courseSection.Room))
-            {
-                ModelState.AddModelError("Room", "Vui lòng nhập phòng học.");
-            }
+            if (courseSection.Days == ClassDays.None) ModelState.AddModelError("Days", "Vui lòng chọn ít nhất một ngày học.");
+            if (courseSection.Sessions == StudySessions.None) ModelState.AddModelError("Sessions", "Vui lòng chọn ít nhất một ca học.");
+            if (string.IsNullOrEmpty(courseSection.Room)) ModelState.AddModelError("Room", "Vui lòng nhập phòng học.");
 
             var semester = await _context.Semesters.FindAsync(courseSection.SemesterId);
+            var existingEnrollments = await _context.Enrollments
+                                .Where(e => e.CourseSectionId == id)
+                                .ToListAsync();
+
             if (semester != null)
             {
+                if (semester.IsActive)
+                {
+                    ModelState.AddModelError("SemesterId", "Không thể cập nhật vào học kỳ đang diễn ra (Active).");
+                }
+                else if (existingEnrollments.Any(e => e.Status == EnrollmentStatus.Finished))
+                {
+                    ModelState.AddModelError(string.Empty, "Không thể sửa lớp học phần cũ đã có sinh viên hoàn thành.");
+                }
+
                 courseSection.DayStart = semester.StartDate;
                 courseSection.DayEnd = semester.EndDate;
             }
@@ -294,10 +315,9 @@ namespace StudentPortal.Controllers
 
             if (ModelState.IsValid)
             {
-
                 var otherSections = _context.CoursesSections
-                                            .Where(x => x.SemesterId == courseSection.SemesterId && x.CourseSectionId != id)
-                                            .AsEnumerable();
+                    .Where(x => x.SemesterId == courseSection.SemesterId && x.CourseSectionId != id)
+                    .AsEnumerable();
 
                 bool roomConflict = otherSections.Any(x =>
                     x.Room == courseSection.Room &&
@@ -305,10 +325,7 @@ namespace StudentPortal.Controllers
                     (x.Sessions & courseSection.Sessions) != StudySessions.None
                 );
 
-                if (roomConflict)
-                {
-                    ModelState.AddModelError("Room", $"Phòng {courseSection.Room} đã bị trùng lịch với lớp khác.");
-                }
+                if (roomConflict) ModelState.AddModelError("Room", $"Phòng {courseSection.Room} đã bị trùng lịch với lớp khác.");
 
                 if (courseSection.LecturerId != 0)
                 {
@@ -318,10 +335,7 @@ namespace StudentPortal.Controllers
                         (x.Sessions & courseSection.Sessions) != StudySessions.None
                     );
 
-                    if (lecturerConflict)
-                    {
-                        ModelState.AddModelError("LecturerId", "Giảng viên này đang bận dạy lớp khác vào khung giờ này.");
-                    }
+                    if (lecturerConflict) ModelState.AddModelError("LecturerId", "Giảng viên này đang bận dạy lớp khác vào khung giờ này.");
                 }
             }
 
@@ -330,11 +344,8 @@ namespace StudentPortal.Controllers
                 try
                 {
                     _context.Update(courseSection);
-
                     DeleteScheduleItems(courseSection.CourseSectionId);
-
                     await _context.SaveChangesAsync();
-
                     await GenerateScheduleItems(courseSection);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -345,20 +356,17 @@ namespace StudentPortal.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
-            // 1. Môn học & Học kỳ (Giữ nguyên)
             ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseName", courseSection.CourseId);
             ViewData["SemesterId"] = new SelectList(_context.Semesters, "SemesterId", "SemesterName", courseSection.SemesterId);
 
-            // 2. Giảng viên: Lấy List sạch từ DB
             var dbLecturers = _context.Lecturers
-                                      .Include(l => l.User)
-                                      .Where(l => l.User.UserName != "system")
-                                      .Select(l => new {
-                                          LecturerId = l.LecturerId,
-                                          FullName = l.User.FullName
-                                      })
-                                      .ToList();
+                .Include(l => l.User)
+                .Where(l => l.User.UserName != "system")
+                .Select(l => new {
+                    LecturerId = l.LecturerId,
+                    FullName = l.User.FullName
+                })
+                .ToList();
 
             ViewBag.LecturerId = new SelectList(dbLecturers, "LecturerId", "FullName", courseSection.LecturerId);
 
