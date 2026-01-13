@@ -261,7 +261,6 @@ namespace StudentPortal.Data
                         case DayOfWeek.Thursday: if ((sec.Days & ClassDays.Thursday) != 0) isClassDay = true; break;
                         case DayOfWeek.Friday: if ((sec.Days & ClassDays.Friday) != 0) isClassDay = true; break;
                         case DayOfWeek.Saturday: if ((sec.Days & ClassDays.Saturday) != 0) isClassDay = true; break;
-                        case DayOfWeek.Sunday: if ((sec.Days & ClassDays.Sunday) != 0) isClassDay = true; break;
                     }
 
                     if (isClassDay)

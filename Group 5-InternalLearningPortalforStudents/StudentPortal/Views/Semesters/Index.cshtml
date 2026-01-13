@@ -101,13 +101,6 @@
     </a>
 </div>
 
-<form asp-action="AutoUpdateCurrentSemester" method="post" style="display:inline;">
-    @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-warning" onclick="return confirm('Hệ thống sẽ dựa vào ngày hiện tại để Active các học kỳ phù hợp. Bạn có chắc không?');">
-        <i class="fa fa-refresh"></i> Cập nhật tự động theo ngày
-    </button>
-</form>
-
 <div class="glass-panel mb-4 p-3 mt-3">
     <form asp-action="Index" method="get">
         <div class="row align-items-end">
@@ -204,14 +197,31 @@
                         </td>
 
                         <td class="text-right">
+                            @* 1. Nút Chi tiết *@
                             <a asp-action="Details" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-primary rounded-circle mr-1" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>
 
+                            @* 2. Nút Sửa *@
                             <a asp-action="Edit" asp-route-id="@item.SemesterId" class="btn btn-sm btn-outline-info rounded-circle mr-1" title="Sửa">
                                 <i class="fas fa-pen"></i>
                             </a>
 
+                            @* 3. [MỚI] Nút KẾT THÚC HỌC KỲ (Chỉ hiện khi đang Active) *@
+                            @if (item.IsActive)
+                            {
+                                <form asp-action="Finish" asp-route-id="@item.SemesterId" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-warning rounded-circle mr-1"
+                                            title="Kết thúc học kỳ & Chốt trạng thái SV"
+                                            onclick="return confirm('⚠️ CẢNH BÁO QUAN TRỌNG:\n\nBạn đang thực hiện KẾT THÚC học kỳ @item.SemesterName.\n\nHành động này sẽ:\n1. Tắt trạng thái hoạt động (Active -> Inactive).\n2. Chuyển TẤT CẢ sinh viên đang học (Approved) sang trạng thái ĐÃ HỌC (Finished).\n\nBạn có chắc chắn muốn tiếp tục không?');">
+                                        <i class="fas fa-flag-checkered"></i>
+                                    </button>
+                                </form>
+                            }
+
+                            @* 4. Nút Xóa *@
                             <button type="button" class="btn btn-sm btn-outline-danger rounded-circle"
                                     data-toggle="modal" data-target="#deleteModal"
                                     onclick="setDeleteId('@item.SemesterId', '@item.SemesterName')">

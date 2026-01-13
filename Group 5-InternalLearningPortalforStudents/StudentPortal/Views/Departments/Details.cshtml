@@ -107,12 +107,14 @@
                 <hr style="border-top: 1px solid rgba(255,255,255,0.1);" class="mt-4 mb-4">
 
                 <div class="row">
-                    <div class="col-lg-4 mb-3">
+                    <div class="col-lg-4 mb-3 d-flex flex-column">
                         <h5 class="text-white-50 text-uppercase font-weight-bold mb-3" style="font-size: 0.9rem;">
                             Đơn vị trực thuộc
                         </h5>
-                        <a asp-controller="Faculties" asp-action="Details" asp-route-id="@Model.FacultyId" class="text-decoration-none">
-                            <div class="info-card d-flex align-items-center">
+
+                        <a asp-controller="Faculties" asp-action="Details" asp-route-id="@Model.FacultyId" class="text-decoration-none flex-grow-1">
+
+                            <div class="info-card d-flex align-items-center h-100">
                                 <div class="mr-3 text-center" style="width: 50px;">
                                     <i class="fas fa-university fa-2x text-info"></i>
                                 </div>
@@ -126,11 +128,11 @@
                         </a>
                     </div>
 
-                    <div class="col-lg-8">
+                    <div class="col-lg-8 d-flex flex-column mb-3">
                         <h5 class="text-white-50 text-uppercase font-weight-bold mb-3" style="font-size: 0.9rem;">
                             Giới thiệu
                         </h5>
-                        <div class="glass-panel p-3" style="background: rgba(0,0,0,0.2); border: none;">
+                        <div class="glass-panel p-3 h-100" style="background: rgba(0,0,0,0.2); border: none;">
                             <p class="text-white mb-0">@Model.DepartmentDescription</p>
                         </div>
                     </div>
@@ -143,10 +145,14 @@
 <div class="row">
     <div class="col-12">
         <div class="glass-panel h-100">
+            @* --- PHẦN HEADER CỦA BẢNG --- *@
             <div class="d-flex justify-content-between align-items-center mb-3 p-3 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
-                <h5 class="text-white mb-0">
-                    <i class="fas fa-book mr-2"></i>Chương trình đào tạo / Môn học
-                </h5>
+                <div class="d-flex align-items-center">
+                    <h5 class="text-white mb-0 mr-3">
+                        <i class="fas fa-book mr-2"></i>Chương trình đào tạo / Môn học
+                    </h5>
+                </div>
+
                 <span class="badge badge-success px-3 py-2">
                     @(Model.Courses?.Count ?? 0) Môn
                 </span>
@@ -193,13 +199,15 @@
                             }
                             else
                             {
+                                @* --- TRƯỜNG HỢP CHƯA CÓ MÔN HỌC --- *@
                                 <tr>
                                     <td colspan="4" class="text-center py-5">
                                         <div class="text-white-50">
                                             <i class="fas fa-box-open fa-3x mb-3" style="opacity: 0.5;"></i>
                                             <p class="font-italic mb-3">Chưa có môn học nào thuộc ngành này.</p>
 
-                                            <a asp-controller="Subjects" asp-action="Create" asp-route-departmentId="@Model.DepartmentId" class="btn btn-primary btn-sm shadow">
+                                            @* [MỚI] Sửa lại nút này trỏ về Courses thay vì Subjects *@
+                                            <a asp-controller="Courses" asp-action="Create" asp-route-departmentId="@Model.DepartmentId" class="btn btn-primary btn-sm shadow">
                                                 <i class="fas fa-plus mr-1"></i> Thêm môn học ngay
                                             </a>
                                         </div>

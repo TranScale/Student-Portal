@@ -233,5 +233,41 @@ namespace StudentPortal.Controllers
             TempData["SuccessMessage"] = "Đã xóa học kỳ thành công.";
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Finish(int id)
+        {
+            // 1. Tìm học kỳ
+            var semester = await _context.Semesters.FindAsync(id);
+            if (semester == null) return NotFound();
+
+            // 2. Tắt trạng thái Active
+            semester.IsActive = false;
+
+            // 3. Tìm tất cả Enrollment đã được duyệt (Approved) thuộc học kỳ này
+            // Logic: Enrollment -> CourseSection -> SemesterId
+            // Lưu ý: Chỉ chuyển những người ĐANG HỌC (Approved) thành ĐÃ HỌC (Finished).
+            // Không đụng vào Pending (chưa được duyệt) hoặc Cancelled (đã hủy).
+            var approvedEnrollments = await _context.Enrollments
+                .Where(e => e.CourseSection.SemesterId == id
+                         && e.Status == EnrollmentStatus.Approved)
+                .ToListAsync();
+
+            // 4. Cập nhật trạng thái sang Finished
+            foreach (var enrollment in approvedEnrollments)
+            {
+                enrollment.Status = EnrollmentStatus.Finished;
+            }
+
+            // 5. Lưu thay đổi
+            await _context.SaveChangesAsync();
+
+            // 6. Thông báo kết quả
+            TempData["SuccessMessage"] = $"Đã kết thúc học kỳ {semester.SemesterName} thành công. " +
+                                         $"{approvedEnrollments.Count} sinh viên đã được cập nhật trạng thái Hoàn thành.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

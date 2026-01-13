@@ -144,7 +144,7 @@ namespace StudentPortal.Controllers
             var enrollments = await _context.Enrollments
                 .AsNoTracking()
                 .Include(e => e.Student).ThenInclude(s => s.User)
-                .Where(e => e.CourseSectionId == sectionId && e.Status == EnrollmentStatus.Approved)
+                .Where(e => e.CourseSectionId == sectionId && (e.Status == EnrollmentStatus.Approved || e.Status == EnrollmentStatus.Finished))
                 .OrderBy(e => e.Student.StudentCode)
                 .ToListAsync();
 

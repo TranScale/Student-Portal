@@ -59,7 +59,7 @@ namespace StudentPortal.Controllers
                 var enrolledStudents = await _context.Enrollments
                     .Include(e => e.Student).ThenInclude(s => s.User)
                     .Where(e => e.CourseSectionId == scheduleItem.CourseSectionId
-                             && e.Status == EnrollmentStatus.Approved)
+                             && e.Status == EnrollmentStatus.Approved && e.Status == EnrollmentStatus.Finished)
                     .Select(e => e.Student)
                     .ToListAsync();
 

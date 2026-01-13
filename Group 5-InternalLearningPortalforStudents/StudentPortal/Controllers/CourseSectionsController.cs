@@ -453,7 +453,6 @@ namespace StudentPortal.Controllers
                 case DayOfWeek.Thursday: return (days & ClassDays.Thursday) != 0;
                 case DayOfWeek.Friday: return (days & ClassDays.Friday) != 0;
                 case DayOfWeek.Saturday: return (days & ClassDays.Saturday) != 0;
-                case DayOfWeek.Sunday: return (days & ClassDays.Sunday) != 0;
                 default: return false;
             }
         }
