@@ -139,16 +139,38 @@ namespace StudentPortal.Controllers
         }
 
         // 🔑 Admin mới được delete
+        // Trong FacultiesController.cs
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // 1. Kiểm tra xem có Ngành (Departments) nào đang thuộc Khoa này không
+            var hasDepartments = await _context.Departments.AnyAsync(d => d.FacultyId == id);
+
+            if (hasDepartments)
+            {
+                // Nếu còn dính dữ liệu con, báo lỗi và không xóa
+                TempData["Error"] = "Không thể xóa Khoa này vì đang có các Ngành trực thuộc. Vui lòng xóa các Ngành trước.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 2. Tìm và xóa Khoa
             var faculty = await _context.Faculties.FindAsync(id);
             if (faculty != null)
             {
-                _context.Faculties.Remove(faculty);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Faculties.Remove(faculty);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Xóa Khoa thành công!";
+                }
+                catch (DbUpdateException)
+                {
+                    // Bắt lỗi nếu còn sót các bảng khác (ví dụ bảng Students nếu có liên kết trực tiếp)
+                    TempData["Error"] = "Lỗi hệ thống: Không thể xóa do ràng buộc dữ liệu.";
+                }
             }
 
             return RedirectToAction(nameof(Index));
