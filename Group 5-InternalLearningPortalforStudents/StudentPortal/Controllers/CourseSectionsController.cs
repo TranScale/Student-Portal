@@ -23,6 +23,7 @@ namespace StudentPortal.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(string searchString, int? semesterId, int? facultyId, int? departmentId, int? assignStatus, int? pageNumber)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -77,6 +78,7 @@ namespace StudentPortal.Controllers
             return View(await PaginatedList<CourseSection>.CreateAsync(sections.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

@@ -21,7 +21,6 @@ namespace StudentPortal.Controllers
         }
 
         [Authorize(Roles = "Admin,Student,Lecturer")]
-        // Action Index
         public async Task<IActionResult> Index(string searchString, int? facultyId, int? pageNumber)
         {
             ViewData["CurrentFilter"] = searchString;

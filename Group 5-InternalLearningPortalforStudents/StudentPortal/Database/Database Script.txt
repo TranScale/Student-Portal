@@ -1,0 +1,619 @@
+USE [StudentPortal(SQL)]
+GO
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Admins]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Admins](
+	[AdminId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+ CONSTRAINT [PK_Admins] PRIMARY KEY CLUSTERED 
+(
+	[AdminId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Announcements]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Announcements](
+	[AnnouncementId] [int] IDENTITY(1,1) NOT NULL,
+	[Title] [nvarchar](max) NOT NULL,
+	[Summary] [nvarchar](max) NOT NULL,
+	[Content] [nvarchar](max) NOT NULL,
+	[CreatedDate] [datetime2](7) NOT NULL,
+	[ExpiredDate] [datetime2](7) NULL,
+	[Taker] [int] NOT NULL,
+	[UserId] [int] NOT NULL,
+ CONSTRAINT [PK_Announcements] PRIMARY KEY CLUSTERED 
+(
+	[AnnouncementId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Attendees]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Attendees](
+	[AttendeeId] [int] IDENTITY(1,1) NOT NULL,
+	[ScheduleItemId] [int] NOT NULL,
+	[StudentId] [int] NOT NULL,
+	[Status] [int] NOT NULL,
+	[Note] [nvarchar](250) NULL,
+	[RecordedAt] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_Attendees] PRIMARY KEY CLUSTERED 
+(
+	[AttendeeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Certificates]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Certificates](
+	[CertificateId] [int] IDENTITY(1,1) NOT NULL,
+	[CertificateName] [nvarchar](150) NOT NULL,
+	[CertificateType] [nvarchar](100) NULL,
+	[IssuedBy] [nvarchar](150) NULL,
+	[IssuedDate] [datetime2](7) NOT NULL,
+	[ExpiredDate] [datetime2](7) NULL,
+	[Score] [float] NULL,
+	[FilePath] [nvarchar](max) NULL,
+	[UserId] [int] NOT NULL,
+ CONSTRAINT [PK_Certificates] PRIMARY KEY CLUSTERED 
+(
+	[CertificateId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Courses]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Courses](
+	[CourseId] [int] IDENTITY(1,1) NOT NULL,
+	[CourseName] [nvarchar](max) NOT NULL,
+	[CourseCode] [nvarchar](max) NOT NULL,
+	[CourseCredit] [int] NOT NULL,
+	[DepartmentId] [int] NOT NULL,
+ CONSTRAINT [PK_Courses] PRIMARY KEY CLUSTERED 
+(
+	[CourseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CoursesMaterials]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CoursesMaterials](
+	[CourseMaterialId] [int] IDENTITY(1,1) NOT NULL,
+	[Title] [nvarchar](max) NOT NULL,
+	[FileUrl] [nvarchar](max) NOT NULL,
+	[FileSize] [real] NOT NULL,
+	[CreationDate] [datetime2](7) NOT NULL,
+	[IsPublic] [bit] NOT NULL,
+	[CourseSectionId] [int] NOT NULL,
+ CONSTRAINT [PK_CoursesMaterials] PRIMARY KEY CLUSTERED 
+(
+	[CourseMaterialId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CoursesSections]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CoursesSections](
+	[CourseSectionId] [int] IDENTITY(1,1) NOT NULL,
+	[Room] [nvarchar](max) NOT NULL,
+	[Capacity] [int] NOT NULL,
+	[Days] [int] NOT NULL,
+	[DayStart] [datetime2](7) NOT NULL,
+	[DayEnd] [datetime2](7) NOT NULL,
+	[Sessions] [int] NOT NULL,
+	[CourseId] [int] NOT NULL,
+	[LecturerId] [int] NOT NULL,
+	[SemesterId] [int] NOT NULL,
+ CONSTRAINT [PK_CoursesSections] PRIMARY KEY CLUSTERED 
+(
+	[CourseSectionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Departments]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Departments](
+	[DepartmentId] [int] IDENTITY(1,1) NOT NULL,
+	[DepartmentName] [nvarchar](max) NOT NULL,
+	[DepartmentDescription] [nvarchar](max) NULL,
+	[DepartmentCode] [nvarchar](max) NOT NULL,
+	[FacultyId] [int] NOT NULL,
+ CONSTRAINT [PK_Departments] PRIMARY KEY CLUSTERED 
+(
+	[DepartmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Enrollments]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Enrollments](
+	[EnrollmentId] [int] IDENTITY(1,1) NOT NULL,
+	[Status] [int] NOT NULL,
+	[CourseSectionId] [int] NOT NULL,
+	[StudentId] [int] NOT NULL,
+ CONSTRAINT [PK_Enrollments] PRIMARY KEY CLUSTERED 
+(
+	[EnrollmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Faculties]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Faculties](
+	[FacultyId] [int] IDENTITY(1,1) NOT NULL,
+	[FacultyName] [nvarchar](max) NOT NULL,
+	[FacultyDescription] [nvarchar](max) NULL,
+	[FacultyCode] [nvarchar](max) NOT NULL,
+ CONSTRAINT [PK_Faculties] PRIMARY KEY CLUSTERED 
+(
+	[FacultyId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Lecturers]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Lecturers](
+	[LecturerId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[FacultyId] [int] NOT NULL,
+ CONSTRAINT [PK_Lecturers] PRIMARY KEY CLUSTERED 
+(
+	[LecturerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RoleClaims]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RoleClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RoleId] [int] NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_RoleClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Roles]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Roles](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](256) NULL,
+	[NormalizedName] [nvarchar](256) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+ CONSTRAINT [PK_Roles] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ScheduleItems]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ScheduleItems](
+	[ScheduleItemId] [int] IDENTITY(1,1) NOT NULL,
+	[ScheduleWeek] [int] NOT NULL,
+	[ScheduleDate] [datetime2](7) NOT NULL,
+	[CourseSectionId] [int] NOT NULL,
+ CONSTRAINT [PK_ScheduleItems] PRIMARY KEY CLUSTERED 
+(
+	[ScheduleItemId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Scores]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Scores](
+	[ScoreId] [int] IDENTITY(1,1) NOT NULL,
+	[Value] [int] NOT NULL,
+	[ProcessScore] [real] NOT NULL,
+	[MiddleScore] [real] NOT NULL,
+	[ExamScore] [real] NOT NULL,
+	[CourseSectionId] [int] NOT NULL,
+	[StudentId] [int] NOT NULL,
+	[LecturerId] [int] NOT NULL,
+	[FinalScore] [real] NOT NULL,
+ CONSTRAINT [PK_Scores] PRIMARY KEY CLUSTERED 
+(
+	[ScoreId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Semesters]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Semesters](
+	[SemesterId] [int] IDENTITY(1,1) NOT NULL,
+	[SemesterName] [nvarchar](50) NOT NULL,
+	[AcademicYear] [nvarchar](max) NOT NULL,
+	[StartDate] [datetime2](7) NOT NULL,
+	[EndDate] [datetime2](7) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+ CONSTRAINT [PK_Semesters] PRIMARY KEY CLUSTERED 
+(
+	[SemesterId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Students]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Students](
+	[StudentId] [int] IDENTITY(1,1) NOT NULL,
+	[StudentCode] [nvarchar](max) NOT NULL,
+	[IsGraduate] [bit] NOT NULL,
+	[UserId] [int] NOT NULL,
+	[DepartmentId] [int] NOT NULL,
+	[StartStudyDate] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_Students] PRIMARY KEY CLUSTERED 
+(
+	[StudentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserClaims]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_UserClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserLogins]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserLogins](
+	[LoginProvider] [nvarchar](450) NOT NULL,
+	[ProviderKey] [nvarchar](450) NOT NULL,
+	[ProviderDisplayName] [nvarchar](max) NULL,
+	[UserId] [int] NOT NULL,
+ CONSTRAINT [PK_UserLogins] PRIMARY KEY CLUSTERED 
+(
+	[LoginProvider] ASC,
+	[ProviderKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserRoles]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserRoles](
+	[UserId] [int] NOT NULL,
+	[RoleId] [int] NOT NULL,
+ CONSTRAINT [PK_UserRoles] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Users](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](max) NULL,
+	[ImagePath] [nvarchar](max) NULL,
+	[DateOfBirth] [datetime2](7) NOT NULL,
+	[Address] [nvarchar](max) NULL,
+	[City] [nvarchar](max) NULL,
+	[Country] [nvarchar](max) NULL,
+	[UserRole] [int] NOT NULL,
+	[UserName] [nvarchar](256) NULL,
+	[NormalizedUserName] [nvarchar](256) NULL,
+	[Email] [nvarchar](256) NULL,
+	[NormalizedEmail] [nvarchar](256) NULL,
+	[EmailConfirmed] [bit] NOT NULL,
+	[PasswordHash] [nvarchar](max) NULL,
+	[SecurityStamp] [nvarchar](max) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+	[PhoneNumber] [nvarchar](max) NULL,
+	[PhoneNumberConfirmed] [bit] NOT NULL,
+	[TwoFactorEnabled] [bit] NOT NULL,
+	[LockoutEnd] [datetimeoffset](7) NULL,
+	[LockoutEnabled] [bit] NOT NULL,
+	[AccessFailedCount] [int] NOT NULL,
+ CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserTokens]    Script Date: 14/01/2026 9:11:47 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserTokens](
+	[UserId] [int] NOT NULL,
+	[LoginProvider] [nvarchar](450) NOT NULL,
+	[Name] [nvarchar](450) NOT NULL,
+	[Value] [nvarchar](max) NULL,
+ CONSTRAINT [PK_UserTokens] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[LoginProvider] ASC,
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20251228073059_InitIdentity', N'8.0.22')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20251230061811_AddSemesterAttendee', N'8.0.22')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20251230132646_AddStudyDate', N'8.0.22')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260103160653_UpdateStartStudyDate', N'8.0.22')
+GO
+SET IDENTITY_INSERT [dbo].[Admins] ON 
+
+INSERT [dbo].[Admins] ([AdminId], [UserId]) VALUES (1, 2)
+SET IDENTITY_INSERT [dbo].[Admins] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Courses] ON 
+
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (1, N'Lập trình C# .NET', N'PRN211', 3, 1)
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (2, N'Cấu trúc dữ liệu', N'CSD201', 3, 1)
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (3, N'Web Java (JSP/Servlet)', N'PRJ301', 3, 1)
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (4, N'Kinh tế vi mô', N'ECO111', 3, 3)
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (5, N'Tiếng Anh học thuật', N'ENG101', 2, 4)
+INSERT [dbo].[Courses] ([CourseId], [CourseName], [CourseCode], [CourseCredit], [DepartmentId]) VALUES (6, N'Mạch điện tử', N'EEC101', 3, 5)
+SET IDENTITY_INSERT [dbo].[Courses] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Departments] ON 
+
+INSERT [dbo].[Departments] ([DepartmentId], [DepartmentName], [DepartmentDescription], [DepartmentCode], [FacultyId]) VALUES (1, N'Kỹ thuật phần mềm', NULL, N'SE', 1)
+INSERT [dbo].[Departments] ([DepartmentId], [DepartmentName], [DepartmentDescription], [DepartmentCode], [FacultyId]) VALUES (2, N'An toàn thông tin', NULL, N'IA', 1)
+INSERT [dbo].[Departments] ([DepartmentId], [DepartmentName], [DepartmentDescription], [DepartmentCode], [FacultyId]) VALUES (3, N'Quản trị kinh doanh', NULL, N'BA', 2)
+INSERT [dbo].[Departments] ([DepartmentId], [DepartmentName], [DepartmentDescription], [DepartmentCode], [FacultyId]) VALUES (4, N'Ngôn ngữ Anh', NULL, N'EL', 3)
+INSERT [dbo].[Departments] ([DepartmentId], [DepartmentName], [DepartmentDescription], [DepartmentCode], [FacultyId]) VALUES (5, N'Tự động hóa', NULL, N'AU', 4)
+SET IDENTITY_INSERT [dbo].[Departments] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Faculties] ON 
+
+INSERT [dbo].[Faculties] ([FacultyId], [FacultyName], [FacultyDescription], [FacultyCode]) VALUES (1, N'Công nghệ thông tin', N'Đào tạo phần mềm và hệ thống.', N'IT')
+INSERT [dbo].[Faculties] ([FacultyId], [FacultyName], [FacultyDescription], [FacultyCode]) VALUES (2, N'Kinh tế', N'Kinh doanh và quản lý.', N'ECO')
+INSERT [dbo].[Faculties] ([FacultyId], [FacultyName], [FacultyDescription], [FacultyCode]) VALUES (3, N'Ngôn ngữ', N'Ngoại ngữ quốc tế.', N'LANG')
+INSERT [dbo].[Faculties] ([FacultyId], [FacultyName], [FacultyDescription], [FacultyCode]) VALUES (4, N'Điện - Điện tử', N'Kỹ thuật điện.', N'EE')
+SET IDENTITY_INSERT [dbo].[Faculties] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Lecturers] ON 
+
+INSERT [dbo].[Lecturers] ([LecturerId], [UserId], [FacultyId]) VALUES (0, 1, 1)
+SET IDENTITY_INSERT [dbo].[Lecturers] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Roles] ON 
+
+INSERT [dbo].[Roles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp]) VALUES (1, N'Admin', N'ADMIN', NULL)
+INSERT [dbo].[Roles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp]) VALUES (2, N'Lecturer', N'LECTURER', NULL)
+INSERT [dbo].[Roles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp]) VALUES (3, N'Student', N'STUDENT', NULL)
+SET IDENTITY_INSERT [dbo].[Roles] OFF
+GO
+INSERT [dbo].[UserRoles] ([UserId], [RoleId]) VALUES (2, 1)
+INSERT [dbo].[UserRoles] ([UserId], [RoleId]) VALUES (1, 2)
+INSERT [dbo].[UserRoles] ([UserId], [RoleId]) VALUES (3, 2)
+INSERT [dbo].[UserRoles] ([UserId], [RoleId]) VALUES (4, 2)
+INSERT [dbo].[UserRoles] ([UserId], [RoleId]) VALUES (5, 2)
+GO
+SET IDENTITY_INSERT [dbo].[Users] ON 
+
+INSERT [dbo].[Users] ([Id], [FullName], [ImagePath], [DateOfBirth], [Address], [City], [Country], [UserRole], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount]) VALUES (1, N'Chưa phân công', NULL, CAST(N'2000-01-01T00:00:00.0000000' AS DateTime2), NULL, NULL, NULL, 1, N'system', N'SYSTEM', N'system@university.edu.vn', N'SYSTEM@UNIVERSITY.EDU.VN', 1, N'AQAAAAIAAYagAAAAEBToLQYHRhE4zoCjZjv16KvxR4fYecxIRUyer1XAo6EXNw8y+Wcnx2GO6CkG9m1MpA==', N'U7G4CEYXRTQDFPYIG4KFHUMNTQ4YFRDO', N'd632243b-5c11-41bb-8e62-cec0cdc226f0', NULL, 0, 0, NULL, 1, 0)
+INSERT [dbo].[Users] ([Id], [FullName], [ImagePath], [DateOfBirth], [Address], [City], [Country], [UserRole], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount]) VALUES (2, N'Quản Trị Hệ Thống', NULL, CAST(N'2000-01-01T00:00:00.0000000' AS DateTime2), NULL, NULL, NULL, 2, N'admin', N'ADMIN', N'admin@university.edu.vn', N'ADMIN@UNIVERSITY.EDU.VN', 1, N'AQAAAAIAAYagAAAAECO5UXMBUz72zXC4sJ6wEXx4VnsDpolcw4q2LdU0HechPUWe9Am0P+p0tYEHLKkZOw==', N'PQS52YBI5GTG2FO4DT6YWP7QSD43GQ3X', N'093c9b66-9e9d-49a1-a7ea-fac0c9d993b8', NULL, 0, 0, NULL, 1, 0)
+INSERT [dbo].[Users] ([Id], [FullName], [ImagePath], [DateOfBirth], [Address], [City], [Country], [UserRole], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount]) VALUES (3, N'Nguyễn Văn Giảng', NULL, CAST(N'2000-01-01T00:00:00.0000000' AS DateTime2), NULL, NULL, NULL, 1, N'gv01', N'GV01', N'gv01@university.edu.vn', N'GV01@UNIVERSITY.EDU.VN', 1, N'AQAAAAIAAYagAAAAEK7mls7NtLLW8wCuPNZzgnUOcl7HMI4u07bjh+k4mtjiYsa7bMNVx0ZTyNWPPVa9HA==', N'2QEMV4UMTQ2BWUI3CS4BLEFU2YNU5334', N'ca7404cd-6f44-409a-93f2-05dc187cdb9a', NULL, 0, 0, NULL, 1, 0)
+INSERT [dbo].[Users] ([Id], [FullName], [ImagePath], [DateOfBirth], [Address], [City], [Country], [UserRole], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount]) VALUES (4, N'Trần Thị Lý', NULL, CAST(N'2000-01-01T00:00:00.0000000' AS DateTime2), NULL, NULL, NULL, 1, N'gv02', N'GV02', N'gv02@university.edu.vn', N'GV02@UNIVERSITY.EDU.VN', 1, N'AQAAAAIAAYagAAAAEGX6wgs4Myqpw99cH2ZfeCvIQn0v7a3mbuUOA9gNDuAy+21CHapGXjMu0FdjKVSQpw==', N'PQTLXMAHW3GQZGUJNKGPRMW3PGMYHOOO', N'cd9bf5ee-2e25-4ba2-ae58-d04c148f4657', NULL, 0, 0, NULL, 1, 0)
+INSERT [dbo].[Users] ([Id], [FullName], [ImagePath], [DateOfBirth], [Address], [City], [Country], [UserRole], [UserName], [NormalizedUserName], [Email], [NormalizedEmail], [EmailConfirmed], [PasswordHash], [SecurityStamp], [ConcurrencyStamp], [PhoneNumber], [PhoneNumberConfirmed], [TwoFactorEnabled], [LockoutEnd], [LockoutEnabled], [AccessFailedCount]) VALUES (5, N'Lê Hùng Cường', NULL, CAST(N'2000-01-01T00:00:00.0000000' AS DateTime2), NULL, NULL, NULL, 1, N'gv03', N'GV03', N'gv03@university.edu.vn', N'GV03@UNIVERSITY.EDU.VN', 1, N'AQAAAAIAAYagAAAAEEIojbLA0/eUrGRSMbs6AfJfrHCqyI3uuh705zz6ToyR7G/9PvOtz6tDS6hdyjuu5Q==', N'SKJQOU3EEORNCGNL6LCWJUJV6VVL3G72', N'dbf97f94-b8d8-4fd1-8b15-984184fc9d41', NULL, 0, 0, NULL, 1, 0)
+SET IDENTITY_INSERT [dbo].[Users] OFF
+GO
+ALTER TABLE [dbo].[CoursesSections] ADD  DEFAULT ((0)) FOR [SemesterId]
+GO
+ALTER TABLE [dbo].[Scores] ADD  DEFAULT (CONVERT([real],(0))) FOR [FinalScore]
+GO
+ALTER TABLE [dbo].[Admins]  WITH CHECK ADD  CONSTRAINT [FK_Admins_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[Admins] CHECK CONSTRAINT [FK_Admins_Users_UserId]
+GO
+ALTER TABLE [dbo].[Announcements]  WITH CHECK ADD  CONSTRAINT [FK_Announcements_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[Announcements] CHECK CONSTRAINT [FK_Announcements_Users_UserId]
+GO
+ALTER TABLE [dbo].[Attendees]  WITH CHECK ADD  CONSTRAINT [FK_Attendees_ScheduleItems_ScheduleItemId] FOREIGN KEY([ScheduleItemId])
+REFERENCES [dbo].[ScheduleItems] ([ScheduleItemId])
+GO
+ALTER TABLE [dbo].[Attendees] CHECK CONSTRAINT [FK_Attendees_ScheduleItems_ScheduleItemId]
+GO
+ALTER TABLE [dbo].[Attendees]  WITH CHECK ADD  CONSTRAINT [FK_Attendees_Students_StudentId] FOREIGN KEY([StudentId])
+REFERENCES [dbo].[Students] ([StudentId])
+GO
+ALTER TABLE [dbo].[Attendees] CHECK CONSTRAINT [FK_Attendees_Students_StudentId]
+GO
+ALTER TABLE [dbo].[Certificates]  WITH CHECK ADD  CONSTRAINT [FK_Certificates_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[Certificates] CHECK CONSTRAINT [FK_Certificates_Users_UserId]
+GO
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [FK_Courses_Departments_DepartmentId] FOREIGN KEY([DepartmentId])
+REFERENCES [dbo].[Departments] ([DepartmentId])
+GO
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [FK_Courses_Departments_DepartmentId]
+GO
+ALTER TABLE [dbo].[CoursesMaterials]  WITH CHECK ADD  CONSTRAINT [FK_CoursesMaterials_CoursesSections_CourseSectionId] FOREIGN KEY([CourseSectionId])
+REFERENCES [dbo].[CoursesSections] ([CourseSectionId])
+GO
+ALTER TABLE [dbo].[CoursesMaterials] CHECK CONSTRAINT [FK_CoursesMaterials_CoursesSections_CourseSectionId]
+GO
+ALTER TABLE [dbo].[CoursesSections]  WITH CHECK ADD  CONSTRAINT [FK_CoursesSections_Courses_CourseId] FOREIGN KEY([CourseId])
+REFERENCES [dbo].[Courses] ([CourseId])
+GO
+ALTER TABLE [dbo].[CoursesSections] CHECK CONSTRAINT [FK_CoursesSections_Courses_CourseId]
+GO
+ALTER TABLE [dbo].[CoursesSections]  WITH CHECK ADD  CONSTRAINT [FK_CoursesSections_Lecturers_LecturerId] FOREIGN KEY([LecturerId])
+REFERENCES [dbo].[Lecturers] ([LecturerId])
+GO
+ALTER TABLE [dbo].[CoursesSections] CHECK CONSTRAINT [FK_CoursesSections_Lecturers_LecturerId]
+GO
+ALTER TABLE [dbo].[CoursesSections]  WITH CHECK ADD  CONSTRAINT [FK_CoursesSections_Semesters_SemesterId] FOREIGN KEY([SemesterId])
+REFERENCES [dbo].[Semesters] ([SemesterId])
+GO
+ALTER TABLE [dbo].[CoursesSections] CHECK CONSTRAINT [FK_CoursesSections_Semesters_SemesterId]
+GO
+ALTER TABLE [dbo].[Departments]  WITH CHECK ADD  CONSTRAINT [FK_Departments_Faculties_FacultyId] FOREIGN KEY([FacultyId])
+REFERENCES [dbo].[Faculties] ([FacultyId])
+GO
+ALTER TABLE [dbo].[Departments] CHECK CONSTRAINT [FK_Departments_Faculties_FacultyId]
+GO
+ALTER TABLE [dbo].[Enrollments]  WITH CHECK ADD  CONSTRAINT [FK_Enrollments_CoursesSections_CourseSectionId] FOREIGN KEY([CourseSectionId])
+REFERENCES [dbo].[CoursesSections] ([CourseSectionId])
+GO
+ALTER TABLE [dbo].[Enrollments] CHECK CONSTRAINT [FK_Enrollments_CoursesSections_CourseSectionId]
+GO
+ALTER TABLE [dbo].[Enrollments]  WITH CHECK ADD  CONSTRAINT [FK_Enrollments_Students_StudentId] FOREIGN KEY([StudentId])
+REFERENCES [dbo].[Students] ([StudentId])
+GO
+ALTER TABLE [dbo].[Enrollments] CHECK CONSTRAINT [FK_Enrollments_Students_StudentId]
+GO
+ALTER TABLE [dbo].[Lecturers]  WITH CHECK ADD  CONSTRAINT [FK_Lecturers_Faculties_FacultyId] FOREIGN KEY([FacultyId])
+REFERENCES [dbo].[Faculties] ([FacultyId])
+GO
+ALTER TABLE [dbo].[Lecturers] CHECK CONSTRAINT [FK_Lecturers_Faculties_FacultyId]
+GO
+ALTER TABLE [dbo].[Lecturers]  WITH CHECK ADD  CONSTRAINT [FK_Lecturers_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[Lecturers] CHECK CONSTRAINT [FK_Lecturers_Users_UserId]
+GO
+ALTER TABLE [dbo].[RoleClaims]  WITH CHECK ADD  CONSTRAINT [FK_RoleClaims_Roles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Roles] ([Id])
+GO
+ALTER TABLE [dbo].[RoleClaims] CHECK CONSTRAINT [FK_RoleClaims_Roles_RoleId]
+GO
+ALTER TABLE [dbo].[ScheduleItems]  WITH CHECK ADD  CONSTRAINT [FK_ScheduleItems_CoursesSections_CourseSectionId] FOREIGN KEY([CourseSectionId])
+REFERENCES [dbo].[CoursesSections] ([CourseSectionId])
+GO
+ALTER TABLE [dbo].[ScheduleItems] CHECK CONSTRAINT [FK_ScheduleItems_CoursesSections_CourseSectionId]
+GO
+ALTER TABLE [dbo].[Scores]  WITH CHECK ADD  CONSTRAINT [FK_Scores_CoursesSections_CourseSectionId] FOREIGN KEY([CourseSectionId])
+REFERENCES [dbo].[CoursesSections] ([CourseSectionId])
+GO
+ALTER TABLE [dbo].[Scores] CHECK CONSTRAINT [FK_Scores_CoursesSections_CourseSectionId]
+GO
+ALTER TABLE [dbo].[Scores]  WITH CHECK ADD  CONSTRAINT [FK_Scores_Lecturers_LecturerId] FOREIGN KEY([LecturerId])
+REFERENCES [dbo].[Lecturers] ([LecturerId])
+GO
+ALTER TABLE [dbo].[Scores] CHECK CONSTRAINT [FK_Scores_Lecturers_LecturerId]
+GO
+ALTER TABLE [dbo].[Scores]  WITH CHECK ADD  CONSTRAINT [FK_Scores_Students_StudentId] FOREIGN KEY([StudentId])
+REFERENCES [dbo].[Students] ([StudentId])
+GO
+ALTER TABLE [dbo].[Scores] CHECK CONSTRAINT [FK_Scores_Students_StudentId]
+GO
+ALTER TABLE [dbo].[Students]  WITH CHECK ADD  CONSTRAINT [FK_Students_Departments_DepartmentId] FOREIGN KEY([DepartmentId])
+REFERENCES [dbo].[Departments] ([DepartmentId])
+GO
+ALTER TABLE [dbo].[Students] CHECK CONSTRAINT [FK_Students_Departments_DepartmentId]
+GO
+ALTER TABLE [dbo].[Students]  WITH CHECK ADD  CONSTRAINT [FK_Students_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[Students] CHECK CONSTRAINT [FK_Students_Users_UserId]
+GO
+ALTER TABLE [dbo].[UserClaims]  WITH CHECK ADD  CONSTRAINT [FK_UserClaims_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[UserClaims] CHECK CONSTRAINT [FK_UserClaims_Users_UserId]
+GO
+ALTER TABLE [dbo].[UserLogins]  WITH CHECK ADD  CONSTRAINT [FK_UserLogins_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[UserLogins] CHECK CONSTRAINT [FK_UserLogins_Users_UserId]
+GO
+ALTER TABLE [dbo].[UserRoles]  WITH CHECK ADD  CONSTRAINT [FK_UserRoles_Roles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Roles] ([Id])
+GO
+ALTER TABLE [dbo].[UserRoles] CHECK CONSTRAINT [FK_UserRoles_Roles_RoleId]
+GO
+ALTER TABLE [dbo].[UserRoles]  WITH CHECK ADD  CONSTRAINT [FK_UserRoles_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[UserRoles] CHECK CONSTRAINT [FK_UserRoles_Users_UserId]
+GO
+ALTER TABLE [dbo].[UserTokens]  WITH CHECK ADD  CONSTRAINT [FK_UserTokens_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+GO
+ALTER TABLE [dbo].[UserTokens] CHECK CONSTRAINT [FK_UserTokens_Users_UserId]
+GO
